@@ -62,15 +62,16 @@ export class UsersService {
     const roles =
       idsUnicos.length > 0
         ? await this.roleRepository.find({
-            where: {
-              id: In(idsUnicos),
-            },
-          })
-        : [];
+           where: {
+            id: In(idsUnicos),
+            activo: true,
+          },
+        })
+      : [];
 
     if (roles.length !== idsUnicos.length) {
       throw new BadRequestException(
-        'Uno o más roles enviados no existen',
+        'Uno o más roles no existen o están inactivos',
       );
     }
 

@@ -1,4 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('roles')
 export class Role {
@@ -10,4 +14,7 @@ export class Role {
 
   @Column({ nullable: true })
   descripcion: string;
+
+  @Column({ default: true })
+  activo: boolean;
 }

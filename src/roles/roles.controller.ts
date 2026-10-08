@@ -2,6 +2,9 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -34,5 +37,16 @@ export class RolesController {
   @Get()
   obtenerTodos() {
     return this.rolesService.obtenerTodos();
+  }
+
+  @Patch(':id/estado')
+  cambiarEstado(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { activo: boolean },
+  ) {
+    return this.rolesService.cambiarEstado(
+      id,
+      body.activo,
+    );
   }
 }
