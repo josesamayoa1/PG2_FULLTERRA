@@ -35,6 +35,9 @@ export class UsersService {
   async findByUsuario(usuario: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { usuario },
+      relations: {
+        roles: true,
+      },
     });
   }
 
