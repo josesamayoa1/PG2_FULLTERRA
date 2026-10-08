@@ -80,4 +80,27 @@ export class UsersService {
       roles: usuarioActualizado.roles,
     };
   }
+  async cambiarEstado(usuarioId: number, activo: boolean) {
+    const usuario = await this.userRepository.findOne({
+      where: { id: usuarioId },
+      relations: {
+        roles: true,
+      },
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    usuario.activo = activo;
+
+    const usuarioActualizado = await this.userRepository.save(usuario);
+
+    return {
+      id: usuarioActualizado.id,
+      usuario: usuarioActualizado.usuario,
+      activo: usuarioActualizado.activo,
+      roles: usuarioActualizado.roles,
+    };
+  }
 }

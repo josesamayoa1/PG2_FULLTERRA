@@ -16,7 +16,9 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Usuario o contraseña incorrectos');
     }
-
+    if (!user.activo) {
+      throw new UnauthorizedException('Usuario inactivo');
+    }
     const passwordValida = await bcrypt.compare(
       contrasenia,
       user.contrasenia,

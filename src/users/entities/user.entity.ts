@@ -19,6 +19,9 @@ export class User {
   @Column()
   contrasenia: string;
 
+  @Column({ default: true })
+  activo: boolean;
+
   @ManyToMany(() => Role)
   @JoinTable({
     name: 'usuarios_roles',

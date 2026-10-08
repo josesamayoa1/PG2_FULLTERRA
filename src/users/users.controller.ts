@@ -34,4 +34,13 @@ export class UsersController {
   ) {
     return this.usersService.asignarRoles(id, body.roles);
   }
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('Administrador')
+  @Patch(':id/estado')
+  cambiarEstado(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { activo: boolean },
+  ) {
+    return this.usersService.cambiarEstado(id, body.activo);
+  }
 }
