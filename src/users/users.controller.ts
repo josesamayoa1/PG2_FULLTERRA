@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Patch,
@@ -27,6 +28,13 @@ export class UsersController {
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('Administrador')
+  @Get()
+  obtenerTodos() {
+    return this.usersService.obtenerTodos();
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('Administrador')
   @Patch(':id/roles')
   asignarRoles(
     @Param('id', ParseIntPipe) id: number,
@@ -34,6 +42,7 @@ export class UsersController {
   ) {
     return this.usersService.asignarRoles(id, body.roles);
   }
+
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('Administrador')
   @Patch(':id/estado')

@@ -22,7 +22,10 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const hashedPassword = await bcrypt.hash(createUserDto.contrasenia, 10);
+    const hashedPassword = await bcrypt.hash(
+      createUserDto.contrasenia,
+      10,
+    );
 
     const user = this.userRepository.create({
       ...createUserDto,
@@ -72,7 +75,8 @@ export class UsersService {
 
     usuario.roles = roles;
 
-    const usuarioActualizado = await this.userRepository.save(usuario);
+    const usuarioActualizado =
+      await this.userRepository.save(usuario);
 
     return {
       id: usuarioActualizado.id,
@@ -80,6 +84,7 @@ export class UsersService {
       roles: usuarioActualizado.roles,
     };
   }
+
   async cambiarEstado(usuarioId: number, activo: boolean) {
     const usuario = await this.userRepository.findOne({
       where: { id: usuarioId },
@@ -94,7 +99,8 @@ export class UsersService {
 
     usuario.activo = activo;
 
-    const usuarioActualizado = await this.userRepository.save(usuario);
+    const usuarioActualizado =
+      await this.userRepository.save(usuario);
 
     return {
       id: usuarioActualizado.id,
@@ -102,5 +108,23 @@ export class UsersService {
       activo: usuarioActualizado.activo,
       roles: usuarioActualizado.roles,
     };
+  }
+
+  async obtenerTodos() {
+    const usuarios = await this.userRepository.find({
+      relations: {
+        roles: true,
+      },
+      order: {
+        id: 'ASC',
+      },
+    });
+
+    return usuarios.map((usuario) => ({
+      id: usuario.id,
+      usuario: usuario.usuario,
+      activo: usuario.activo,
+      roles: usuario.roles,
+    }));
   }
 }
