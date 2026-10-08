@@ -1,8 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+
 import { User } from './entities/user.entity';
+import { Role } from '../roles/entities/role.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
@@ -10,6 +16,9 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -27,5 +36,45 @@ export class UsersService {
     return this.userRepository.findOne({
       where: { usuario },
     });
+  }
+
+  async asignarRoles(usuarioId: number, rolesIds: number[]) {
+    const usuario = await this.userRepository.findOne({
+      where: { id: usuarioId },
+      relations: {
+        roles: true,
+      },
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    const idsUnicos = [...new Set(rolesIds)];
+
+    const roles =
+      idsUnicos.length > 0
+        ? await this.roleRepository.find({
+            where: {
+              id: In(idsUnicos),
+            },
+          })
+        : [];
+
+    if (roles.length !== idsUnicos.length) {
+      throw new BadRequestException(
+        'Uno o más roles enviados no existen',
+      );
+    }
+
+    usuario.roles = roles;
+
+    const usuarioActualizado = await this.userRepository.save(usuario);
+
+    return {
+      id: usuarioActualizado.id,
+      usuario: usuarioActualizado.usuario,
+      roles: usuarioActualizado.roles,
+    };
   }
 }
