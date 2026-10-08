@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -126,5 +127,58 @@ export class UsersService {
       activo: usuario.activo,
       roles: usuario.roles,
     }));
+  }
+
+  async actualizar(
+    usuarioId: number,
+    updateUserDto: UpdateUserDto,
+  ) {
+    const usuario = await this.userRepository.findOne({
+      where: { id: usuarioId },
+      relations: {
+        roles: true,
+      },
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    if (
+      updateUserDto.usuario &&
+      updateUserDto.usuario !== usuario.usuario
+    ) {
+      const usuarioExistente = await this.findByUsuario(
+        updateUserDto.usuario,
+      );
+
+      if (
+        usuarioExistente &&
+        usuarioExistente.id !== usuarioId
+      ) {
+        throw new BadRequestException(
+          'El nombre de usuario ya está registrado',
+        );
+      }
+
+      usuario.usuario = updateUserDto.usuario;
+    }
+
+    if (updateUserDto.contrasenia) {
+      usuario.contrasenia = await bcrypt.hash(
+        updateUserDto.contrasenia,
+        10,
+      );
+    }
+
+    const usuarioActualizado =
+      await this.userRepository.save(usuario);
+
+    return {
+      id: usuarioActualizado.id,
+      usuario: usuarioActualizado.usuario,
+      activo: usuarioActualizado.activo,
+      roles: usuarioActualizado.roles,
+    };
   }
 }

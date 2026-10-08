@@ -12,6 +12,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
@@ -31,6 +32,16 @@ export class UsersController {
   @Get()
   obtenerTodos() {
     return this.usersService.obtenerTodos();
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('Administrador')
+  @Patch(':id')
+  actualizar(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.actualizar(id, updateUserDto);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
