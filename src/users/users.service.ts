@@ -16,60 +16,165 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly userRepository:
+      Repository<User>,
 
     @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
+    private readonly roleRepository:
+      Repository<Role>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const hashedPassword = await bcrypt.hash(
-      createUserDto.contrasenia,
-      10,
-    );
+  private validarIdPositivo(
+    valor: number,
+    nombreCampo: string,
+  ) {
+    if (
+      !Number.isInteger(valor) ||
+      valor <= 0
+    ) {
+      throw new BadRequestException(
+        `${nombreCampo} debe ser un número entero mayor que cero`,
+      );
+    }
+  }
 
-    const user = this.userRepository.create({
-      ...createUserDto,
-      contrasenia: hashedPassword,
-    });
+  private validarTextoObligatorio(
+    valor: string,
+    nombreCampo: string,
+  ) {
+    if (
+      typeof valor !== 'string' ||
+      valor.trim().length === 0
+    ) {
+      throw new BadRequestException(
+        `${nombreCampo} es obligatorio`,
+      );
+    }
+
+    return valor.trim();
+  }
+
+  private validarContrasenia(
+    contrasenia: string,
+  ) {
+    if (
+      typeof contrasenia !== 'string' ||
+      contrasenia.trim().length === 0
+    ) {
+      throw new BadRequestException(
+        'La contraseña es obligatoria',
+      );
+    }
+
+    return contrasenia;
+  }
+
+  async create(
+    createUserDto: CreateUserDto,
+  ): Promise<User> {
+    const usuario =
+      this.validarTextoObligatorio(
+        createUserDto.usuario,
+        'El nombre de usuario',
+      );
+
+    const contrasenia =
+      this.validarContrasenia(
+        createUserDto.contrasenia,
+      );
+
+    const usuarioExistente =
+      await this.findByUsuario(usuario);
+
+    if (usuarioExistente) {
+      throw new BadRequestException(
+        'El nombre de usuario ya está registrado',
+      );
+    }
+
+    const hashedPassword =
+      await bcrypt.hash(
+        contrasenia,
+        10,
+      );
+
+    const user =
+      this.userRepository.create({
+        usuario,
+        contrasenia: hashedPassword,
+      });
 
     return this.userRepository.save(user);
   }
 
-  async findByUsuario(usuario: string): Promise<User | null> {
+  async findByUsuario(
+    usuario: string,
+  ): Promise<User | null> {
     return this.userRepository.findOne({
-      where: { usuario },
+      where: {
+        usuario,
+      },
       relations: {
         roles: true,
       },
     });
   }
 
-  async asignarRoles(usuarioId: number, rolesIds: number[]) {
-    const usuario = await this.userRepository.findOne({
-      where: { id: usuarioId },
-      relations: {
-        roles: true,
-      },
-    });
+  async asignarRoles(
+    usuarioId: number,
+    rolesIds: number[],
+  ) {
+    this.validarIdPositivo(
+      usuarioId,
+      'usuarioId',
+    );
 
-    if (!usuario) {
-      throw new NotFoundException('Usuario no encontrado');
+    if (!Array.isArray(rolesIds)) {
+      throw new BadRequestException(
+        'roles debe ser un arreglo',
+      );
     }
 
-    const idsUnicos = [...new Set(rolesIds)];
+    for (const rolId of rolesIds) {
+      this.validarIdPositivo(
+        rolId,
+        'rolId',
+      );
+    }
+
+    const usuario =
+      await this.userRepository.findOne({
+        where: {
+          id: usuarioId,
+        },
+        relations: {
+          roles: true,
+        },
+      });
+
+    if (!usuario) {
+      throw new NotFoundException(
+        'Usuario no encontrado',
+      );
+    }
+
+    const idsUnicos = [
+      ...new Set(rolesIds),
+    ];
 
     const roles =
       idsUnicos.length > 0
         ? await this.roleRepository.find({
-           where: {
-            id: In(idsUnicos),
-            activo: true,
-          },
-        })
-      : [];
+            where: {
+              id: In(idsUnicos),
+              activo: true,
+            },
+          })
+        : [];
 
-    if (roles.length !== idsUnicos.length) {
+    if (
+      roles.length !== idsUnicos.length
+    ) {
       throw new BadRequestException(
         'Uno o más roles no existen o están inactivos',
       );
@@ -78,49 +183,78 @@ export class UsersService {
     usuario.roles = roles;
 
     const usuarioActualizado =
-      await this.userRepository.save(usuario);
+      await this.userRepository.save(
+        usuario,
+      );
 
     return {
       id: usuarioActualizado.id,
-      usuario: usuarioActualizado.usuario,
-      roles: usuarioActualizado.roles,
+      usuario:
+        usuarioActualizado.usuario,
+      roles:
+        usuarioActualizado.roles,
     };
   }
 
-  async cambiarEstado(usuarioId: number, activo: boolean) {
-    const usuario = await this.userRepository.findOne({
-      where: { id: usuarioId },
-      relations: {
-        roles: true,
-      },
-    });
+  async cambiarEstado(
+    usuarioId: number,
+    activo: boolean,
+  ) {
+    this.validarIdPositivo(
+      usuarioId,
+      'usuarioId',
+    );
+
+    if (typeof activo !== 'boolean') {
+      throw new BadRequestException(
+        'activo debe ser un valor booleano',
+      );
+    }
+
+    const usuario =
+      await this.userRepository.findOne({
+        where: {
+          id: usuarioId,
+        },
+        relations: {
+          roles: true,
+        },
+      });
 
     if (!usuario) {
-      throw new NotFoundException('Usuario no encontrado');
+      throw new NotFoundException(
+        'Usuario no encontrado',
+      );
     }
 
     usuario.activo = activo;
 
     const usuarioActualizado =
-      await this.userRepository.save(usuario);
+      await this.userRepository.save(
+        usuario,
+      );
 
     return {
       id: usuarioActualizado.id,
-      usuario: usuarioActualizado.usuario,
-      activo: usuarioActualizado.activo,
-      roles: usuarioActualizado.roles,
+      usuario:
+        usuarioActualizado.usuario,
+      activo:
+        usuarioActualizado.activo,
+      roles:
+        usuarioActualizado.roles,
     };
   }
 
   async obtenerTodos() {
-    const usuarios = await this.userRepository.find({
-      relations: {
-        roles: true,
-      },
-      order: {
-        id: 'ASC',
-      },
-    });
+    const usuarios =
+      await this.userRepository.find({
+        relations: {
+          roles: true,
+        },
+        order: {
+          id: 'ASC',
+        },
+      });
 
     return usuarios.map((usuario) => ({
       id: usuario.id,
@@ -134,52 +268,87 @@ export class UsersService {
     usuarioId: number,
     updateUserDto: UpdateUserDto,
   ) {
-    const usuario = await this.userRepository.findOne({
-      where: { id: usuarioId },
-      relations: {
-        roles: true,
-      },
-    });
+    this.validarIdPositivo(
+      usuarioId,
+      'usuarioId',
+    );
+
+    const usuario =
+      await this.userRepository.findOne({
+        where: {
+          id: usuarioId,
+        },
+        relations: {
+          roles: true,
+        },
+      });
 
     if (!usuario) {
-      throw new NotFoundException('Usuario no encontrado');
+      throw new NotFoundException(
+        'Usuario no encontrado',
+      );
     }
 
     if (
-      updateUserDto.usuario &&
-      updateUserDto.usuario !== usuario.usuario
+      updateUserDto.usuario !== undefined
     ) {
-      const usuarioExistente = await this.findByUsuario(
-        updateUserDto.usuario,
-      );
+      const nuevoUsuario =
+        this.validarTextoObligatorio(
+          updateUserDto.usuario,
+          'El nombre de usuario',
+        );
 
       if (
-        usuarioExistente &&
-        usuarioExistente.id !== usuarioId
+        nuevoUsuario !== usuario.usuario
       ) {
-        throw new BadRequestException(
-          'El nombre de usuario ya está registrado',
-        );
-      }
+        const usuarioExistente =
+          await this.findByUsuario(
+            nuevoUsuario,
+          );
 
-      usuario.usuario = updateUserDto.usuario;
+        if (
+          usuarioExistente &&
+          usuarioExistente.id !==
+            usuarioId
+        ) {
+          throw new BadRequestException(
+            'El nombre de usuario ya está registrado',
+          );
+        }
+
+        usuario.usuario = nuevoUsuario;
+      }
     }
 
-    if (updateUserDto.contrasenia) {
-      usuario.contrasenia = await bcrypt.hash(
-        updateUserDto.contrasenia,
-        10,
-      );
+    if (
+      updateUserDto.contrasenia !==
+      undefined
+    ) {
+      const nuevaContrasenia =
+        this.validarContrasenia(
+          updateUserDto.contrasenia,
+        );
+
+      usuario.contrasenia =
+        await bcrypt.hash(
+          nuevaContrasenia,
+          10,
+        );
     }
 
     const usuarioActualizado =
-      await this.userRepository.save(usuario);
+      await this.userRepository.save(
+        usuario,
+      );
 
     return {
       id: usuarioActualizado.id,
-      usuario: usuarioActualizado.usuario,
-      activo: usuarioActualizado.activo,
-      roles: usuarioActualizado.roles,
+      usuario:
+        usuarioActualizado.usuario,
+      activo:
+        usuarioActualizado.activo,
+      roles:
+        usuarioActualizado.roles,
     };
   }
 }

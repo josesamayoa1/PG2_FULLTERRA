@@ -17,8 +17,31 @@ export class UnitsService {
     private readonly unitRepository: Repository<Unit>,
   ) {}
 
+  private validarTextoObligatorio(
+    valor: string,
+    nombreCampo: string,
+  ) {
+    if (
+      typeof valor !== 'string' ||
+      valor.trim().length === 0
+    ) {
+      throw new BadRequestException(
+        `${nombreCampo} es obligatorio`,
+      );
+    }
+
+    return valor.trim();
+  }
+
   private validarTipo(tipo: string) {
-    const tipoNormalizado = tipo.toUpperCase();
+    const tipoValidado =
+      this.validarTextoObligatorio(
+        tipo,
+        'El tipo de unidad',
+      );
+
+    const tipoNormalizado =
+      tipoValidado.toUpperCase();
 
     if (
       tipoNormalizado !== 'CAMION' &&
@@ -33,14 +56,38 @@ export class UnitsService {
   }
 
   async crear(createUnitDto: CreateUnitDto) {
+    const codigo =
+      this.validarTextoObligatorio(
+        createUnitDto.codigo,
+        'El código de la unidad',
+      );
+
     const tipo = this.validarTipo(
       createUnitDto.tipo,
     );
 
+    const marca =
+      this.validarTextoObligatorio(
+        createUnitDto.marca,
+        'La marca de la unidad',
+      );
+
+    const modelo =
+      this.validarTextoObligatorio(
+        createUnitDto.modelo,
+        'El modelo de la unidad',
+      );
+
+    const placaOSerie =
+      this.validarTextoObligatorio(
+        createUnitDto.placaOSerie,
+        'La placa o serie de la unidad',
+      );
+
     const unidadPorCodigo =
       await this.unitRepository.findOne({
         where: {
-          codigo: createUnitDto.codigo,
+          codigo,
         },
       });
 
@@ -53,7 +100,7 @@ export class UnitsService {
     const unidadPorPlacaOSerie =
       await this.unitRepository.findOne({
         where: {
-          placaOSerie: createUnitDto.placaOSerie,
+          placaOSerie,
         },
       });
 
@@ -63,14 +110,23 @@ export class UnitsService {
       );
     }
 
+    let estado = 'DISPONIBLE';
+
+    if (createUnitDto.estado !== undefined) {
+      estado =
+        this.validarTextoObligatorio(
+          createUnitDto.estado,
+          'El estado de la unidad',
+        );
+    }
+
     const unidad = this.unitRepository.create({
-      codigo: createUnitDto.codigo,
+      codigo,
       tipo,
-      marca: createUnitDto.marca,
-      modelo: createUnitDto.modelo,
-      placaOSerie: createUnitDto.placaOSerie,
-      estado:
-        createUnitDto.estado ?? 'DISPONIBLE',
+      marca,
+      modelo,
+      placaOSerie,
+      estado,
     });
 
     const unidadGuardada =
@@ -89,11 +145,12 @@ export class UnitsService {
   }
 
   async obtenerTodos() {
-    const unidades = await this.unitRepository.find({
-      order: {
-        id: 'ASC',
-      },
-    });
+    const unidades =
+      await this.unitRepository.find({
+        order: {
+          id: 'ASC',
+        },
+      });
 
     return unidades.map((unidad) => ({
       id: unidad.id,
@@ -111,14 +168,15 @@ export class UnitsService {
     const tipoNormalizado =
       this.validarTipo(tipo);
 
-    const unidades = await this.unitRepository.find({
-      where: {
-        tipo: tipoNormalizado,
-      },
-      order: {
-        id: 'ASC',
-      },
-    });
+    const unidades =
+      await this.unitRepository.find({
+        where: {
+          tipo: tipoNormalizado,
+        },
+        order: {
+          id: 'ASC',
+        },
+      });
 
     return unidades.map((unidad) => ({
       id: unidad.id,
@@ -136,11 +194,12 @@ export class UnitsService {
     unidadId: number,
     updateUnitDto: UpdateUnitDto,
   ) {
-    const unidad = await this.unitRepository.findOne({
-      where: {
-        id: unidadId,
-      },
-    });
+    const unidad =
+      await this.unitRepository.findOne({
+        where: {
+          id: unidadId,
+        },
+      });
 
     if (!unidad) {
       throw new NotFoundException(
@@ -148,65 +207,88 @@ export class UnitsService {
       );
     }
 
-    if (
-      updateUnitDto.codigo !== undefined &&
-      updateUnitDto.codigo !== unidad.codigo
-    ) {
-      const unidadPorCodigo =
-        await this.unitRepository.findOne({
-          where: {
-            codigo: updateUnitDto.codigo,
-          },
-        });
-
-      if (
-        unidadPorCodigo &&
-        unidadPorCodigo.id !== unidadId
-      ) {
-        throw new BadRequestException(
-          'El código de la unidad ya está registrado',
+    if (updateUnitDto.codigo !== undefined) {
+      const codigo =
+        this.validarTextoObligatorio(
+          updateUnitDto.codigo,
+          'El código de la unidad',
         );
-      }
 
-      unidad.codigo = updateUnitDto.codigo;
+      if (codigo !== unidad.codigo) {
+        const unidadPorCodigo =
+          await this.unitRepository.findOne({
+            where: {
+              codigo,
+            },
+          });
+
+        if (
+          unidadPorCodigo &&
+          unidadPorCodigo.id !== unidadId
+        ) {
+          throw new BadRequestException(
+            'El código de la unidad ya está registrado',
+          );
+        }
+
+        unidad.codigo = codigo;
+      }
     }
 
     if (
-      updateUnitDto.placaOSerie !== undefined &&
-      updateUnitDto.placaOSerie !==
-        unidad.placaOSerie
+      updateUnitDto.placaOSerie !== undefined
     ) {
-      const unidadPorPlacaOSerie =
-        await this.unitRepository.findOne({
-          where: {
-            placaOSerie:
-              updateUnitDto.placaOSerie,
-          },
-        });
+      const placaOSerie =
+        this.validarTextoObligatorio(
+          updateUnitDto.placaOSerie,
+          'La placa o serie de la unidad',
+        );
 
       if (
-        unidadPorPlacaOSerie &&
-        unidadPorPlacaOSerie.id !== unidadId
+        placaOSerie !== unidad.placaOSerie
       ) {
-        throw new BadRequestException(
-          'La placa o serie de la unidad ya está registrada',
-        );
-      }
+        const unidadPorPlacaOSerie =
+          await this.unitRepository.findOne({
+            where: {
+              placaOSerie,
+            },
+          });
 
-      unidad.placaOSerie =
-        updateUnitDto.placaOSerie;
+        if (
+          unidadPorPlacaOSerie &&
+          unidadPorPlacaOSerie.id !== unidadId
+        ) {
+          throw new BadRequestException(
+            'La placa o serie de la unidad ya está registrada',
+          );
+        }
+
+        unidad.placaOSerie = placaOSerie;
+      }
     }
 
     if (updateUnitDto.marca !== undefined) {
-      unidad.marca = updateUnitDto.marca;
+      unidad.marca =
+        this.validarTextoObligatorio(
+          updateUnitDto.marca,
+          'La marca de la unidad',
+        );
     }
 
     if (updateUnitDto.modelo !== undefined) {
-      unidad.modelo = updateUnitDto.modelo;
+      unidad.modelo =
+        this.validarTextoObligatorio(
+          updateUnitDto.modelo,
+          'El modelo de la unidad',
+        );
     }
 
     if (updateUnitDto.estado !== undefined) {
-      unidad.estado = updateUnitDto.estado;
+      unidad.estado =
+        this.validarTextoObligatorio(
+          updateUnitDto.estado,
+          'El estado de la unidad',
+        );
     }
 
     const unidadActualizada =
@@ -229,11 +311,12 @@ export class UnitsService {
     unidadId: number,
     activo: boolean,
   ) {
-    const unidad = await this.unitRepository.findOne({
-      where: {
-        id: unidadId,
-      },
-    });
+    const unidad =
+      await this.unitRepository.findOne({
+        where: {
+          id: unidadId,
+        },
+      });
 
     if (!unidad) {
       throw new NotFoundException(

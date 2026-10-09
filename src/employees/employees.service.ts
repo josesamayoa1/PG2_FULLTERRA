@@ -15,19 +15,75 @@ import { UpdateEmployeeDto } from './dto/update-employee.dto';
 export class EmployeesService {
   constructor(
     @InjectRepository(Employee)
-    private readonly employeeRepository: Repository<Employee>,
+    private readonly employeeRepository:
+      Repository<Employee>,
 
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly userRepository:
+      Repository<User>,
   ) {}
 
-  async crear(createEmployeeDto: CreateEmployeeDto) {
-    const usuario = await this.userRepository.findOne({
-      where: { id: createEmployeeDto.usuarioId },
-    });
+  private validarIdPositivo(
+    valor: number,
+    nombreCampo: string,
+  ) {
+    if (
+      !Number.isInteger(valor) ||
+      valor <= 0
+    ) {
+      throw new BadRequestException(
+        `${nombreCampo} debe ser un número entero mayor que cero`,
+      );
+    }
+  }
+
+  private validarTextoObligatorio(
+    valor: string,
+    nombreCampo: string,
+  ) {
+    if (
+      typeof valor !== 'string' ||
+      valor.trim().length === 0
+    ) {
+      throw new BadRequestException(
+        `${nombreCampo} es obligatorio`,
+      );
+    }
+
+    return valor.trim();
+  }
+
+  async crear(
+    createEmployeeDto: CreateEmployeeDto,
+  ) {
+    this.validarIdPositivo(
+      createEmployeeDto.usuarioId,
+      'usuarioId',
+    );
+
+    const nombres =
+      this.validarTextoObligatorio(
+        createEmployeeDto.nombres,
+        'El nombre del empleado',
+      );
+
+    const puesto =
+      this.validarTextoObligatorio(
+        createEmployeeDto.puesto,
+        'El puesto del empleado',
+      );
+
+    const usuario =
+      await this.userRepository.findOne({
+        where: {
+          id: createEmployeeDto.usuarioId,
+        },
+      });
 
     if (!usuario) {
-      throw new NotFoundException('Usuario no encontrado');
+      throw new NotFoundException(
+        'Usuario no encontrado',
+      );
     }
 
     const empleadoExistente =
@@ -48,14 +104,17 @@ export class EmployeesService {
       );
     }
 
-    const empleado = this.employeeRepository.create({
-      nombres: createEmployeeDto.nombres,
-      puesto: createEmployeeDto.puesto,
-      usuario,
-    });
+    const empleado =
+      this.employeeRepository.create({
+        nombres,
+        puesto,
+        usuario,
+      });
 
     const empleadoGuardado =
-      await this.employeeRepository.save(empleado);
+      await this.employeeRepository.save(
+        empleado,
+      );
 
     return {
       id: empleadoGuardado.id,
@@ -70,14 +129,15 @@ export class EmployeesService {
   }
 
   async obtenerTodos() {
-    const empleados = await this.employeeRepository.find({
-      relations: {
-        usuario: true,
-      },
-      order: {
-        id: 'ASC',
-      },
-    });
+    const empleados =
+      await this.employeeRepository.find({
+        relations: {
+          usuario: true,
+        },
+        order: {
+          id: 'ASC',
+        },
+      });
 
     return empleados.map((empleado) => ({
       id: empleado.id,
@@ -95,36 +155,64 @@ export class EmployeesService {
     empleadoId: number,
     updateEmployeeDto: UpdateEmployeeDto,
   ) {
-    const empleado = await this.employeeRepository.findOne({
-      where: { id: empleadoId },
-      relations: {
-        usuario: true,
-      },
-    });
+    this.validarIdPositivo(
+      empleadoId,
+      'empleadoId',
+    );
+
+    const empleado =
+      await this.employeeRepository.findOne({
+        where: {
+          id: empleadoId,
+        },
+        relations: {
+          usuario: true,
+        },
+      });
 
     if (!empleado) {
-      throw new NotFoundException('Empleado no encontrado');
+      throw new NotFoundException(
+        'Empleado no encontrado',
+      );
     }
 
-    if (updateEmployeeDto.nombres !== undefined) {
-      empleado.nombres = updateEmployeeDto.nombres;
+    if (
+      updateEmployeeDto.nombres !== undefined
+    ) {
+      empleado.nombres =
+        this.validarTextoObligatorio(
+          updateEmployeeDto.nombres,
+          'El nombre del empleado',
+        );
     }
 
-    if (updateEmployeeDto.puesto !== undefined) {
-      empleado.puesto = updateEmployeeDto.puesto;
+    if (
+      updateEmployeeDto.puesto !== undefined
+    ) {
+      empleado.puesto =
+        this.validarTextoObligatorio(
+          updateEmployeeDto.puesto,
+          'El puesto del empleado',
+        );
     }
 
     const empleadoActualizado =
-      await this.employeeRepository.save(empleado);
+      await this.employeeRepository.save(
+        empleado,
+      );
 
     return {
       id: empleadoActualizado.id,
-      nombres: empleadoActualizado.nombres,
-      puesto: empleadoActualizado.puesto,
-      activo: empleadoActualizado.activo,
+      nombres:
+        empleadoActualizado.nombres,
+      puesto:
+        empleadoActualizado.puesto,
+      activo:
+        empleadoActualizado.activo,
       usuario: {
         id: empleadoActualizado.usuario.id,
-        usuario: empleadoActualizado.usuario.usuario,
+        usuario:
+          empleadoActualizado.usuario.usuario,
       },
     };
   }
@@ -133,30 +221,52 @@ export class EmployeesService {
     empleadoId: number,
     activo: boolean,
   ) {
-    const empleado = await this.employeeRepository.findOne({
-      where: { id: empleadoId },
-      relations: {
-        usuario: true,
-      },
-    });
+    this.validarIdPositivo(
+      empleadoId,
+      'empleadoId',
+    );
+
+    if (typeof activo !== 'boolean') {
+      throw new BadRequestException(
+        'activo debe ser un valor booleano',
+      );
+    }
+
+    const empleado =
+      await this.employeeRepository.findOne({
+        where: {
+          id: empleadoId,
+        },
+        relations: {
+          usuario: true,
+        },
+      });
 
     if (!empleado) {
-      throw new NotFoundException('Empleado no encontrado');
+      throw new NotFoundException(
+        'Empleado no encontrado',
+      );
     }
 
     empleado.activo = activo;
 
     const empleadoActualizado =
-      await this.employeeRepository.save(empleado);
+      await this.employeeRepository.save(
+        empleado,
+      );
 
     return {
       id: empleadoActualizado.id,
-      nombres: empleadoActualizado.nombres,
-      puesto: empleadoActualizado.puesto,
-      activo: empleadoActualizado.activo,
+      nombres:
+        empleadoActualizado.nombres,
+      puesto:
+        empleadoActualizado.puesto,
+      activo:
+        empleadoActualizado.activo,
       usuario: {
         id: empleadoActualizado.usuario.id,
-        usuario: empleadoActualizado.usuario.usuario,
+        usuario:
+          empleadoActualizado.usuario.usuario,
       },
     };
   }

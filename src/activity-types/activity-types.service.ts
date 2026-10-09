@@ -16,11 +16,39 @@ export class ActivityTypesService {
       Repository<ActivityType>,
   ) {}
 
+  private validarTextoObligatorio(
+    valor: string,
+    nombreCampo: string,
+  ) {
+    if (
+      typeof valor !== 'string' ||
+      valor.trim().length === 0
+    ) {
+      throw new BadRequestException(
+        `${nombreCampo} es obligatorio`,
+      );
+    }
+
+    return valor.trim();
+  }
+
   async crear(
     createActivityTypeDto: CreateActivityTypeDto,
   ) {
+    const nombre =
+      this.validarTextoObligatorio(
+        createActivityTypeDto.nombre,
+        'El nombre de la actividad',
+      );
+
+    const categoriaIngresada =
+      this.validarTextoObligatorio(
+        createActivityTypeDto.categoria,
+        'La categoría',
+      );
+
     const categoria =
-      createActivityTypeDto.categoria.toUpperCase();
+      categoriaIngresada.toUpperCase();
 
     if (
       categoria !== 'CAMION' &&
@@ -34,7 +62,7 @@ export class ActivityTypesService {
     const actividadExistente =
       await this.activityTypeRepository.findOne({
         where: {
-          nombre: createActivityTypeDto.nombre,
+          nombre,
         },
       });
 
@@ -44,11 +72,20 @@ export class ActivityTypesService {
       );
     }
 
+    let descripcion: string | undefined;
+
+    if (
+      createActivityTypeDto.descripcion !==
+      undefined
+    ) {
+      descripcion =
+        createActivityTypeDto.descripcion.trim();
+    }
+
     const actividad =
       this.activityTypeRepository.create({
-        nombre: createActivityTypeDto.nombre,
-        descripcion:
-          createActivityTypeDto.descripcion,
+        nombre,
+        descripcion,
         categoria,
       });
 
