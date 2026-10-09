@@ -132,6 +132,12 @@ export class UnitHistoryService {
         fechaOperacion:
           viaje.fechaOperacion,
         viajes: viaje.viajes,
+        kilometros:
+          viaje.kilometros === null
+            ? null
+            : Number(
+                viaje.kilometros,
+              ),
         observaciones:
           viaje.observaciones,
         estado: viaje.estado,

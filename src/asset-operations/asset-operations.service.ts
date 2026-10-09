@@ -56,19 +56,26 @@ export class AssetOperationsService {
   ) {
     if (
       typeof fechaOperacion !== 'string' ||
-      !/^\d{4}-\d{2}-\d{2}$/.test(fechaOperacion)
+      !/^\d{4}-\d{2}-\d{2}$/.test(
+        fechaOperacion,
+      )
     ) {
       throw new BadRequestException(
         'La fecha de operación debe tener el formato YYYY-MM-DD',
       );
     }
 
-    const [anio, mes, dia] = fechaOperacion
-      .split('-')
-      .map(Number);
+    const [anio, mes, dia] =
+      fechaOperacion
+        .split('-')
+        .map(Number);
 
     const fecha = new Date(
-      Date.UTC(anio, mes - 1, dia),
+      Date.UTC(
+        anio,
+        mes - 1,
+        dia,
+      ),
     );
 
     const fechaValida =
@@ -105,11 +112,36 @@ export class AssetOperationsService {
       createTripDto.fechaOperacion,
     );
 
-    const unidad = await this.unitRepository.findOne({
-      where: {
-        id: createTripDto.unidadId,
-      },
-    });
+    if (
+      !Number.isInteger(
+        createTripDto.viajes,
+      ) ||
+      createTripDto.viajes <= 0
+    ) {
+      throw new BadRequestException(
+        'La cantidad de viajes debe ser un número entero mayor que cero',
+      );
+    }
+
+    if (
+      typeof createTripDto.kilometros !==
+        'number' ||
+      !Number.isFinite(
+        createTripDto.kilometros,
+      ) ||
+      createTripDto.kilometros <= 0
+    ) {
+      throw new BadRequestException(
+        'Los kilómetros deben ser un número mayor que cero',
+      );
+    }
+
+    const unidad =
+      await this.unitRepository.findOne({
+        where: {
+          id: createTripDto.unidadId,
+        },
+      });
 
     if (!unidad) {
       throw new NotFoundException(
@@ -119,7 +151,7 @@ export class AssetOperationsService {
 
     if (unidad.tipo !== 'CAMION') {
       throw new BadRequestException(
-        'La unidad seleccionada debe ser un camión',
+        'La unidad seleccionada no es un camión',
       );
     }
 
@@ -161,24 +193,18 @@ export class AssetOperationsService {
       );
     }
 
-    if (tipoActividad.categoria !== 'CAMION') {
+    if (
+      tipoActividad.categoria !==
+      'CAMION'
+    ) {
       throw new BadRequestException(
-        'La actividad seleccionada debe corresponder a CAMION',
+        'La actividad seleccionada no corresponde a un camión',
       );
     }
 
     if (!tipoActividad.activo) {
       throw new BadRequestException(
         'El tipo de actividad seleccionado está inactivo',
-      );
-    }
-
-    if (
-      !Number.isInteger(createTripDto.viajes) ||
-      createTripDto.viajes <= 0
-    ) {
-      throw new BadRequestException(
-        'La cantidad de viajes debe ser un número entero mayor que cero',
       );
     }
 
@@ -191,8 +217,11 @@ export class AssetOperationsService {
           createTripDto.fechaOperacion,
         horasUso: null,
         viajes: createTripDto.viajes,
+        kilometros:
+          createTripDto.kilometros,
         observaciones:
-          createTripDto.observaciones ?? null,
+          createTripDto.observaciones ??
+          null,
         estado: 'ACTIVO',
       });
 
@@ -205,10 +234,19 @@ export class AssetOperationsService {
       id: operacionGuardada.id,
       fechaOperacion:
         operacionGuardada.fechaOperacion,
-      viajes: operacionGuardada.viajes,
+      viajes:
+        operacionGuardada.viajes,
+      kilometros:
+        operacionGuardada.kilometros ===
+        null
+          ? null
+          : Number(
+              operacionGuardada.kilometros,
+            ),
       observaciones:
         operacionGuardada.observaciones,
-      estado: operacionGuardada.estado,
+      estado:
+        operacionGuardada.estado,
       unidad: {
         id: unidad.id,
         codigo: unidad.codigo,
@@ -218,10 +256,9 @@ export class AssetOperationsService {
         id: empleado.id,
         nombres: empleado.nombres,
       },
-      tipoActividad: {
+      actividad: {
         id: tipoActividad.id,
         nombre: tipoActividad.nombre,
-        categoria: tipoActividad.categoria,
       },
     };
   }
@@ -242,34 +279,44 @@ export class AssetOperationsService {
         },
       });
 
-    return operaciones.map((operacion) => ({
-      id: operacion.id,
-      fechaOperacion:
-        operacion.fechaOperacion,
-      viajes: operacion.viajes,
-      observaciones:
-        operacion.observaciones,
-      estado: operacion.estado,
-      unidad: {
-        id: operacion.unidad.id,
-        codigo: operacion.unidad.codigo,
-        tipo: operacion.unidad.tipo,
-      },
-      empleado: {
-        id: operacion.empleado.id,
-        nombres: operacion.empleado.nombres,
-      },
-      tipoActividad: {
-        id: operacion.tipoActividad.id,
-        nombre: operacion.tipoActividad.nombre,
-        categoria:
-          operacion.tipoActividad.categoria,
-      },
-    }));
+    return operaciones.map(
+      (operacion) => ({
+        id: operacion.id,
+        fechaOperacion:
+          operacion.fechaOperacion,
+        viajes: operacion.viajes,
+        kilometros:
+          operacion.kilometros === null
+            ? null
+            : Number(
+                operacion.kilometros,
+              ),
+        observaciones:
+          operacion.observaciones,
+        estado: operacion.estado,
+        unidad: {
+          id: operacion.unidad.id,
+          codigo:
+            operacion.unidad.codigo,
+          tipo: operacion.unidad.tipo,
+        },
+        empleado: {
+          id: operacion.empleado.id,
+          nombres:
+            operacion.empleado.nombres,
+        },
+        actividad: {
+          id: operacion.tipoActividad.id,
+          nombre:
+            operacion.tipoActividad.nombre,
+        },
+      }),
+    );
   }
 
   async registrarHorasMaquinaria(
-    createMachineryHoursDto: CreateMachineryHoursDto,
+    createMachineryHoursDto:
+      CreateMachineryHoursDto,
   ) {
     this.validarIdPositivo(
       createMachineryHoursDto.unidadId,
@@ -282,19 +329,37 @@ export class AssetOperationsService {
     );
 
     this.validarIdPositivo(
-      createMachineryHoursDto.tipoActividadId,
+      createMachineryHoursDto
+        .tipoActividadId,
       'tipoActividadId',
     );
 
     this.validarFechaOperacion(
-      createMachineryHoursDto.fechaOperacion,
+      createMachineryHoursDto
+        .fechaOperacion,
     );
 
-    const unidad = await this.unitRepository.findOne({
-      where: {
-        id: createMachineryHoursDto.unidadId,
-      },
-    });
+    if (
+      typeof createMachineryHoursDto
+        .horasUso !== 'number' ||
+      !Number.isFinite(
+        createMachineryHoursDto.horasUso,
+      ) ||
+      createMachineryHoursDto.horasUso <=
+        0
+    ) {
+      throw new BadRequestException(
+        'Las horas de uso deben ser un número mayor que cero',
+      );
+    }
+
+    const unidad =
+      await this.unitRepository.findOne({
+        where: {
+          id: createMachineryHoursDto
+            .unidadId,
+        },
+      });
 
     if (!unidad) {
       throw new NotFoundException(
@@ -302,9 +367,11 @@ export class AssetOperationsService {
       );
     }
 
-    if (unidad.tipo !== 'MAQUINARIA') {
+    if (
+      unidad.tipo !== 'MAQUINARIA'
+    ) {
       throw new BadRequestException(
-        'La unidad seleccionada debe ser maquinaria',
+        'La unidad seleccionada no es maquinaria',
       );
     }
 
@@ -317,7 +384,8 @@ export class AssetOperationsService {
     const empleado =
       await this.employeeRepository.findOne({
         where: {
-          id: createMachineryHoursDto.empleadoId,
+          id: createMachineryHoursDto
+            .empleadoId,
         },
       });
 
@@ -336,8 +404,8 @@ export class AssetOperationsService {
     const tipoActividad =
       await this.activityTypeRepository.findOne({
         where: {
-          id:
-            createMachineryHoursDto.tipoActividadId,
+          id: createMachineryHoursDto
+            .tipoActividadId,
         },
       });
 
@@ -352,7 +420,7 @@ export class AssetOperationsService {
       'MAQUINARIA'
     ) {
       throw new BadRequestException(
-        'La actividad seleccionada debe corresponder a MAQUINARIA',
+        'La actividad seleccionada no corresponde a maquinaria',
       );
     }
 
@@ -362,32 +430,21 @@ export class AssetOperationsService {
       );
     }
 
-    if (
-      typeof createMachineryHoursDto.horasUso !==
-        'number' ||
-      !Number.isFinite(
-        createMachineryHoursDto.horasUso,
-      ) ||
-      createMachineryHoursDto.horasUso <= 0
-    ) {
-      throw new BadRequestException(
-        'Las horas de uso deben ser un número mayor que cero',
-      );
-    }
-
     const operacion =
       this.assetOperationRepository.create({
         unidad,
         empleado,
         tipoActividad,
         fechaOperacion:
-          createMachineryHoursDto.fechaOperacion,
+          createMachineryHoursDto
+            .fechaOperacion,
         horasUso:
           createMachineryHoursDto.horasUso,
         viajes: null,
+        kilometros: null,
         observaciones:
-          createMachineryHoursDto.observaciones ??
-          null,
+          createMachineryHoursDto
+            .observaciones ?? null,
         estado: 'ACTIVO',
       });
 
@@ -400,12 +457,16 @@ export class AssetOperationsService {
       id: operacionGuardada.id,
       fechaOperacion:
         operacionGuardada.fechaOperacion,
-      horasUso: Number(
-        operacionGuardada.horasUso,
-      ),
+      horasUso:
+        operacionGuardada.horasUso === null
+          ? null
+          : Number(
+              operacionGuardada.horasUso,
+            ),
       observaciones:
         operacionGuardada.observaciones,
-      estado: operacionGuardada.estado,
+      estado:
+        operacionGuardada.estado,
       unidad: {
         id: unidad.id,
         codigo: unidad.codigo,
@@ -415,10 +476,9 @@ export class AssetOperationsService {
         id: empleado.id,
         nombres: empleado.nombres,
       },
-      tipoActividad: {
+      actividad: {
         id: tipoActividad.id,
         nombre: tipoActividad.nombre,
-        categoria: tipoActividad.categoria,
       },
     };
   }
@@ -439,29 +499,37 @@ export class AssetOperationsService {
         },
       });
 
-    return operaciones.map((operacion) => ({
-      id: operacion.id,
-      fechaOperacion:
-        operacion.fechaOperacion,
-      horasUso: Number(operacion.horasUso),
-      observaciones:
-        operacion.observaciones,
-      estado: operacion.estado,
-      unidad: {
-        id: operacion.unidad.id,
-        codigo: operacion.unidad.codigo,
-        tipo: operacion.unidad.tipo,
-      },
-      empleado: {
-        id: operacion.empleado.id,
-        nombres: operacion.empleado.nombres,
-      },
-      tipoActividad: {
-        id: operacion.tipoActividad.id,
-        nombre: operacion.tipoActividad.nombre,
-        categoria:
-          operacion.tipoActividad.categoria,
-      },
-    }));
+    return operaciones.map(
+      (operacion) => ({
+        id: operacion.id,
+        fechaOperacion:
+          operacion.fechaOperacion,
+        horasUso:
+          operacion.horasUso === null
+            ? null
+            : Number(
+                operacion.horasUso,
+              ),
+        observaciones:
+          operacion.observaciones,
+        estado: operacion.estado,
+        unidad: {
+          id: operacion.unidad.id,
+          codigo:
+            operacion.unidad.codigo,
+          tipo: operacion.unidad.tipo,
+        },
+        empleado: {
+          id: operacion.empleado.id,
+          nombres:
+            operacion.empleado.nombres,
+        },
+        actividad: {
+          id: operacion.tipoActividad.id,
+          nombre:
+            operacion.tipoActividad.nombre,
+        },
+      }),
+    );
   }
 }

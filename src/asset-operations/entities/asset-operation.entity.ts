@@ -61,6 +61,14 @@ export class AssetOperation {
   viajes: number | null;
 
   @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
+  kilometros: number | null;
+
+  @Column({
     type: 'text',
     nullable: true,
   })

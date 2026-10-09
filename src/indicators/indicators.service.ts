@@ -176,6 +176,20 @@ export class IndicatorsService {
             0,
           );
 
+        const totalKilometros =
+          operacionesUnidad.reduce(
+            (total, operacion) =>
+              total +
+              (
+                operacion.kilometros === null
+                  ? 0
+                  : Number(
+                      operacion.kilometros,
+                    )
+              ),
+            0,
+          );
+
         const totalHoras =
           operacionesUnidad.reduce(
             (total, operacion) =>
@@ -207,6 +221,7 @@ export class IndicatorsService {
             modelo: unidad.modelo,
           },
           viajes: totalViajes,
+          kilometros: totalKilometros,
           horasUso: totalHoras,
           galones: totalGalones,
           mantenimientos:
@@ -224,6 +239,10 @@ export class IndicatorsService {
             acumulado.viajes +
             indicador.viajes,
 
+          kilometros:
+            acumulado.kilometros +
+            indicador.kilometros,
+
           horasUso:
             acumulado.horasUso +
             indicador.horasUso,
@@ -238,6 +257,7 @@ export class IndicatorsService {
         }),
         {
           viajes: 0,
+          kilometros: 0,
           horasUso: 0,
           galones: 0,
           mantenimientos: 0,

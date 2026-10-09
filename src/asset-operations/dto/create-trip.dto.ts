@@ -4,5 +4,6 @@ export class CreateTripDto {
   tipoActividadId: number;
   fechaOperacion: string;
   viajes: number;
+  kilometros: number;
   observaciones?: string;
 }

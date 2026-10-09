@@ -42,10 +42,19 @@ export class TraceabilityService {
       viajes:
         operacion.viajes,
 
+      kilometros:
+        operacion.kilometros === null
+          ? null
+          : Number(
+              operacion.kilometros,
+            ),
+
       horasUso:
         operacion.horasUso === null
           ? null
-          : Number(operacion.horasUso),
+          : Number(
+              operacion.horasUso,
+            ),
 
       observaciones:
         operacion.observaciones,
