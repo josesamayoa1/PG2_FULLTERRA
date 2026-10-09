@@ -11,6 +11,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 
 import { RolesService } from './roles.service';
+import { UpdateRoleDto } from './dto/update-role.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
@@ -18,7 +19,9 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles('Administrador')
 export class RolesController {
-  constructor(private readonly rolesService: RolesService) {}
+  constructor(
+    private readonly rolesService: RolesService,
+  ) {}
 
   @Post()
   crear(
@@ -37,6 +40,18 @@ export class RolesController {
   @Get()
   obtenerTodos() {
     return this.rolesService.obtenerTodos();
+  }
+
+  @Patch(':id')
+  actualizar(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateRoleDto: UpdateRoleDto,
+  ) {
+    return this.rolesService.actualizar(
+      id,
+      updateRoleDto.nombre,
+      updateRoleDto.descripcion,
+    );
   }
 
   @Patch(':id/estado')
