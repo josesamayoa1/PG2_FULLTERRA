@@ -12,6 +12,7 @@ import { UnitsModule } from './units/units.module';
 import { ActivityTypesModule } from './activity-types/activity-types.module';
 import { AssetOperationsModule } from './asset-operations/asset-operations.module';
 import { FuelModule } from './fuel/fuel.module';
+import { MaintenanceModule } from './maintenance/maintenance.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { FuelModule } from './fuel/fuel.module';
     ActivityTypesModule,
     AssetOperationsModule,
     FuelModule,
+    MaintenanceModule,
   ],
   controllers: [AppController],
   providers: [AppService],
