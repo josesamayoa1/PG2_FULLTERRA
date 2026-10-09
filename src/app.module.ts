@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { RolesModule } from './roles/roles.module';
 import { EmployeesModule } from './employees/employees.module';
+import { UnitsModule } from './units/units.module';
 
 @Module({
   imports: [
@@ -20,10 +21,19 @@ import { EmployeesModule } from './employees/employees.module';
       useFactory: (configService: ConfigService) => ({
         type: 'mysql',
         host: configService.getOrThrow<string>('DB_HOST'),
-        port: Number(configService.getOrThrow<string>('DB_PORT')),
-        username: configService.getOrThrow<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD') ?? '',
-        database: configService.getOrThrow<string>('DB_DATABASE'),
+        port: Number(
+          configService.getOrThrow<string>('DB_PORT'),
+        ),
+        username:
+          configService.getOrThrow<string>(
+            'DB_USERNAME',
+          ),
+        password:
+          configService.get<string>('DB_PASSWORD') ?? '',
+        database:
+          configService.getOrThrow<string>(
+            'DB_DATABASE',
+          ),
         autoLoadEntities: true,
         synchronize: true,
       }),
@@ -33,6 +43,7 @@ import { EmployeesModule } from './employees/employees.module';
     AuthModule,
     RolesModule,
     EmployeesModule,
+    UnitsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
