@@ -17,6 +17,7 @@ import { UnitHistoryModule } from './unit-history/unit-history.module';
 import { TraceabilityModule } from './traceability/traceability.module';
 import { IndicatorsModule } from './indicators/indicators.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { MaintenanceAlertsModule } from './maintenance-alerts/maintenance-alerts.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     TraceabilityModule,
     IndicatorsModule,
     DashboardModule,
+    MaintenanceAlertsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
