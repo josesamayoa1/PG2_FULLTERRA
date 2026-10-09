@@ -15,6 +15,7 @@ import { FuelModule } from './fuel/fuel.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
 import { UnitHistoryModule } from './unit-history/unit-history.module';
 import { TraceabilityModule } from './traceability/traceability.module';
+import { IndicatorsModule } from './indicators/indicators.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { TraceabilityModule } from './traceability/traceability.module';
     MaintenanceModule,
     UnitHistoryModule,
     TraceabilityModule,
+    IndicatorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
