@@ -11,6 +11,7 @@ import { EmployeesModule } from './employees/employees.module';
 import { UnitsModule } from './units/units.module';
 import { ActivityTypesModule } from './activity-types/activity-types.module';
 import { AssetOperationsModule } from './asset-operations/asset-operations.module';
+import { FuelModule } from './fuel/fuel.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { AssetOperationsModule } from './asset-operations/asset-operations.modul
     UnitsModule,
     ActivityTypesModule,
     AssetOperationsModule,
+    FuelModule,
   ],
   controllers: [AppController],
   providers: [AppService],
