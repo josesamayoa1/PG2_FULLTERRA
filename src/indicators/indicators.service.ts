@@ -275,4 +275,164 @@ export class IndicatorsService {
       indicadoresPorUnidad,
     };
   }
+
+  async obtenerComparativoMensual(
+    anio: number,
+    mes: number,
+  ) {
+    this.validarPeriodo(
+      anio,
+      mes,
+    );
+
+    let anioAnterior = anio;
+    let mesAnterior = mes - 1;
+
+    if (mes === 1) {
+      anioAnterior = anio - 1;
+      mesAnterior = 12;
+    }
+
+    const [
+      indicadoresActuales,
+      indicadoresAnteriores,
+    ] = await Promise.all([
+      this.obtenerIndicadores(
+        anio,
+        mes,
+      ),
+      this.obtenerIndicadores(
+        anioAnterior,
+        mesAnterior,
+      ),
+    ]);
+
+    const comparativosPorUnidad =
+      indicadoresActuales
+        .indicadoresPorUnidad
+        .map((actual) => {
+          const anterior =
+            indicadoresAnteriores
+              .indicadoresPorUnidad
+              .find(
+                (indicador) =>
+                  indicador.unidad.id ===
+                  actual.unidad.id,
+              );
+
+          const datosAnteriores =
+            anterior ?? {
+              viajes: 0,
+              kilometros: 0,
+              horasUso: 0,
+              galones: 0,
+              mantenimientos: 0,
+            };
+
+          return {
+            unidad: actual.unidad,
+
+            actual: {
+              viajes:
+                actual.viajes,
+              kilometros:
+                actual.kilometros,
+              horasUso:
+                actual.horasUso,
+              galones:
+                actual.galones,
+              mantenimientos:
+                actual.mantenimientos,
+            },
+
+            anterior: {
+              viajes:
+                datosAnteriores.viajes,
+              kilometros:
+                datosAnteriores.kilometros,
+              horasUso:
+                datosAnteriores.horasUso,
+              galones:
+                datosAnteriores.galones,
+              mantenimientos:
+                datosAnteriores
+                  .mantenimientos,
+            },
+
+            diferencia: {
+              viajes:
+                actual.viajes -
+                datosAnteriores.viajes,
+
+              kilometros:
+                actual.kilometros -
+                datosAnteriores
+                  .kilometros,
+
+              horasUso:
+                actual.horasUso -
+                datosAnteriores.horasUso,
+
+              galones:
+                actual.galones -
+                datosAnteriores.galones,
+
+              mantenimientos:
+                actual.mantenimientos -
+                datosAnteriores
+                  .mantenimientos,
+            },
+          };
+        });
+
+    return {
+      periodoActual:
+        indicadoresActuales.periodo,
+
+      periodoAnterior:
+        indicadoresAnteriores.periodo,
+
+      resumen: {
+        actual:
+          indicadoresActuales.resumen,
+
+        anterior:
+          indicadoresAnteriores.resumen,
+
+        diferencia: {
+          viajes:
+            indicadoresActuales
+              .resumen.viajes -
+            indicadoresAnteriores
+              .resumen.viajes,
+
+          kilometros:
+            indicadoresActuales
+              .resumen.kilometros -
+            indicadoresAnteriores
+              .resumen.kilometros,
+
+          horasUso:
+            indicadoresActuales
+              .resumen.horasUso -
+            indicadoresAnteriores
+              .resumen.horasUso,
+
+          galones:
+            indicadoresActuales
+              .resumen.galones -
+            indicadoresAnteriores
+              .resumen.galones,
+
+          mantenimientos:
+            indicadoresActuales
+              .resumen.mantenimientos -
+            indicadoresAnteriores
+              .resumen.mantenimientos,
+        },
+      },
+
+      comparativosPorUnidad,
+    };
+  }
 }
