@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -22,7 +23,37 @@ export class TraceabilityController {
   ) {}
 
   @Get()
-  obtenerTrazabilidad() {
-    return this.traceabilityService.obtenerTrazabilidad();
+  obtenerTrazabilidad(
+    @Query('unidadId')
+    unidadId?: string,
+
+    @Query('empleadoId')
+    empleadoId?: string,
+
+    @Query('fecha')
+    fecha?: string,
+
+    @Query('fechaInicio')
+    fechaInicio?: string,
+
+    @Query('fechaFin')
+    fechaFin?: string,
+  ) {
+    return this.traceabilityService
+      .obtenerTrazabilidad({
+        unidadId:
+          unidadId === undefined
+            ? undefined
+            : Number(unidadId),
+
+        empleadoId:
+          empleadoId === undefined
+            ? undefined
+            : Number(empleadoId),
+
+        fecha,
+        fechaInicio,
+        fechaFin,
+      });
   }
 }
