@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { RolesModule } from './roles/roles.module';
 import { EmployeesModule } from './employees/employees.module';
 import { UnitsModule } from './units/units.module';
+import { ActivityTypesModule } from './activity-types/activity-types.module';
+import { AssetOperationsModule } from './asset-operations/asset-operations.module';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { UnitsModule } from './units/units.module';
     RolesModule,
     EmployeesModule,
     UnitsModule,
+    ActivityTypesModule,
+    AssetOperationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
