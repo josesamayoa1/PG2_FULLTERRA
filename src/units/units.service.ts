@@ -17,7 +17,26 @@ export class UnitsService {
     private readonly unitRepository: Repository<Unit>,
   ) {}
 
+  private validarTipo(tipo: string) {
+    const tipoNormalizado = tipo.toUpperCase();
+
+    if (
+      tipoNormalizado !== 'CAMION' &&
+      tipoNormalizado !== 'MAQUINARIA'
+    ) {
+      throw new BadRequestException(
+        'El tipo de unidad debe ser CAMION o MAQUINARIA',
+      );
+    }
+
+    return tipoNormalizado;
+  }
+
   async crear(createUnitDto: CreateUnitDto) {
+    const tipo = this.validarTipo(
+      createUnitDto.tipo,
+    );
+
     const unidadPorCodigo =
       await this.unitRepository.findOne({
         where: {
@@ -46,7 +65,7 @@ export class UnitsService {
 
     const unidad = this.unitRepository.create({
       codigo: createUnitDto.codigo,
-      tipo: createUnitDto.tipo,
+      tipo,
       marca: createUnitDto.marca,
       modelo: createUnitDto.modelo,
       placaOSerie: createUnitDto.placaOSerie,
@@ -71,6 +90,31 @@ export class UnitsService {
 
   async obtenerTodos() {
     const unidades = await this.unitRepository.find({
+      order: {
+        id: 'ASC',
+      },
+    });
+
+    return unidades.map((unidad) => ({
+      id: unidad.id,
+      codigo: unidad.codigo,
+      tipo: unidad.tipo,
+      marca: unidad.marca,
+      modelo: unidad.modelo,
+      placaOSerie: unidad.placaOSerie,
+      estado: unidad.estado,
+      activo: unidad.activo,
+    }));
+  }
+
+  async obtenerPorTipo(tipo: string) {
+    const tipoNormalizado =
+      this.validarTipo(tipo);
+
+    const unidades = await this.unitRepository.find({
+      where: {
+        tipo: tipoNormalizado,
+      },
       order: {
         id: 'ASC',
       },
@@ -129,12 +173,14 @@ export class UnitsService {
 
     if (
       updateUnitDto.placaOSerie !== undefined &&
-      updateUnitDto.placaOSerie !== unidad.placaOSerie
+      updateUnitDto.placaOSerie !==
+        unidad.placaOSerie
     ) {
       const unidadPorPlacaOSerie =
         await this.unitRepository.findOne({
           where: {
-            placaOSerie: updateUnitDto.placaOSerie,
+            placaOSerie:
+              updateUnitDto.placaOSerie,
           },
         });
 

@@ -38,6 +38,15 @@ export class UnitsController {
     return this.unitsService.obtenerTodos();
   }
 
+  @Get('tipo/:tipo')
+  obtenerPorTipo(
+    @Param('tipo') tipo: string,
+  ) {
+    return this.unitsService.obtenerPorTipo(
+      tipo,
+    );
+  }
+
   @Patch(':id')
   actualizar(
     @Param('id', ParseIntPipe) id: number,
