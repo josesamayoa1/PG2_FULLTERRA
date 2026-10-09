@@ -1,4 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -14,24 +17,32 @@ export class AuthService {
     const user = await this.usersService.findByUsuario(usuario);
 
     if (!user) {
-      throw new UnauthorizedException('Usuario o contraseña incorrectos');
+      throw new UnauthorizedException(
+        'Usuario o contraseña incorrectos',
+      );
     }
+
     if (!user.activo) {
       throw new UnauthorizedException('Usuario inactivo');
     }
+
     const passwordValida = await bcrypt.compare(
       contrasenia,
       user.contrasenia,
     );
 
     if (!passwordValida) {
-      throw new UnauthorizedException('Usuario o contraseña incorrectos');
+      throw new UnauthorizedException(
+        'Usuario o contraseña incorrectos',
+      );
     }
 
     const payload = {
       sub: user.id,
       usuario: user.usuario,
-      roles: user.roles.map((role) => role.nombre),
+      roles: user.roles
+        .filter((role) => role.activo)
+        .map((role) => role.nombre),
     };
 
     return {
