@@ -12,6 +12,7 @@ import {
 
 import { AssetOperation } from './entities/asset-operation.entity';
 import { CreateTripDto } from './dto/create-trip.dto';
+import { CreateMachineryHoursDto } from './dto/create-machinery-hours.dto';
 import { Unit } from '../units/entities/unit.entity';
 import { Employee } from '../employees/entities/employee.entity';
 import { ActivityType } from '../activity-types/entities/activity-type.entity';
@@ -246,6 +247,203 @@ export class AssetOperationsService {
       fechaOperacion:
         operacion.fechaOperacion,
       viajes: operacion.viajes,
+      observaciones:
+        operacion.observaciones,
+      estado: operacion.estado,
+      unidad: {
+        id: operacion.unidad.id,
+        codigo: operacion.unidad.codigo,
+        tipo: operacion.unidad.tipo,
+      },
+      empleado: {
+        id: operacion.empleado.id,
+        nombres: operacion.empleado.nombres,
+      },
+      tipoActividad: {
+        id: operacion.tipoActividad.id,
+        nombre: operacion.tipoActividad.nombre,
+        categoria:
+          operacion.tipoActividad.categoria,
+      },
+    }));
+  }
+
+  async registrarHorasMaquinaria(
+    createMachineryHoursDto: CreateMachineryHoursDto,
+  ) {
+    this.validarIdPositivo(
+      createMachineryHoursDto.unidadId,
+      'unidadId',
+    );
+
+    this.validarIdPositivo(
+      createMachineryHoursDto.empleadoId,
+      'empleadoId',
+    );
+
+    this.validarIdPositivo(
+      createMachineryHoursDto.tipoActividadId,
+      'tipoActividadId',
+    );
+
+    this.validarFechaOperacion(
+      createMachineryHoursDto.fechaOperacion,
+    );
+
+    const unidad = await this.unitRepository.findOne({
+      where: {
+        id: createMachineryHoursDto.unidadId,
+      },
+    });
+
+    if (!unidad) {
+      throw new NotFoundException(
+        'Unidad no encontrada',
+      );
+    }
+
+    if (unidad.tipo !== 'MAQUINARIA') {
+      throw new BadRequestException(
+        'La unidad seleccionada debe ser maquinaria',
+      );
+    }
+
+    if (!unidad.activo) {
+      throw new BadRequestException(
+        'La unidad seleccionada está inactiva',
+      );
+    }
+
+    const empleado =
+      await this.employeeRepository.findOne({
+        where: {
+          id: createMachineryHoursDto.empleadoId,
+        },
+      });
+
+    if (!empleado) {
+      throw new NotFoundException(
+        'Empleado no encontrado',
+      );
+    }
+
+    if (!empleado.activo) {
+      throw new BadRequestException(
+        'El empleado seleccionado está inactivo',
+      );
+    }
+
+    const tipoActividad =
+      await this.activityTypeRepository.findOne({
+        where: {
+          id:
+            createMachineryHoursDto.tipoActividadId,
+        },
+      });
+
+    if (!tipoActividad) {
+      throw new NotFoundException(
+        'Tipo de actividad no encontrado',
+      );
+    }
+
+    if (
+      tipoActividad.categoria !==
+      'MAQUINARIA'
+    ) {
+      throw new BadRequestException(
+        'La actividad seleccionada debe corresponder a MAQUINARIA',
+      );
+    }
+
+    if (!tipoActividad.activo) {
+      throw new BadRequestException(
+        'El tipo de actividad seleccionado está inactivo',
+      );
+    }
+
+    if (
+      typeof createMachineryHoursDto.horasUso !==
+        'number' ||
+      !Number.isFinite(
+        createMachineryHoursDto.horasUso,
+      ) ||
+      createMachineryHoursDto.horasUso <= 0
+    ) {
+      throw new BadRequestException(
+        'Las horas de uso deben ser un número mayor que cero',
+      );
+    }
+
+    const operacion =
+      this.assetOperationRepository.create({
+        unidad,
+        empleado,
+        tipoActividad,
+        fechaOperacion:
+          createMachineryHoursDto.fechaOperacion,
+        horasUso:
+          createMachineryHoursDto.horasUso,
+        viajes: null,
+        observaciones:
+          createMachineryHoursDto.observaciones ??
+          null,
+        estado: 'ACTIVO',
+      });
+
+    const operacionGuardada =
+      await this.assetOperationRepository.save(
+        operacion,
+      );
+
+    return {
+      id: operacionGuardada.id,
+      fechaOperacion:
+        operacionGuardada.fechaOperacion,
+      horasUso: Number(
+        operacionGuardada.horasUso,
+      ),
+      observaciones:
+        operacionGuardada.observaciones,
+      estado: operacionGuardada.estado,
+      unidad: {
+        id: unidad.id,
+        codigo: unidad.codigo,
+        tipo: unidad.tipo,
+      },
+      empleado: {
+        id: empleado.id,
+        nombres: empleado.nombres,
+      },
+      tipoActividad: {
+        id: tipoActividad.id,
+        nombre: tipoActividad.nombre,
+        categoria: tipoActividad.categoria,
+      },
+    };
+  }
+
+  async obtenerHorasMaquinaria() {
+    const operaciones =
+      await this.assetOperationRepository.find({
+        where: {
+          horasUso: Not(IsNull()),
+        },
+        relations: {
+          unidad: true,
+          empleado: true,
+          tipoActividad: true,
+        },
+        order: {
+          id: 'ASC',
+        },
+      });
+
+    return operaciones.map((operacion) => ({
+      id: operacion.id,
+      fechaOperacion:
+        operacion.fechaOperacion,
+      horasUso: Number(operacion.horasUso),
       observaciones:
         operacion.observaciones,
       estado: operacion.estado,

@@ -9,6 +9,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 import { AssetOperationsService } from './asset-operations.service';
 import { CreateTripDto } from './dto/create-trip.dto';
+import { CreateMachineryHoursDto } from './dto/create-machinery-hours.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
@@ -37,5 +38,21 @@ export class AssetOperationsController {
   @Get('trips')
   obtenerViajes() {
     return this.assetOperationsService.obtenerViajes();
+  }
+
+  @Post('machinery-hours')
+  registrarHorasMaquinaria(
+    @Body()
+    createMachineryHoursDto:
+      CreateMachineryHoursDto,
+  ) {
+    return this.assetOperationsService.registrarHorasMaquinaria(
+      createMachineryHoursDto,
+    );
+  }
+
+  @Get('machinery-hours')
+  obtenerHorasMaquinaria() {
+    return this.assetOperationsService.obtenerHorasMaquinaria();
   }
 }
