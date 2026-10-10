@@ -20,6 +20,7 @@ import { IndicatorsModule } from './indicators/indicators.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MaintenanceAlertsModule } from './maintenance-alerts/maintenance-alerts.module';
 import { TelegramModule } from './telegram/telegram.module';
+import { AuditLogModule } from './audit-log/audit-log.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { TelegramModule } from './telegram/telegram.module';
     DashboardModule,
     MaintenanceAlertsModule,
     TelegramModule,
+    AuditLogModule,
   ],
   controllers: [AppController],
   providers: [AppService],
