@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   useEffect,
   useState,
@@ -57,20 +58,31 @@ type DashboardData = {
 };
 
 export default function DashboardPage() {
-  const [checkingSession, setCheckingSession] =
-    useState(true);
+  const [
+    checkingSession,
+    setCheckingSession,
+  ] = useState(true);
 
   const [user, setUser] =
     useState<UserProfile | null>(null);
 
-  const [dashboardData, setDashboardData] =
-    useState<DashboardData | null>(null);
+  const [
+    dashboardData,
+    setDashboardData,
+  ] =
+    useState<DashboardData | null>(
+      null,
+    );
 
-  const [dashboardError, setDashboardError] =
-    useState(false);
+  const [
+    dashboardError,
+    setDashboardError,
+  ] = useState(false);
 
-  const [periodoTexto, setPeriodoTexto] =
-    useState("");
+  const [
+    periodoTexto,
+    setPeriodoTexto,
+  ] = useState("");
 
   useEffect(() => {
     async function cargarDashboard() {
@@ -86,7 +98,8 @@ export default function DashboardPage() {
 
       try {
         const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL ??
+          process.env
+            .NEXT_PUBLIC_API_URL ??
           "http://localhost:3000";
 
         const profileResponse =
@@ -100,25 +113,25 @@ export default function DashboardPage() {
             },
           );
 
-        if (!profileResponse.ok) {
+        if (
+          !profileResponse.ok
+        ) {
           localStorage.removeItem(
             "fullterra_token",
           );
 
-          window.location.href = "/";
+          window.location.href =
+            "/";
+
           return;
         }
 
-        const profile: UserProfile =
+        const profile:
+          UserProfile =
           await profileResponse.json();
 
         setUser(profile);
 
-        /*
-         * Fecha actual utilizada para
-         * consultar el dashboard desde
-         * el primer día del mes hasta hoy.
-         */
         const fechaActual =
           new Date();
 
@@ -131,10 +144,6 @@ export default function DashboardPage() {
         const dia =
           fechaActual.getDate();
 
-        /*
-         * Construimos el texto visible
-         * del período consultado.
-         */
         const fechaInicio =
           new Date(
             anio,
@@ -160,12 +169,6 @@ export default function DashboardPage() {
           )}`,
         );
 
-        /*
-         * Consulta real del dashboard.
-         * El parámetro dia hace que los
-         * datos correspondan del día 1
-         * hasta la fecha actual.
-         */
         const dashboardResponse =
           await fetch(
             `${apiUrl}/dashboard?anio=${anio}&mes=${mes}&dia=${dia}`,
@@ -177,12 +180,15 @@ export default function DashboardPage() {
             },
           );
 
-        if (!dashboardResponse.ok) {
+        if (
+          !dashboardResponse.ok
+        ) {
           setDashboardError(true);
           return;
         }
 
-        const data: DashboardData =
+        const data:
+          DashboardData =
           await dashboardResponse.json();
 
         setDashboardData(data);
@@ -210,9 +216,13 @@ export default function DashboardPage() {
   }
 
   function formatNumber(
-    value: number | undefined,
+    value:
+      | number
+      | undefined,
   ) {
-    if (value === undefined) {
+    if (
+      value === undefined
+    ) {
       return "—";
     }
 
@@ -225,7 +235,8 @@ export default function DashboardPage() {
   }
 
   const unidades =
-    dashboardData?.unidades ?? [];
+    dashboardData?.unidades ??
+    [];
 
   const unidadesDisponibles =
     unidades.filter(
@@ -250,15 +261,19 @@ export default function DashboardPage() {
 
   if (checkingSession) {
     return (
-      <main className={styles.page}>
+      <main
+        className={styles.page}
+      >
         <section
           style={{
             width: "100%",
             minHeight: "100vh",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            background: "#f4f5f3",
+            justifyContent:
+              "center",
+            background:
+              "#f4f5f3",
             color: "#000000",
             fontWeight: 700,
           }}
@@ -271,33 +286,45 @@ export default function DashboardPage() {
 
   return (
     <main className={styles.page}>
-      <aside className={styles.sidebar}>
-        <div className={styles.brand}>
+      <aside
+        className={styles.sidebar}
+      >
+        <div
+          className={styles.brand}
+        >
           <Image
             src="/images/fullterra-logo.jpeg"
             alt="Logo de FULLTERRA"
             width={54}
             height={54}
-            className={styles.logo}
+            className={
+              styles.logo
+            }
             priority
           />
 
           <span
-            className={styles.brandName}
+            className={
+              styles.brandName
+            }
           >
             FULLTERRA
           </span>
         </div>
 
         <nav
-          className={styles.navigation}
+          className={
+            styles.navigation
+          }
         >
           <button
             type="button"
             className={`${styles.navItem} ${styles.navItemActive}`}
           >
             <span
-              className={styles.navIcon}
+              className={
+                styles.navIcon
+              }
             >
               ▦
             </span>
@@ -305,25 +332,33 @@ export default function DashboardPage() {
             Dashboard
           </button>
 
-          <button
-            type="button"
-            className={styles.navItem}
+          <Link
+            href="/unidades"
+            className={
+              styles.navItem
+            }
           >
             <span
-              className={styles.navIcon}
+              className={
+                styles.navIcon
+              }
             >
               ▣
             </span>
 
             Unidades
-          </button>
+          </Link>
 
           <button
             type="button"
-            className={styles.navItem}
+            className={
+              styles.navItem
+            }
           >
             <span
-              className={styles.navIcon}
+              className={
+                styles.navIcon
+              }
             >
               ◉
             </span>
@@ -333,10 +368,14 @@ export default function DashboardPage() {
 
           <button
             type="button"
-            className={styles.navItem}
+            className={
+              styles.navItem
+            }
           >
             <span
-              className={styles.navIcon}
+              className={
+                styles.navIcon
+              }
             >
               ◈
             </span>
@@ -346,10 +385,14 @@ export default function DashboardPage() {
 
           <button
             type="button"
-            className={styles.navItem}
+            className={
+              styles.navItem
+            }
           >
             <span
-              className={styles.navIcon}
+              className={
+                styles.navIcon
+              }
             >
               ◇
             </span>
@@ -359,10 +402,14 @@ export default function DashboardPage() {
 
           <button
             type="button"
-            className={styles.navItem}
+            className={
+              styles.navItem
+            }
           >
             <span
-              className={styles.navIcon}
+              className={
+                styles.navIcon
+              }
             >
               ≡
             </span>
@@ -372,10 +419,14 @@ export default function DashboardPage() {
 
           <button
             type="button"
-            className={styles.navItem}
+            className={
+              styles.navItem
+            }
           >
             <span
-              className={styles.navIcon}
+              className={
+                styles.navIcon
+              }
             >
               ◫
             </span>
@@ -393,7 +444,9 @@ export default function DashboardPage() {
         </div>
       </aside>
 
-      <section className={styles.content}>
+      <section
+        className={styles.content}
+      >
         <header
           className={styles.topbar}
         >
@@ -406,11 +459,15 @@ export default function DashboardPage() {
               PANEL DE CONTROL
             </p>
 
-            <h1>Dashboard</h1>
+            <h1>
+              Dashboard
+            </h1>
           </div>
 
           <div
-            className={styles.userArea}
+            className={
+              styles.userArea
+            }
           >
             <div
               className={
@@ -419,7 +476,8 @@ export default function DashboardPage() {
             >
               {user?.usuario
                 ?.charAt(0)
-                .toUpperCase() ?? "U"}
+                .toUpperCase() ??
+                "U"}
             </div>
 
             <div
@@ -433,8 +491,11 @@ export default function DashboardPage() {
               </strong>
 
               <span>
-                {user?.roles?.length
-                  ? user.roles.join(", ")
+                {user?.roles
+                  ?.length
+                  ? user.roles.join(
+                      ", ",
+                    )
                   : "FULLTERRA"}
               </span>
             </div>
@@ -444,7 +505,9 @@ export default function DashboardPage() {
               className={
                 styles.logoutButton
               }
-              onClick={handleLogout}
+              onClick={
+                handleLogout
+              }
             >
               Cerrar sesión
             </button>
@@ -452,10 +515,14 @@ export default function DashboardPage() {
         </header>
 
         <div
-          className={styles.dashboard}
+          className={
+            styles.dashboard
+          }
         >
           <section
-            className={styles.welcome}
+            className={
+              styles.welcome
+            }
           >
             <div>
               <p
@@ -472,9 +539,10 @@ export default function DashboardPage() {
               </h2>
 
               <p>
-                Consulta el estado general
-                de las operaciones,
-                unidades, combustible y
+                Consulta el estado
+                general de las
+                operaciones, unidades,
+                combustible y
                 mantenimiento.
               </p>
             </div>
@@ -482,7 +550,8 @@ export default function DashboardPage() {
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
+                alignItems:
+                  "center",
                 justifyContent:
                   "flex-end",
                 gap: "10px",
@@ -490,14 +559,19 @@ export default function DashboardPage() {
               }}
             >
               <div
-                className={styles.status}
+                className={
+                  styles.status
+                }
               >
                 Período:{" "}
-                {periodoTexto || "—"}
+                {periodoTexto ||
+                  "—"}
               </div>
 
               <div
-                className={styles.status}
+                className={
+                  styles.status
+                }
               >
                 <span
                   className={
@@ -513,27 +587,38 @@ export default function DashboardPage() {
           {dashboardError && (
             <p
               style={{
-                marginTop: "20px",
-                padding: "14px 16px",
+                marginTop:
+                  "20px",
+                padding:
+                  "14px 16px",
                 border:
                   "1px solid #dedede",
-                borderRadius: "8px",
-                background: "#ffffff",
-                color: "#000000",
-                fontSize: "13px",
+                borderRadius:
+                  "8px",
+                background:
+                  "#ffffff",
+                color:
+                  "#000000",
+                fontSize:
+                  "13px",
                 fontWeight: 600,
               }}
             >
-              No fue posible cargar la
-              información del dashboard.
+              No fue posible cargar
+              la información del
+              dashboard.
             </p>
           )}
 
           <section
-            className={styles.cards}
+            className={
+              styles.cards
+            }
           >
             <article
-              className={styles.card}
+              className={
+                styles.card
+              }
             >
               <div
                 className={
@@ -556,7 +641,8 @@ export default function DashboardPage() {
               <strong>
                 {formatNumber(
                   dashboardData
-                    ?.resumen.viajes,
+                    ?.resumen
+                    .viajes,
                 )}
               </strong>
 
@@ -567,7 +653,9 @@ export default function DashboardPage() {
             </article>
 
             <article
-              className={styles.card}
+              className={
+                styles.card
+              }
             >
               <div
                 className={
@@ -575,7 +663,8 @@ export default function DashboardPage() {
                 }
               >
                 <span>
-                  Kilómetros recorridos
+                  Kilómetros
+                  recorridos
                 </span>
 
                 <span
@@ -590,17 +679,21 @@ export default function DashboardPage() {
               <strong>
                 {formatNumber(
                   dashboardData
-                    ?.resumen.kilometros,
+                    ?.resumen
+                    .kilometros,
                 )}
               </strong>
 
               <p>
-                Acumulado del período
+                Acumulado del
+                período
               </p>
             </article>
 
             <article
-              className={styles.card}
+              className={
+                styles.card
+              }
             >
               <div
                 className={
@@ -608,7 +701,8 @@ export default function DashboardPage() {
                 }
               >
                 <span>
-                  Horas de maquinaria
+                  Horas de
+                  maquinaria
                 </span>
 
                 <span
@@ -634,7 +728,9 @@ export default function DashboardPage() {
             </article>
 
             <article
-              className={styles.card}
+              className={
+                styles.card
+              }
             >
               <div
                 className={
@@ -669,10 +765,14 @@ export default function DashboardPage() {
           </section>
 
           <section
-            className={styles.grid}
+            className={
+              styles.grid
+            }
           >
             <article
-              className={styles.panel}
+              className={
+                styles.panel
+              }
             >
               <div
                 className={
@@ -689,20 +789,25 @@ export default function DashboardPage() {
                   </span>
 
                   <h3>
-                    Actividad por unidad
+                    Actividad por
+                    unidad
                   </h3>
                 </div>
               </div>
 
               <div
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
+                  display:
+                    "flex",
+                  flexDirection:
+                    "column",
                   gap: "12px",
-                  paddingTop: "18px",
+                  paddingTop:
+                    "18px",
                 }}
               >
-                {unidades.length === 0 ? (
+                {unidades.length ===
+                0 ? (
                   <div
                     className={
                       styles.emptyState
@@ -713,9 +818,10 @@ export default function DashboardPage() {
                     </strong>
 
                     <p>
-                      No existen unidades
-                      registradas para el
-                      período.
+                      No existen
+                      unidades
+                      registradas para
+                      el período.
                     </p>
                   </div>
                 ) : (
@@ -723,10 +829,12 @@ export default function DashboardPage() {
                     (registro) => (
                       <div
                         key={
-                          registro.unidad.id
+                          registro
+                            .unidad.id
                         }
                         style={{
-                          display: "grid",
+                          display:
+                            "grid",
                           gridTemplateColumns:
                             "1.4fr repeat(5, 1fr)",
                           gap: "12px",
@@ -786,7 +894,8 @@ export default function DashboardPage() {
                         <div>
                           <strong>
                             {formatNumber(
-                              registro.viajes,
+                              registro
+                                .viajes,
                             )}
                           </strong>
 
@@ -809,7 +918,8 @@ export default function DashboardPage() {
                         <div>
                           <strong>
                             {formatNumber(
-                              registro.kilometros,
+                              registro
+                                .kilometros,
                             )}
                           </strong>
 
@@ -832,7 +942,8 @@ export default function DashboardPage() {
                         <div>
                           <strong>
                             {formatNumber(
-                              registro.horasMaquinaria,
+                              registro
+                                .horasMaquinaria,
                             )}
                           </strong>
 
@@ -855,7 +966,8 @@ export default function DashboardPage() {
                         <div>
                           <strong>
                             {formatNumber(
-                              registro.galonesCombustible,
+                              registro
+                                .galonesCombustible,
                             )}
                           </strong>
 
@@ -878,7 +990,8 @@ export default function DashboardPage() {
                         <div>
                           <strong>
                             {formatNumber(
-                              registro.mantenimientos,
+                              registro
+                                .mantenimientos,
                             )}
                           </strong>
 
@@ -905,7 +1018,9 @@ export default function DashboardPage() {
             </article>
 
             <article
-              className={styles.panel}
+              className={
+                styles.panel
+              }
             >
               <div
                 className={
@@ -929,30 +1044,37 @@ export default function DashboardPage() {
 
               <div
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
+                  display:
+                    "flex",
+                  flexDirection:
+                    "column",
                   gap: "13px",
-                  paddingTop: "22px",
+                  paddingTop:
+                    "22px",
                 }}
               >
                 <div
                   style={{
-                    display: "flex",
+                    display:
+                      "flex",
                     justifyContent:
                       "space-between",
-                    alignItems: "center",
+                    alignItems:
+                      "center",
                     padding:
                       "15px 16px",
                     border:
                       "1px solid #e6e6e6",
-                    borderRadius: "9px",
+                    borderRadius:
+                      "9px",
                     background:
                       "#fafafa",
                   }}
                 >
                   <span
                     style={{
-                      fontSize: "12px",
+                      fontSize:
+                        "12px",
                       fontWeight: 700,
                     }}
                   >
@@ -960,28 +1082,34 @@ export default function DashboardPage() {
                   </span>
 
                   <strong>
-                    {unidadesDisponibles}
+                    {
+                      unidadesDisponibles
+                    }
                   </strong>
                 </div>
 
                 <div
                   style={{
-                    display: "flex",
+                    display:
+                      "flex",
                     justifyContent:
                       "space-between",
-                    alignItems: "center",
+                    alignItems:
+                      "center",
                     padding:
                       "15px 16px",
                     border:
                       "1px solid #e6e6e6",
-                    borderRadius: "9px",
+                    borderRadius:
+                      "9px",
                     background:
                       "#fafafa",
                   }}
                 >
                   <span
                     style={{
-                      fontSize: "12px",
+                      fontSize:
+                        "12px",
                       fontWeight: 700,
                     }}
                   >
@@ -997,22 +1125,26 @@ export default function DashboardPage() {
 
                 <div
                   style={{
-                    display: "flex",
+                    display:
+                      "flex",
                     justifyContent:
                       "space-between",
-                    alignItems: "center",
+                    alignItems:
+                      "center",
                     padding:
                       "15px 16px",
                     border:
                       "1px solid #e6e6e6",
-                    borderRadius: "9px",
+                    borderRadius:
+                      "9px",
                     background:
                       "#fafafa",
                   }}
                 >
                   <span
                     style={{
-                      fontSize: "12px",
+                      fontSize:
+                        "12px",
                       fontWeight: 700,
                     }}
                   >
@@ -1020,27 +1152,34 @@ export default function DashboardPage() {
                   </span>
 
                   <strong>
-                    {unidadesInactivas}
+                    {
+                      unidadesInactivas
+                    }
                   </strong>
                 </div>
 
                 <div
                   style={{
-                    marginTop: "5px",
+                    marginTop:
+                      "5px",
                     padding:
                       "17px 16px",
                     border:
                       "1px solid #e6e6e6",
-                    borderRadius: "9px",
+                    borderRadius:
+                      "9px",
                     background:
                       "#ffffff",
                   }}
                 >
                   <span
                     style={{
-                      display: "block",
-                      color: "#777777",
-                      fontSize: "11px",
+                      display:
+                        "block",
+                      color:
+                        "#777777",
+                      fontSize:
+                        "11px",
                     }}
                   >
                     Mantenimientos del
@@ -1049,9 +1188,12 @@ export default function DashboardPage() {
 
                   <strong
                     style={{
-                      display: "block",
-                      marginTop: "7px",
-                      fontSize: "25px",
+                      display:
+                        "block",
+                      marginTop:
+                        "7px",
+                      fontSize:
+                        "25px",
                     }}
                   >
                     {formatNumber(
