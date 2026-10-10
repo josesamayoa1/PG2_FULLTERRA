@@ -61,20 +61,37 @@ export class IndicatorsService {
   private obtenerRangoFechas(
     anio: number,
     mes: number,
+    diaFin?: number,
   ) {
     const mesFormateado =
       String(mes).padStart(2, '0');
 
-    const ultimoDia = new Date(
+    const ultimoDiaMes = new Date(
       Date.UTC(anio, mes, 0),
     ).getUTCDate();
+
+    if (
+      diaFin !== undefined &&
+      (
+        !Number.isInteger(diaFin) ||
+        diaFin < 1 ||
+        diaFin > ultimoDiaMes
+      )
+    ) {
+      throw new BadRequestException(
+        `El día final debe ser un número entero entre 1 y ${ultimoDiaMes}`,
+      );
+    }
+
+    const diaFinal =
+      diaFin ?? ultimoDiaMes;
 
     const fechaInicio =
       `${anio}-${mesFormateado}-01`;
 
     const fechaFin =
       `${anio}-${mesFormateado}-${String(
-        ultimoDia,
+        diaFinal,
       ).padStart(2, '0')}`;
 
     return {
@@ -86,6 +103,7 @@ export class IndicatorsService {
   async obtenerIndicadores(
     anio: number,
     mes: number,
+    diaFin?: number,
   ) {
     this.validarPeriodo(
       anio,
@@ -98,6 +116,7 @@ export class IndicatorsService {
     } = this.obtenerRangoFechas(
       anio,
       mes,
+      diaFin,
     );
 
     const unidades =
@@ -219,11 +238,26 @@ export class IndicatorsService {
             tipo: unidad.tipo,
             marca: unidad.marca,
             modelo: unidad.modelo,
+            placaOSerie:
+              unidad.placaOSerie,
+            estado:
+              unidad.estado,
+            activo:
+              unidad.activo,
           },
-          viajes: totalViajes,
-          kilometros: totalKilometros,
-          horasUso: totalHoras,
-          galones: totalGalones,
+
+          viajes:
+            totalViajes,
+
+          kilometros:
+            totalKilometros,
+
+          horasUso:
+            totalHoras,
+
+          galones:
+            totalGalones,
+
           mantenimientos:
             mantenimientosUnidad.length,
         };
@@ -271,7 +305,9 @@ export class IndicatorsService {
         fechaInicio,
         fechaFin,
       },
+
       resumen,
+
       indicadoresPorUnidad,
     };
   }
@@ -301,6 +337,7 @@ export class IndicatorsService {
         anio,
         mes,
       ),
+
       this.obtenerIndicadores(
         anioAnterior,
         mesAnterior,
@@ -330,17 +367,22 @@ export class IndicatorsService {
             };
 
           return {
-            unidad: actual.unidad,
+            unidad:
+              actual.unidad,
 
             actual: {
               viajes:
                 actual.viajes,
+
               kilometros:
                 actual.kilometros,
+
               horasUso:
                 actual.horasUso,
+
               galones:
                 actual.galones,
+
               mantenimientos:
                 actual.mantenimientos,
             },
@@ -348,12 +390,16 @@ export class IndicatorsService {
             anterior: {
               viajes:
                 datosAnteriores.viajes,
+
               kilometros:
                 datosAnteriores.kilometros,
+
               horasUso:
                 datosAnteriores.horasUso,
+
               galones:
                 datosAnteriores.galones,
+
               mantenimientos:
                 datosAnteriores
                   .mantenimientos,

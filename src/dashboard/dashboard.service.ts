@@ -12,85 +12,129 @@ export class DashboardService {
   async obtenerDashboard(
     anio: number,
     mes: number,
+    dia?: number,
   ) {
-    const comparativo =
+    const indicadoresActuales =
       await this.indicatorsService
-        .obtenerComparativoMensual(
+        .obtenerIndicadores(
           anio,
           mes,
+          dia,
+        );
+
+    let anioAnterior = anio;
+    let mesAnterior = mes - 1;
+
+    if (mes === 1) {
+      anioAnterior = anio - 1;
+      mesAnterior = 12;
+    }
+
+    let diaAnterior:
+      number | undefined;
+
+    if (dia !== undefined) {
+      const ultimoDiaMesAnterior =
+        new Date(
+          Date.UTC(
+            anioAnterior,
+            mesAnterior,
+            0,
+          ),
+        ).getUTCDate();
+
+      diaAnterior = Math.min(
+        dia,
+        ultimoDiaMesAnterior,
+      );
+    }
+
+    const indicadoresAnteriores =
+      await this.indicatorsService
+        .obtenerIndicadores(
+          anioAnterior,
+          mesAnterior,
+          diaAnterior,
         );
 
     return {
       periodo:
-        comparativo.periodoActual,
+        indicadoresActuales.periodo,
 
       resumen: {
         viajes:
-          comparativo.resumen
-            .actual.viajes,
+          indicadoresActuales
+            .resumen.viajes,
 
         kilometros:
-          comparativo.resumen
-            .actual.kilometros,
+          indicadoresActuales
+            .resumen.kilometros,
 
         horasMaquinaria:
-          comparativo.resumen
-            .actual.horasUso,
+          indicadoresActuales
+            .resumen.horasUso,
 
         galonesCombustible:
-          comparativo.resumen
-            .actual.galones,
+          indicadoresActuales
+            .resumen.galones,
 
         mantenimientos:
-          comparativo.resumen
-            .actual.mantenimientos,
+          indicadoresActuales
+            .resumen.mantenimientos,
       },
 
       variacionMesAnterior: {
         viajes:
-          comparativo.resumen
-            .diferencia.viajes,
+          indicadoresActuales
+            .resumen.viajes -
+          indicadoresAnteriores
+            .resumen.viajes,
 
         kilometros:
-          comparativo.resumen
-            .diferencia.kilometros,
+          indicadoresActuales
+            .resumen.kilometros -
+          indicadoresAnteriores
+            .resumen.kilometros,
 
         horasMaquinaria:
-          comparativo.resumen
-            .diferencia.horasUso,
+          indicadoresActuales
+            .resumen.horasUso -
+          indicadoresAnteriores
+            .resumen.horasUso,
 
         galonesCombustible:
-          comparativo.resumen
-            .diferencia.galones,
+          indicadoresActuales
+            .resumen.galones -
+          indicadoresAnteriores
+            .resumen.galones,
 
         mantenimientos:
-          comparativo.resumen
-            .diferencia
-            .mantenimientos,
+          indicadoresActuales
+            .resumen.mantenimientos -
+          indicadoresAnteriores
+            .resumen.mantenimientos,
       },
 
       unidades:
-        comparativo
-          .comparativosPorUnidad
+        indicadoresActuales
+          .indicadoresPorUnidad
           .map((registro) => ({
             unidad: registro.unidad,
 
             viajes:
-              registro.actual.viajes,
+              registro.viajes,
 
             kilometros:
-              registro.actual
-                .kilometros,
+              registro.kilometros,
 
             horasMaquinaria:
-              registro.actual.horasUso,
+              registro.horasUso,
 
             galonesCombustible:
-              registro.actual.galones,
+              registro.galones,
 
             mantenimientos:
-              registro.actual
-                .mantenimientos,
+              registro.mantenimientos,
           })),
     };
   }

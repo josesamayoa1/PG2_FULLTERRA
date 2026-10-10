@@ -1,0 +1,499 @@
+.page {
+  width: 100%;
+  min-height: 100vh;
+
+  background: #ffffff;
+
+  color: #000000;
+}
+
+/* =========================
+   CABECERA
+   ========================= */
+
+.header {
+  position: relative;
+  z-index: 10;
+
+  width: 100%;
+  min-height: 108px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 40px;
+
+  padding: 12px 48px;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #e1e1e1;
+
+  box-shadow:
+    0 2px 10px
+    rgba(0, 0, 0, 0.04);
+}
+
+/* =========================
+   MARCA FULLTERRA
+   ========================= */
+
+.brand {
+  display: flex;
+  align-items: center;
+
+  gap: 17px;
+
+  flex-shrink: 0;
+}
+
+.logoContainer {
+  width: 76px;
+  height: 76px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border-radius: 10px;
+}
+
+.companyLogo {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+}
+
+.brandName {
+  color: #000000;
+
+  font-size:
+    clamp(
+      30px,
+      3vw,
+      48px
+    );
+
+  font-weight: 900;
+
+  line-height: 1;
+
+  letter-spacing: -1.8px;
+}
+
+/* =========================
+   LOGIN
+   ========================= */
+
+.loginForm {
+  width: 100%;
+  max-width: 720px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 14px;
+}
+
+.loginField {
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #d2d6da;
+
+  border-radius: 7px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.loginField:hover {
+  border-color: #a9a9a9;
+}
+
+.loginField:focus-within {
+  border-color: #000000;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(0, 0, 0, 0.06);
+}
+
+.fieldIcon {
+  width: 46px;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  color: #000000;
+
+  border-right: 1px solid #dedede;
+}
+
+.fieldIcon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.loginField input {
+  width: 190px;
+  height: 100%;
+
+  padding: 0 15px;
+
+  border: 0;
+  outline: 0;
+
+  background: #ffffff;
+
+  color: #000000;
+
+  font-size: 15px;
+}
+
+.loginField input::placeholder {
+  color: #707070;
+}
+
+/* =========================
+   BOTÓN
+   ========================= */
+
+.loginButton {
+  min-width: 148px;
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  padding: 0 22px;
+
+  border: 1px solid #1c1c1c;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #000000;
+
+  font-size: 15px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.loginButton:hover {
+  background: #f1f1f1;
+
+  color: #000000;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 7px 16px
+    rgba(0, 0, 0, 0.12);
+}
+
+.loginButton:active {
+  transform: translateY(0);
+}
+
+.arrow {
+  font-size: 21px;
+
+  line-height: 1;
+}
+
+/* =========================
+   IMAGEN PRINCIPAL
+   ========================= */
+
+.hero {
+  position: relative;
+
+  width: 100%;
+
+  min-height:
+    calc(
+      100vh - 108px
+    );
+
+  background-image:
+    url(
+      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=2400&q=90"
+    );
+
+  background-size: cover;
+
+  background-position: center;
+
+  background-repeat: no-repeat;
+}
+
+.heroOverlay {
+  width: 100%;
+
+  min-height:
+    calc(
+      100vh - 108px
+    );
+
+  display: flex;
+
+  align-items: flex-start;
+
+  padding:
+    clamp(
+      70px,
+      10vh,
+      120px
+    )
+    clamp(
+      32px,
+      5vw,
+      80px
+    );
+}
+
+/* =========================
+   CUADRO TRANSPARENTE
+   ========================= */
+
+.messageCard {
+  width:
+    min(
+      900px,
+      68vw
+    );
+
+  padding:
+    clamp(
+      34px,
+      4vw,
+      56px
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.85
+    );
+
+  border-radius: 24px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.72
+    );
+
+  backdrop-filter:
+    blur(15px);
+
+  -webkit-backdrop-filter:
+    blur(15px);
+
+  box-shadow:
+    0 18px 44px
+    rgba(0, 0, 0, 0.13);
+}
+
+.messageCard h1 {
+  max-width: 850px;
+
+  color: #000000;
+
+  font-size:
+    clamp(
+      42px,
+      5vw,
+      72px
+    );
+
+  font-weight: 900;
+
+  line-height: 1.05;
+
+  letter-spacing: -2.5px;
+}
+
+.messageCard p {
+  max-width: 850px;
+
+  margin-top: 24px;
+
+  color: #000000;
+
+  font-size:
+    clamp(
+      18px,
+      2vw,
+      28px
+    );
+
+  line-height: 1.45;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 1100px) {
+  .header {
+    padding:
+      12px
+      28px;
+
+    gap: 24px;
+  }
+
+  .logoContainer {
+    width: 64px;
+    height: 64px;
+  }
+
+  .brandName {
+    font-size: 32px;
+  }
+
+  .loginField input {
+    width: 145px;
+  }
+
+  .loginButton {
+    min-width: 118px;
+  }
+
+  .messageCard {
+    width: 78vw;
+  }
+}
+
+@media (max-width: 850px) {
+  .header {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    padding:
+      16px
+      22px;
+  }
+
+  .brand {
+    justify-content: center;
+  }
+
+  .loginForm {
+    max-width: none;
+
+    display: grid;
+
+    grid-template-columns:
+      1fr
+      1fr
+      auto;
+  }
+
+  .loginField input {
+    width: 100%;
+  }
+
+  .heroOverlay {
+    align-items: center;
+
+    padding:
+      40px
+      22px;
+  }
+
+  .messageCard {
+    width: 100%;
+  }
+}
+
+@media (max-width: 620px) {
+  .brandName {
+    font-size: 29px;
+  }
+
+  .logoContainer {
+    width: 58px;
+    height: 58px;
+  }
+
+  .loginForm {
+    grid-template-columns: 1fr;
+  }
+
+  .loginButton {
+    width: 100%;
+  }
+
+  .hero {
+    min-height: 680px;
+
+    background-position:
+      60% center;
+  }
+
+  .heroOverlay {
+    min-height: 680px;
+
+    align-items: flex-start;
+
+    padding:
+      30px
+      18px;
+  }
+
+  .messageCard {
+    padding:
+      28px
+      22px;
+
+    border-radius: 18px;
+  }
+
+  .messageCard h1 {
+    font-size: 37px;
+
+    letter-spacing: -1.5px;
+  }
+
+  .messageCard p {
+    font-size: 18px;
+  }
+}

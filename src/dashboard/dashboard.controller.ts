@@ -29,11 +29,15 @@ export class DashboardController {
   obtenerDashboard(
     @Query('anio') anio: string,
     @Query('mes') mes: string,
+    @Query('dia') dia?: string,
   ) {
     return this.dashboardService
       .obtenerDashboard(
         Number(anio),
         Number(mes),
+        dia === undefined
+          ? undefined
+          : Number(dia),
       );
   }
 }
