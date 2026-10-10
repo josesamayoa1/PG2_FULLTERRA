@@ -541,8 +541,8 @@ export default function UnidadesPage() {
             Unidades
           </Link>
 
-          <button
-            type="button"
+          <Link
+            href="/operaciones"
             className={
               styles.navItem
             }
@@ -556,7 +556,7 @@ export default function UnidadesPage() {
             </span>
 
             Operaciones
-          </button>
+          </Link>
 
           <button
             type="button"

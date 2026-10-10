@@ -18,13 +18,13 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Controller('units')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles('Administrador')
 export class UnitsController {
   constructor(
     private readonly unitsService: UnitsService,
   ) {}
 
   @Post()
+  @Roles('Administrador')
   crear(
     @Body() createUnitDto: CreateUnitDto,
   ) {
@@ -34,11 +34,21 @@ export class UnitsController {
   }
 
   @Get()
+  @Roles(
+    'Administrador',
+    'Supervisor',
+    'Operador',
+  )
   obtenerTodos() {
     return this.unitsService.obtenerTodos();
   }
 
   @Get('tipo/:tipo')
+  @Roles(
+    'Administrador',
+    'Supervisor',
+    'Operador',
+  )
   obtenerPorTipo(
     @Param('tipo') tipo: string,
   ) {
@@ -48,6 +58,7 @@ export class UnitsController {
   }
 
   @Patch(':id')
+  @Roles('Administrador')
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUnitDto: UpdateUnitDto,
@@ -59,6 +70,7 @@ export class UnitsController {
   }
 
   @Patch(':id/activo')
+  @Roles('Administrador')
   cambiarEstadoActivo(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { activo: boolean },

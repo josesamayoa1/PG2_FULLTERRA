@@ -349,8 +349,8 @@ export default function DashboardPage() {
             Unidades
           </Link>
 
-          <button
-            type="button"
+          <Link
+            href="/operaciones"
             className={
               styles.navItem
             }
@@ -364,7 +364,7 @@ export default function DashboardPage() {
             </span>
 
             Operaciones
-          </button>
+          </Link>
 
           <button
             type="button"

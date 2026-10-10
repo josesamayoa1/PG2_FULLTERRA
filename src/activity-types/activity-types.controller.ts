@@ -14,7 +14,6 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Controller('activity-types')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles('Administrador')
 export class ActivityTypesController {
   constructor(
     private readonly activityTypesService:
@@ -22,6 +21,7 @@ export class ActivityTypesController {
   ) {}
 
   @Post()
+  @Roles('Administrador')
   crear(
     @Body()
     createActivityTypeDto: CreateActivityTypeDto,
@@ -32,6 +32,11 @@ export class ActivityTypesController {
   }
 
   @Get()
+  @Roles(
+    'Administrador',
+    'Supervisor',
+    'Operador',
+  )
   obtenerTodos() {
     return this.activityTypesService.obtenerTodos();
   }

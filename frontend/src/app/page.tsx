@@ -8,6 +8,12 @@ import {
 
 import styles from "./page.module.css";
 
+type UserProfile = {
+  id: number;
+  usuario: string;
+  roles?: string[];
+};
+
 export default function Home() {
   const [loading, setLoading] =
     useState(false);
@@ -74,12 +80,76 @@ export default function Home() {
         data.access_token,
       );
 
-      window.location.href =
-        "/dashboard";
+      const profileResponse =
+        await fetch(
+          `${apiUrl}/auth/profile`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${data.access_token}`,
+            },
+          },
+        );
+
+      if (!profileResponse.ok) {
+        localStorage.removeItem(
+          "fullterra_token",
+        );
+
+        window.alert(
+          "No fue posible validar la sesión.",
+        );
+
+        return;
+      }
+
+      const profile:
+        UserProfile =
+        await profileResponse.json();
+
+      const roles =
+        profile.roles ?? [];
+
+      if (
+        roles.includes(
+          "Administrador",
+        ) ||
+        roles.includes(
+          "Supervisor",
+        )
+      ) {
+        window.location.href =
+          "/dashboard";
+
+        return;
+      }
+
+      if (
+        roles.includes(
+          "Operador",
+        )
+      ) {
+        window.location.href =
+          "/operaciones";
+
+        return;
+      }
+
+      localStorage.removeItem(
+        "fullterra_token",
+      );
+
+      window.alert(
+        "Tu usuario no tiene un rol autorizado para ingresar al sistema.",
+      );
     } catch (error) {
       console.error(
         "Error al iniciar sesión:",
         error,
+      );
+
+      localStorage.removeItem(
+        "fullterra_token",
       );
 
       window.alert(

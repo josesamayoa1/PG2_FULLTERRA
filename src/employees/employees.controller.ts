@@ -18,13 +18,13 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Controller('employees')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles('Administrador')
 export class EmployeesController {
   constructor(
     private readonly employeesService: EmployeesService,
   ) {}
 
   @Post()
+  @Roles('Administrador')
   crear(
     @Body() createEmployeeDto: CreateEmployeeDto,
   ) {
@@ -34,11 +34,17 @@ export class EmployeesController {
   }
 
   @Get()
+  @Roles(
+    'Administrador',
+    'Supervisor',
+    'Operador',
+  )
   obtenerTodos() {
     return this.employeesService.obtenerTodos();
   }
 
   @Patch(':id')
+  @Roles('Administrador')
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateEmployeeDto: UpdateEmployeeDto,
@@ -50,6 +56,7 @@ export class EmployeesController {
   }
 
   @Patch(':id/estado')
+  @Roles('Administrador')
   cambiarEstado(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { activo: boolean },
