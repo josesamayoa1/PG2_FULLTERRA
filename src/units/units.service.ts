@@ -55,6 +55,37 @@ export class UnitsService {
     return tipoNormalizado;
   }
 
+  private validarEstado(
+    estado: string,
+  ) {
+    const estadoValidado =
+      this.validarTextoObligatorio(
+        estado,
+        'El estado de la unidad',
+      );
+
+    const estadoNormalizado =
+      estadoValidado.toUpperCase();
+
+    const estadosPermitidos = [
+      'DISPONIBLE',
+      'MANTENIMIENTO',
+      'INACTIVO',
+    ];
+
+    if (
+      !estadosPermitidos.includes(
+        estadoNormalizado,
+      )
+    ) {
+      throw new BadRequestException(
+        'El estado de la unidad debe ser DISPONIBLE, MANTENIMIENTO o INACTIVO',
+      );
+    }
+
+    return estadoNormalizado;
+  }
+
   async crear(createUnitDto: CreateUnitDto) {
     const codigo =
       this.validarTextoObligatorio(
@@ -110,15 +141,12 @@ export class UnitsService {
       );
     }
 
-    let estado = 'DISPONIBLE';
-
-    if (createUnitDto.estado !== undefined) {
-      estado =
-        this.validarTextoObligatorio(
-          createUnitDto.estado,
-          'El estado de la unidad',
-        );
-    }
+    const estado =
+      createUnitDto.estado === undefined
+        ? 'DISPONIBLE'
+        : this.validarEstado(
+            createUnitDto.estado,
+          );
 
     const unidad = this.unitRepository.create({
       codigo,
@@ -127,6 +155,8 @@ export class UnitsService {
       modelo,
       placaOSerie,
       estado,
+      activo:
+        estado !== 'INACTIVO',
     });
 
     const unidadGuardada =
@@ -284,11 +314,14 @@ export class UnitsService {
     }
 
     if (updateUnitDto.estado !== undefined) {
-      unidad.estado =
-        this.validarTextoObligatorio(
+      const estado =
+        this.validarEstado(
           updateUnitDto.estado,
-          'El estado de la unidad',
         );
+
+      unidad.estado = estado;
+      unidad.activo =
+        estado !== 'INACTIVO';
     }
 
     const unidadActualizada =
@@ -324,7 +357,21 @@ export class UnitsService {
       );
     }
 
+    if (typeof activo !== 'boolean') {
+      throw new BadRequestException(
+        'El estado activo debe ser verdadero o falso',
+      );
+    }
+
     unidad.activo = activo;
+
+    if (!activo) {
+      unidad.estado = 'INACTIVO';
+    } else if (
+      unidad.estado === 'INACTIVO'
+    ) {
+      unidad.estado = 'DISPONIBLE';
+    }
 
     const unidadActualizada =
       await this.unitRepository.save(unidad);

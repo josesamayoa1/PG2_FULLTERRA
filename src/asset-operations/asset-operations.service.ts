@@ -161,6 +161,14 @@ export class AssetOperationsService {
       );
     }
 
+    if (
+      unidad.estado !== 'DISPONIBLE'
+    ) {
+      throw new BadRequestException(
+        'La unidad seleccionada no está disponible para operaciones',
+      );
+    }
+
     const empleado =
       await this.employeeRepository.findOne({
         where: {
@@ -381,11 +389,18 @@ export class AssetOperationsService {
       );
     }
 
+    if (
+      unidad.estado !== 'DISPONIBLE'
+    ) {
+      throw new BadRequestException(
+        'La unidad seleccionada no está disponible para operaciones',
+      );
+    }
+
     const empleado =
       await this.employeeRepository.findOne({
         where: {
-          id: createMachineryHoursDto
-            .empleadoId,
+          id: createMachineryHoursDto.empleadoId,
         },
       });
 
