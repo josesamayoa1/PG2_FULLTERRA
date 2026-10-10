@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -18,12 +19,15 @@ import { TraceabilityModule } from './traceability/traceability.module';
 import { IndicatorsModule } from './indicators/indicators.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MaintenanceAlertsModule } from './maintenance-alerts/maintenance-alerts.module';
+import { TelegramModule } from './telegram/telegram.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+
+    ScheduleModule.forRoot(),
 
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -62,6 +66,7 @@ import { MaintenanceAlertsModule } from './maintenance-alerts/maintenance-alerts
     IndicatorsModule,
     DashboardModule,
     MaintenanceAlertsModule,
+    TelegramModule,
   ],
   controllers: [AppController],
   providers: [AppService],
