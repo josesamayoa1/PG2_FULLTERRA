@@ -977,22 +977,24 @@ export default function OperacionesPage() {
             Operaciones
           </Link>
 
-          <button
-            type="button"
+          {puedeVerDashboard && (
+          <Link
+              href="/combustible"
             className={
               styles.navItem
-            }
-          >
-            <span
-              className={
-                styles.navIcon
+              }
+            >
+              <span
+            className={
+              styles.navIcon
               }
             >
               ◈
-            </span>
+              </span>
 
-            Combustible
-          </button>
+              Combustible
+          </Link>
+            )}
 
           <button
             type="button"

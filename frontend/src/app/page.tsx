@@ -126,6 +126,17 @@ export default function Home() {
 
       if (
         roles.includes(
+          "Encargado de combustible",
+        )
+      ) {
+        window.location.href =
+          "/combustible";
+
+        return;
+      }
+
+      if (
+        roles.includes(
           "Operador",
         )
       ) {

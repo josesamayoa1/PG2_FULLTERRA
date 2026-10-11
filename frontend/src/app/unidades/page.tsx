@@ -558,22 +558,22 @@ export default function UnidadesPage() {
             Operaciones
           </Link>
 
-          <button
-            type="button"
-            className={
-              styles.navItem
-            }
-          >
-            <span
+          <Link
+                href="/combustible"
               className={
-                styles.navIcon
-              }
-            >
-              ◈
-            </span>
+                styles.navItem
+                }
+              >
+              <span
+                className={
+                  styles.navIcon
+                }
+              >
+                ◈
+              </span>
 
             Combustible
-          </button>
+          </Link>
 
           <button
             type="button"

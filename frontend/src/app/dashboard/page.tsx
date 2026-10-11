@@ -1,11 +1,9 @@
+
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
 import styles from "./dashboard.module.css";
 
@@ -58,38 +56,16 @@ type DashboardData = {
 };
 
 export default function DashboardPage() {
-  const [
-    checkingSession,
-    setCheckingSession,
-  ] = useState(true);
-
-  const [user, setUser] =
-    useState<UserProfile | null>(null);
-
-  const [
-    dashboardData,
-    setDashboardData,
-  ] =
-    useState<DashboardData | null>(
-      null,
-    );
-
-  const [
-    dashboardError,
-    setDashboardError,
-  ] = useState(false);
-
-  const [
-    periodoTexto,
-    setPeriodoTexto,
-  ] = useState("");
+  const [checkingSession, setCheckingSession] = useState(true);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [dashboardData, setDashboardData] =
+    useState<DashboardData | null>(null);
+  const [dashboardError, setDashboardError] = useState(false);
+  const [periodoTexto, setPeriodoTexto] = useState("");
 
   useEffect(() => {
     async function cargarDashboard() {
-      const token =
-        localStorage.getItem(
-          "fullterra_token",
-        );
+      const token = localStorage.getItem("fullterra_token");
 
       if (!token) {
         window.location.href = "/";
@@ -98,106 +74,69 @@ export default function DashboardPage() {
 
       try {
         const apiUrl =
-          process.env
-            .NEXT_PUBLIC_API_URL ??
+          process.env.NEXT_PUBLIC_API_URL ??
           "http://localhost:3000";
 
-        const profileResponse =
-          await fetch(
-            `${apiUrl}/auth/profile`,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
+        const profileResponse = await fetch(
+          `${apiUrl}/auth/profile`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
             },
-          );
+          },
+        );
 
-        if (
-          !profileResponse.ok
-        ) {
-          localStorage.removeItem(
-            "fullterra_token",
-          );
-
-          window.location.href =
-            "/";
-
+        if (!profileResponse.ok) {
+          localStorage.removeItem("fullterra_token");
+          window.location.href = "/";
           return;
         }
 
-        const profile:
-          UserProfile =
+        const profile: UserProfile =
           await profileResponse.json();
 
         setUser(profile);
 
-        const fechaActual =
-          new Date();
+        const fechaActual = new Date();
+        const anio = fechaActual.getFullYear();
+        const mes = fechaActual.getMonth() + 1;
+        const dia = fechaActual.getDate();
 
-        const anio =
-          fechaActual.getFullYear();
+        const fechaInicio = new Date(anio, mes - 1, 1);
 
-        const mes =
-          fechaActual.getMonth() + 1;
-
-        const dia =
-          fechaActual.getDate();
-
-        const fechaInicio =
-          new Date(
-            anio,
-            mes - 1,
-            1,
-          );
-
-        const formatoFecha =
-          new Intl.DateTimeFormat(
-            "es-GT",
-            {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            },
-          );
-
-        setPeriodoTexto(
-          `${formatoFecha.format(
-            fechaInicio,
-          )} - ${formatoFecha.format(
-            fechaActual,
-          )}`,
+        const formatoFecha = new Intl.DateTimeFormat(
+          "es-GT",
+          {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          },
         );
 
-        const dashboardResponse =
-          await fetch(
-            `${apiUrl}/dashboard?anio=${anio}&mes=${mes}&dia=${dia}`,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            },
-          );
+        setPeriodoTexto(
+          `${formatoFecha.format(fechaInicio)} - ${formatoFecha.format(fechaActual)}`,
+        );
 
-        if (
-          !dashboardResponse.ok
-        ) {
+        const dashboardResponse = await fetch(
+          `${apiUrl}/dashboard?anio=${anio}&mes=${mes}&dia=${dia}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (!dashboardResponse.ok) {
           setDashboardError(true);
           return;
         }
 
-        const data:
-          DashboardData =
+        const data: DashboardData =
           await dashboardResponse.json();
 
         setDashboardData(data);
       } catch (error) {
-        console.error(
-          "Error al cargar dashboard:",
-          error,
-        );
-
+        console.error("Error al cargar dashboard:", error);
         setDashboardError(true);
       } finally {
         setCheckingSession(false);
@@ -208,72 +147,48 @@ export default function DashboardPage() {
   }, []);
 
   function handleLogout() {
-    localStorage.removeItem(
-      "fullterra_token",
-    );
-
+    localStorage.removeItem("fullterra_token");
     window.location.href = "/";
   }
 
-  function formatNumber(
-    value:
-      | number
-      | undefined,
-  ) {
-    if (
-      value === undefined
-    ) {
+  function formatNumber(value: number | undefined) {
+    if (value === undefined) {
       return "—";
     }
 
-    return value.toLocaleString(
-      "es-GT",
-      {
-        maximumFractionDigits: 2,
-      },
-    );
+    return value.toLocaleString("es-GT", {
+      maximumFractionDigits: 2,
+    });
   }
 
-  const unidades =
-    dashboardData?.unidades ??
-    [];
+  const unidades = dashboardData?.unidades ?? [];
 
-  const unidadesDisponibles =
-    unidades.filter(
-      (registro) =>
-        registro.unidad.estado ===
-        "DISPONIBLE",
-    ).length;
+  const unidadesDisponibles = unidades.filter(
+    (registro) =>
+      registro.unidad.estado === "DISPONIBLE",
+  ).length;
 
-  const unidadesMantenimiento =
-    unidades.filter(
-      (registro) =>
-        registro.unidad.estado ===
-        "MANTENIMIENTO",
-    ).length;
+  const unidadesMantenimiento = unidades.filter(
+    (registro) =>
+      registro.unidad.estado === "MANTENIMIENTO",
+  ).length;
 
-  const unidadesInactivas =
-    unidades.filter(
-      (registro) =>
-        registro.unidad.estado ===
-        "INACTIVO",
-    ).length;
+  const unidadesInactivas = unidades.filter(
+    (registro) =>
+      registro.unidad.estado === "INACTIVO",
+  ).length;
 
   if (checkingSession) {
     return (
-      <main
-        className={styles.page}
-      >
+      <main className={styles.page}>
         <section
           style={{
             width: "100%",
             minHeight: "100vh",
             display: "flex",
             alignItems: "center",
-            justifyContent:
-              "center",
-            background:
-              "#f4f5f3",
+            justifyContent: "center",
+            background: "#f4f5f3",
             color: "#000000",
             fontWeight: 700,
           }}
@@ -286,250 +201,139 @@ export default function DashboardPage() {
 
   return (
     <main className={styles.page}>
-      <aside
-        className={styles.sidebar}
-      >
-        <div
-          className={styles.brand}
-        >
+      <aside className={styles.sidebar}>
+        <div className={styles.brand}>
           <Image
             src="/images/fullterra-logo.jpeg"
             alt="Logo de FULLTERRA"
             width={54}
             height={54}
-            className={
-              styles.logo
-            }
+            className={styles.logo}
             priority
           />
 
-          <span
-            className={
-              styles.brandName
-            }
-          >
+          <span className={styles.brandName}>
             FULLTERRA
           </span>
         </div>
 
-        <nav
-          className={
-            styles.navigation
-          }
-        >
+        <nav className={styles.navigation}>
           <button
             type="button"
             className={`${styles.navItem} ${styles.navItemActive}`}
           >
-            <span
-              className={
-                styles.navIcon
-              }
-            >
+            <span className={styles.navIcon}>
               ▦
             </span>
-
             Dashboard
           </button>
 
           <Link
             href="/unidades"
-            className={
-              styles.navItem
-            }
+            className={styles.navItem}
           >
-            <span
-              className={
-                styles.navIcon
-              }
-            >
+            <span className={styles.navIcon}>
               ▣
             </span>
-
             Unidades
           </Link>
 
           <Link
             href="/operaciones"
-            className={
-              styles.navItem
-            }
+            className={styles.navItem}
           >
-            <span
-              className={
-                styles.navIcon
-              }
-            >
+            <span className={styles.navIcon}>
               ◉
             </span>
-
             Operaciones
+          </Link>
+
+          <Link
+            href="/combustible"
+            className={styles.navItem}
+          >
+            <span className={styles.navIcon}>
+              ◈
+            </span>
+            Combustible
           </Link>
 
           <button
             type="button"
-            className={
-              styles.navItem
-            }
+            className={styles.navItem}
           >
-            <span
-              className={
-                styles.navIcon
-              }
-            >
-              ◈
-            </span>
-
-            Combustible
-          </button>
-
-          <button
-            type="button"
-            className={
-              styles.navItem
-            }
-          >
-            <span
-              className={
-                styles.navIcon
-              }
-            >
+            <span className={styles.navIcon}>
               ◇
             </span>
-
             Mantenimiento
           </button>
 
           <button
             type="button"
-            className={
-              styles.navItem
-            }
+            className={styles.navItem}
           >
-            <span
-              className={
-                styles.navIcon
-              }
-            >
+            <span className={styles.navIcon}>
               ≡
             </span>
-
             Trazabilidad
           </button>
 
           <button
             type="button"
-            className={
-              styles.navItem
-            }
+            className={styles.navItem}
           >
-            <span
-              className={
-                styles.navIcon
-              }
-            >
+            <span className={styles.navIcon}>
               ◫
             </span>
-
             Indicadores
           </button>
         </nav>
 
-        <div
-          className={
-            styles.sidebarFooter
-          }
-        >
+        <div className={styles.sidebarFooter}>
           Sistema de control operacional
         </div>
       </aside>
 
-      <section
-        className={styles.content}
-      >
-        <header
-          className={styles.topbar}
-        >
+      <section className={styles.content}>
+        <header className={styles.topbar}>
           <div>
-            <p
-              className={
-                styles.sectionLabel
-              }
-            >
+            <p className={styles.sectionLabel}>
               PANEL DE CONTROL
             </p>
-
-            <h1>
-              Dashboard
-            </h1>
+            <h1>Dashboard</h1>
           </div>
 
-          <div
-            className={
-              styles.userArea
-            }
-          >
-            <div
-              className={
-                styles.userAvatar
-              }
-            >
-              {user?.usuario
-                ?.charAt(0)
-                .toUpperCase() ??
-                "U"}
+          <div className={styles.userArea}>
+            <div className={styles.userAvatar}>
+              {user?.usuario?.charAt(0).toUpperCase() ?? "U"}
             </div>
 
-            <div
-              className={
-                styles.userInfo
-              }
-            >
+            <div className={styles.userInfo}>
               <strong>
-                {user?.usuario ??
-                  "Usuario"}
+                {user?.usuario ?? "Usuario"}
               </strong>
 
               <span>
-                {user?.roles
-                  ?.length
-                  ? user.roles.join(
-                      ", ",
-                    )
+                {user?.roles?.length
+                  ? user.roles.join(", ")
                   : "FULLTERRA"}
               </span>
             </div>
 
             <button
               type="button"
-              className={
-                styles.logoutButton
-              }
-              onClick={
-                handleLogout
-              }
+              className={styles.logoutButton}
+              onClick={handleLogout}
             >
               Cerrar sesión
             </button>
           </div>
         </header>
 
-        <div
-          className={
-            styles.dashboard
-          }
-        >
-          <section
-            className={
-              styles.welcome
-            }
-          >
+        <div className={styles.dashboard}>
+          <section className={styles.welcome}>
             <div>
-              <p
-                className={
-                  styles.welcomeLabel
-                }
-              >
+              <p className={styles.welcomeLabel}>
                 RESUMEN OPERACIONAL
               </p>
 
@@ -550,35 +354,19 @@ export default function DashboardPage() {
             <div
               style={{
                 display: "flex",
-                alignItems:
-                  "center",
-                justifyContent:
-                  "flex-end",
+                alignItems: "center",
+                justifyContent: "flex-end",
                 gap: "10px",
                 flexWrap: "wrap",
               }}
             >
-              <div
-                className={
-                  styles.status
-                }
-              >
+              <div className={styles.status}>
                 Período:{" "}
-                {periodoTexto ||
-                  "—"}
+                {periodoTexto || "—"}
               </div>
 
-              <div
-                className={
-                  styles.status
-                }
-              >
-                <span
-                  className={
-                    styles.statusDot
-                  }
-                />
-
+              <div className={styles.status}>
+                <span className={styles.statusDot} />
                 Sistema activo
               </div>
             </div>
@@ -587,20 +375,13 @@ export default function DashboardPage() {
           {dashboardError && (
             <p
               style={{
-                marginTop:
-                  "20px",
-                padding:
-                  "14px 16px",
-                border:
-                  "1px solid #dedede",
-                borderRadius:
-                  "8px",
-                background:
-                  "#ffffff",
-                color:
-                  "#000000",
-                fontSize:
-                  "13px",
+                marginTop: "20px",
+                padding: "14px 16px",
+                border: "1px solid #dedede",
+                borderRadius: "8px",
+                background: "#ffffff",
+                color: "#000000",
+                fontSize: "13px",
                 fontWeight: 600,
               }}
             >
@@ -610,115 +391,62 @@ export default function DashboardPage() {
             </p>
           )}
 
-          <section
-            className={
-              styles.cards
-            }
-          >
-            <article
-              className={
-                styles.card
-              }
-            >
-              <div
-                className={
-                  styles.cardHeader
-                }
-              >
+          <section className={styles.cards}>
+            <article className={styles.card}>
+              <div className={styles.cardHeader}>
                 <span>
                   Viajes realizados
                 </span>
-
-                <span
-                  className={
-                    styles.cardIcon
-                  }
-                >
+                <span className={styles.cardIcon}>
                   ↗
                 </span>
               </div>
 
               <strong>
                 {formatNumber(
-                  dashboardData
-                    ?.resumen
-                    .viajes,
+                  dashboardData?.resumen.viajes,
                 )}
               </strong>
 
               <p>
-                {periodoTexto ||
-                  "Período actual"}
+                {periodoTexto || "Período actual"}
               </p>
             </article>
 
-            <article
-              className={
-                styles.card
-              }
-            >
-              <div
-                className={
-                  styles.cardHeader
-                }
-              >
+            <article className={styles.card}>
+              <div className={styles.cardHeader}>
                 <span>
-                  Kilómetros
-                  recorridos
+                  Kilómetros recorridos
                 </span>
-
-                <span
-                  className={
-                    styles.cardIcon
-                  }
-                >
+                <span className={styles.cardIcon}>
                   ⟷
                 </span>
               </div>
 
               <strong>
                 {formatNumber(
-                  dashboardData
-                    ?.resumen
-                    .kilometros,
+                  dashboardData?.resumen.kilometros,
                 )}
               </strong>
 
               <p>
-                Acumulado del
-                período
+                Acumulado del período
               </p>
             </article>
 
-            <article
-              className={
-                styles.card
-              }
-            >
-              <div
-                className={
-                  styles.cardHeader
-                }
-              >
+            <article className={styles.card}>
+              <div className={styles.cardHeader}>
                 <span>
-                  Horas de
-                  maquinaria
+                  Horas de maquinaria
                 </span>
-
-                <span
-                  className={
-                    styles.cardIcon
-                  }
-                >
+                <span className={styles.cardIcon}>
                   ◷
                 </span>
               </div>
 
               <strong>
                 {formatNumber(
-                  dashboardData
-                    ?.resumen
-                    .horasMaquinaria,
+                  dashboardData?.resumen.horasMaquinaria,
                 )}
               </strong>
 
@@ -727,34 +455,19 @@ export default function DashboardPage() {
               </p>
             </article>
 
-            <article
-              className={
-                styles.card
-              }
-            >
-              <div
-                className={
-                  styles.cardHeader
-                }
-              >
+            <article className={styles.card}>
+              <div className={styles.cardHeader}>
                 <span>
                   Combustible
                 </span>
-
-                <span
-                  className={
-                    styles.cardIcon
-                  }
-                >
+                <span className={styles.cardIcon}>
                   ◉
                 </span>
               </div>
 
               <strong>
                 {formatNumber(
-                  dashboardData
-                    ?.resumen
-                    .galonesCombustible,
+                  dashboardData?.resumen.galonesCombustible,
                 )}
               </strong>
 
@@ -764,275 +477,168 @@ export default function DashboardPage() {
             </article>
           </section>
 
-          <section
-            className={
-              styles.grid
-            }
-          >
-            <article
-              className={
-                styles.panel
-              }
-            >
-              <div
-                className={
-                  styles.panelHeader
-                }
-              >
+          <section className={styles.grid}>
+            <article className={styles.panel}>
+              <div className={styles.panelHeader}>
                 <div>
-                  <span
-                    className={
-                      styles.panelLabel
-                    }
-                  >
+                  <span className={styles.panelLabel}>
                     UNIDADES
                   </span>
 
                   <h3>
-                    Actividad por
-                    unidad
+                    Actividad por unidad
                   </h3>
                 </div>
               </div>
 
               <div
                 style={{
-                  display:
-                    "flex",
-                  flexDirection:
-                    "column",
+                  display: "flex",
+                  flexDirection: "column",
                   gap: "12px",
-                  paddingTop:
-                    "18px",
+                  paddingTop: "18px",
                 }}
               >
-                {unidades.length ===
-                0 ? (
-                  <div
-                    className={
-                      styles.emptyState
-                    }
-                  >
+                {unidades.length === 0 ? (
+                  <div className={styles.emptyState}>
                     <strong>
                       Sin información
                     </strong>
 
                     <p>
-                      No existen
-                      unidades
+                      No existen unidades
                       registradas para
                       el período.
                     </p>
                   </div>
                 ) : (
-                  unidades.map(
-                    (registro) => (
-                      <div
-                        key={
-                          registro
-                            .unidad.id
-                        }
-                        style={{
-                          display:
-                            "grid",
-                          gridTemplateColumns:
-                            "1.4fr repeat(5, 1fr)",
-                          gap: "12px",
-                          alignItems:
-                            "center",
-                          padding:
-                            "14px 16px",
-                          border:
-                            "1px solid #e6e6e6",
-                          borderRadius:
-                            "9px",
-                          background:
-                            "#fafafa",
-                        }}
-                      >
-                        <div>
-                          <strong
-                            style={{
-                              display:
-                                "block",
-                              fontSize:
-                                "13px",
-                            }}
-                          >
-                            {
-                              registro
-                                .unidad
-                                .codigo
-                            }
-                          </strong>
+                  unidades.map((registro) => (
+                    <div
+                      key={registro.unidad.id}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "1.4fr repeat(5, 1fr)",
+                        gap: "12px",
+                        alignItems: "center",
+                        padding: "14px 16px",
+                        border: "1px solid #e6e6e6",
+                        borderRadius: "9px",
+                        background: "#fafafa",
+                      }}
+                    >
+                      <div>
+                        <strong
+                          style={{
+                            display: "block",
+                            fontSize: "13px",
+                          }}
+                        >
+                          {registro.unidad.codigo}
+                        </strong>
 
-                          <span
-                            style={{
-                              display:
-                                "block",
-                              marginTop:
-                                "3px",
-                              color:
-                                "#777777",
-                              fontSize:
-                                "11px",
-                            }}
-                          >
-                            {
-                              registro
-                                .unidad
-                                .marca
-                            }{" "}
-                            {
-                              registro
-                                .unidad
-                                .modelo
-                            }
-                          </span>
-                        </div>
-
-                        <div>
-                          <strong>
-                            {formatNumber(
-                              registro
-                                .viajes,
-                            )}
-                          </strong>
-
-                          <span
-                            style={{
-                              display:
-                                "block",
-                              marginTop:
-                                "3px",
-                              color:
-                                "#888888",
-                              fontSize:
-                                "10px",
-                            }}
-                          >
-                            Viajes
-                          </span>
-                        </div>
-
-                        <div>
-                          <strong>
-                            {formatNumber(
-                              registro
-                                .kilometros,
-                            )}
-                          </strong>
-
-                          <span
-                            style={{
-                              display:
-                                "block",
-                              marginTop:
-                                "3px",
-                              color:
-                                "#888888",
-                              fontSize:
-                                "10px",
-                            }}
-                          >
-                            Km
-                          </span>
-                        </div>
-
-                        <div>
-                          <strong>
-                            {formatNumber(
-                              registro
-                                .horasMaquinaria,
-                            )}
-                          </strong>
-
-                          <span
-                            style={{
-                              display:
-                                "block",
-                              marginTop:
-                                "3px",
-                              color:
-                                "#888888",
-                              fontSize:
-                                "10px",
-                            }}
-                          >
-                            Horas
-                          </span>
-                        </div>
-
-                        <div>
-                          <strong>
-                            {formatNumber(
-                              registro
-                                .galonesCombustible,
-                            )}
-                          </strong>
-
-                          <span
-                            style={{
-                              display:
-                                "block",
-                              marginTop:
-                                "3px",
-                              color:
-                                "#888888",
-                              fontSize:
-                                "10px",
-                            }}
-                          >
-                            Galones
-                          </span>
-                        </div>
-
-                        <div>
-                          <strong>
-                            {formatNumber(
-                              registro
-                                .mantenimientos,
-                            )}
-                          </strong>
-
-                          <span
-                            style={{
-                              display:
-                                "block",
-                              marginTop:
-                                "3px",
-                              color:
-                                "#888888",
-                              fontSize:
-                                "10px",
-                            }}
-                          >
-                            Mant.
-                          </span>
-                        </div>
+                        <span
+                          style={{
+                            display: "block",
+                            marginTop: "3px",
+                            color: "#777777",
+                            fontSize: "11px",
+                          }}
+                        >
+                          {registro.unidad.marca}{" "}
+                          {registro.unidad.modelo}
+                        </span>
                       </div>
-                    ),
-                  )
+
+                      <div>
+                        <strong>
+                          {formatNumber(registro.viajes)}
+                        </strong>
+                        <span
+                          style={{
+                            display: "block",
+                            marginTop: "3px",
+                            color: "#888888",
+                            fontSize: "10px",
+                          }}
+                        >
+                          Viajes
+                        </span>
+                      </div>
+
+                      <div>
+                        <strong>
+                          {formatNumber(registro.kilometros)}
+                        </strong>
+                        <span
+                          style={{
+                            display: "block",
+                            marginTop: "3px",
+                            color: "#888888",
+                            fontSize: "10px",
+                          }}
+                        >
+                          Km
+                        </span>
+                      </div>
+
+                      <div>
+                        <strong>
+                          {formatNumber(registro.horasMaquinaria)}
+                        </strong>
+                        <span
+                          style={{
+                            display: "block",
+                            marginTop: "3px",
+                            color: "#888888",
+                            fontSize: "10px",
+                          }}
+                        >
+                          Horas
+                        </span>
+                      </div>
+
+                      <div>
+                        <strong>
+                          {formatNumber(registro.galonesCombustible)}
+                        </strong>
+                        <span
+                          style={{
+                            display: "block",
+                            marginTop: "3px",
+                            color: "#888888",
+                            fontSize: "10px",
+                          }}
+                        >
+                          Galones
+                        </span>
+                      </div>
+
+                      <div>
+                        <strong>
+                          {formatNumber(registro.mantenimientos)}
+                        </strong>
+                        <span
+                          style={{
+                            display: "block",
+                            marginTop: "3px",
+                            color: "#888888",
+                            fontSize: "10px",
+                          }}
+                        >
+                          Mant.
+                        </span>
+                      </div>
+                    </div>
+                  ))
                 )}
               </div>
             </article>
 
-            <article
-              className={
-                styles.panel
-              }
-            >
-              <div
-                className={
-                  styles.panelHeader
-                }
-              >
+            <article className={styles.panel}>
+              <div className={styles.panelHeader}>
                 <div>
-                  <span
-                    className={
-                      styles.panelLabel
-                    }
-                  >
+                  <span className={styles.panelLabel}>
                     ESTADO DE FLOTA
                   </span>
 
@@ -1044,37 +650,26 @@ export default function DashboardPage() {
 
               <div
                 style={{
-                  display:
-                    "flex",
-                  flexDirection:
-                    "column",
+                  display: "flex",
+                  flexDirection: "column",
                   gap: "13px",
-                  paddingTop:
-                    "22px",
+                  paddingTop: "22px",
                 }}
               >
                 <div
                   style={{
-                    display:
-                      "flex",
-                    justifyContent:
-                      "space-between",
-                    alignItems:
-                      "center",
-                    padding:
-                      "15px 16px",
-                    border:
-                      "1px solid #e6e6e6",
-                    borderRadius:
-                      "9px",
-                    background:
-                      "#fafafa",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "15px 16px",
+                    border: "1px solid #e6e6e6",
+                    borderRadius: "9px",
+                    background: "#fafafa",
                   }}
                 >
                   <span
                     style={{
-                      fontSize:
-                        "12px",
+                      fontSize: "12px",
                       fontWeight: 700,
                     }}
                   >
@@ -1082,34 +677,24 @@ export default function DashboardPage() {
                   </span>
 
                   <strong>
-                    {
-                      unidadesDisponibles
-                    }
+                    {unidadesDisponibles}
                   </strong>
                 </div>
 
                 <div
                   style={{
-                    display:
-                      "flex",
-                    justifyContent:
-                      "space-between",
-                    alignItems:
-                      "center",
-                    padding:
-                      "15px 16px",
-                    border:
-                      "1px solid #e6e6e6",
-                    borderRadius:
-                      "9px",
-                    background:
-                      "#fafafa",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "15px 16px",
+                    border: "1px solid #e6e6e6",
+                    borderRadius: "9px",
+                    background: "#fafafa",
                   }}
                 >
                   <span
                     style={{
-                      fontSize:
-                        "12px",
+                      fontSize: "12px",
                       fontWeight: 700,
                     }}
                   >
@@ -1117,34 +702,24 @@ export default function DashboardPage() {
                   </span>
 
                   <strong>
-                    {
-                      unidadesMantenimiento
-                    }
+                    {unidadesMantenimiento}
                   </strong>
                 </div>
 
                 <div
                   style={{
-                    display:
-                      "flex",
-                    justifyContent:
-                      "space-between",
-                    alignItems:
-                      "center",
-                    padding:
-                      "15px 16px",
-                    border:
-                      "1px solid #e6e6e6",
-                    borderRadius:
-                      "9px",
-                    background:
-                      "#fafafa",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "15px 16px",
+                    border: "1px solid #e6e6e6",
+                    borderRadius: "9px",
+                    background: "#fafafa",
                   }}
                 >
                   <span
                     style={{
-                      fontSize:
-                        "12px",
+                      fontSize: "12px",
                       fontWeight: 700,
                     }}
                   >
@@ -1152,54 +727,38 @@ export default function DashboardPage() {
                   </span>
 
                   <strong>
-                    {
-                      unidadesInactivas
-                    }
+                    {unidadesInactivas}
                   </strong>
                 </div>
 
                 <div
                   style={{
-                    marginTop:
-                      "5px",
-                    padding:
-                      "17px 16px",
-                    border:
-                      "1px solid #e6e6e6",
-                    borderRadius:
-                      "9px",
-                    background:
-                      "#ffffff",
+                    marginTop: "5px",
+                    padding: "17px 16px",
+                    border: "1px solid #e6e6e6",
+                    borderRadius: "9px",
+                    background: "#ffffff",
                   }}
                 >
                   <span
                     style={{
-                      display:
-                        "block",
-                      color:
-                        "#777777",
-                      fontSize:
-                        "11px",
+                      display: "block",
+                      color: "#777777",
+                      fontSize: "11px",
                     }}
                   >
-                    Mantenimientos del
-                    período
+                    Mantenimientos del período
                   </span>
 
                   <strong
                     style={{
-                      display:
-                        "block",
-                      marginTop:
-                        "7px",
-                      fontSize:
-                        "25px",
+                      display: "block",
+                      marginTop: "7px",
+                      fontSize: "25px",
                     }}
                   >
                     {formatNumber(
-                      dashboardData
-                        ?.resumen
-                        .mantenimientos,
+                      dashboardData?.resumen.mantenimientos,
                     )}
                   </strong>
                 </div>
