@@ -2,8 +2,8 @@
   width: 100%;
   min-height: 100vh;
   display: flex;
-  background: #f4f5f3;
-  color: #000000;
+  background: #f3f2ed;
+  color: #111111;
 }
 
 .loadingPage {
@@ -12,8 +12,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f4f5f3;
-  color: #000000;
+  background: #f3f2ed;
+  color: #111111;
   font-weight: 700;
 }
 
@@ -31,7 +31,7 @@
   flex-direction: column;
   padding: 24px 18px;
   background: #ffffff;
-  border-right: 1px solid #e1e3e1;
+  border-right: 1px solid #ddd7bf;
 }
 
 .brand {
@@ -40,7 +40,7 @@
   gap: 11px;
   min-height: 62px;
   padding: 0 8px 22px;
-  border-bottom: 1px solid #ededed;
+  border-bottom: 1px solid #ece7d7;
 }
 
 .logo {
@@ -50,6 +50,7 @@
 }
 
 .brandName {
+  color: #111111;
   font-size: 24px;
   font-weight: 900;
   letter-spacing: -1px;
@@ -72,21 +73,19 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: #3e4340;
+  color: #3f403d;
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-  transition:
-    background 0.18s ease,
-    color 0.18s ease;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
 .navItem:hover {
-  background: #f4f4f4;
-  color: #000000;
+  background: #fff8d8;
+  color: #111111;
 }
 
 .navItemActive {
@@ -99,6 +98,10 @@
   color: #ffffff;
 }
 
+.navItemActive .navIcon {
+  color: #f2c300;
+}
+
 .navIcon {
   width: 22px;
   display: inline-flex;
@@ -109,8 +112,8 @@
 .sidebarFooter {
   margin-top: auto;
   padding: 20px 9px 4px;
-  border-top: 1px solid #ededed;
-  color: #858585;
+  border-top: 1px solid #ece7d7;
+  color: #8a8d90;
   font-size: 11px;
   line-height: 1.5;
 }
@@ -137,18 +140,19 @@
   gap: 30px;
   padding: 18px 36px;
   background: #ffffff;
-  border-bottom: 1px solid #e1e3e1;
+  border-bottom: 1px solid #ddd7bf;
 }
 
 .sectionLabel {
   margin-bottom: 5px;
-  color: #8b8d8b;
+  color: #9a7800;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 1.8px;
 }
 
 .topbar h1 {
+  color: #111111;
   font-size: 28px;
   font-weight: 900;
   letter-spacing: -0.8px;
@@ -167,7 +171,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #eeeeee;
+  background: #f2c300;
+  color: #111111;
   font-size: 16px;
   font-weight: 900;
 }
@@ -180,29 +185,32 @@
 }
 
 .userInfo strong {
+  color: #111111;
   font-size: 13px;
 }
 
 .userInfo span {
-  color: #818181;
+  color: #6f706d;
   font-size: 11px;
 }
 
 .logoutButton {
   height: 40px;
   padding: 0 16px;
-  border: 1px solid #d3d3d3;
+  border: 1px solid #cfc7a8;
   border-radius: 7px;
   background: #ffffff;
-  color: #000000;
+  color: #111111;
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
 }
 
 .logoutButton:hover {
-  background: #f3f3f3;
+  background: #fff8d8;
+  border-color: #d9ab00;
 }
 
 /* =========================
@@ -218,8 +226,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 30px;
+  margin-top: 20px;
   padding: 28px 30px;
-  border: 1px solid #e0e2df;
+  border: 1px solid #ddd7bf;
   border-radius: 12px;
   background: #ffffff;
 }
@@ -227,7 +236,7 @@
 .introLabel,
 .panelLabel {
   margin-bottom: 7px;
-  color: #909390;
+  color: #9a7800;
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 1.7px;
@@ -235,6 +244,7 @@
 
 .intro h2 {
   margin-bottom: 7px;
+  color: #111111;
   font-size: 24px;
   font-weight: 900;
   letter-spacing: -0.7px;
@@ -242,7 +252,7 @@
 
 .intro p {
   max-width: 650px;
-  color: #636663;
+  color: #58595b;
   font-size: 13px;
   line-height: 1.55;
 }
@@ -256,21 +266,24 @@
 .summary div {
   min-width: 105px;
   padding: 13px 16px;
-  border: 1px solid #dedede;
+  border: 1px solid #d9cf9c;
+  border-top: 4px solid #f2c300;
   border-radius: 9px;
-  background: #fafafa;
+  background: #fffdf4;
   text-align: center;
 }
 
 .summary span {
   display: block;
-  color: #777777;
+  color: #6f706d;
   font-size: 10px;
+  font-weight: 700;
 }
 
 .summary strong {
   display: block;
   margin-top: 5px;
+  color: #111111;
   font-size: 22px;
 }
 
@@ -282,9 +295,14 @@
 .listPanel {
   margin-top: 20px;
   padding: 24px;
-  border: 1px solid #e0e2df;
+  border: 1px solid #ddd7bf;
   border-radius: 11px;
   background: #ffffff;
+}
+
+.formPanel {
+  margin-top: 0;
+  border-top: 4px solid #f2c300;
 }
 
 .panelHeader {
@@ -293,10 +311,11 @@
   justify-content: space-between;
   gap: 20px;
   padding-bottom: 18px;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid #ece7d7;
 }
 
 .panelHeader h3 {
+  color: #111111;
   font-size: 17px;
   font-weight: 850;
 }
@@ -314,18 +333,21 @@
 .tabButton {
   height: 40px;
   padding: 0 16px;
-  border: 1px solid #d5d5d5;
+  border: 1px solid #cfc7a8;
   border-radius: 7px;
   background: #ffffff;
-  color: #444444;
+  color: #3f403d;
   font-family: inherit;
   font-size: 11px;
   font-weight: 800;
   cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
 }
 
 .tabButton:hover {
-  background: #f4f4f4;
+  background: #fff8d8;
+  border-color: #d9ab00;
+  color: #111111;
 }
 
 .tabButtonActive {
@@ -335,7 +357,9 @@
 }
 
 .tabButtonActive:hover {
+  border-color: #111111;
   background: #111111;
+  color: #ffffff;
 }
 
 /* =========================
@@ -344,8 +368,7 @@
 
 .form {
   display: grid;
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
   padding-top: 22px;
 }
@@ -361,6 +384,7 @@
 }
 
 .field label {
+  color: #111111;
   font-size: 11px;
   font-weight: 800;
 }
@@ -370,16 +394,14 @@
 .field textarea {
   width: 100%;
   padding: 0 13px;
-  border: 1px solid #d4d6d4;
+  border: 1px solid #d4d0c2;
   border-radius: 7px;
   outline: none;
   background: #ffffff;
-  color: #000000;
+  color: #111111;
   font-family: inherit;
   font-size: 13px;
-  transition:
-    border-color 0.18s ease,
-    box-shadow 0.18s ease;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .field input,
@@ -397,10 +419,8 @@
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  border-color: #000000;
-  box-shadow:
-    0 0 0 3px
-    rgba(0, 0, 0, 0.05);
+  border-color: #d9ab00;
+  box-shadow: 0 0 0 3px rgba(242, 195, 0, 0.14);
 }
 
 .formActions {
@@ -420,10 +440,12 @@
   font-size: 12px;
   font-weight: 800;
   cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
 .saveButton:hover {
-  background: #2b2b2b;
+  background: #f2c300;
+  color: #111111;
 }
 
 .saveButton:disabled {
@@ -458,12 +480,12 @@
 
 .counter {
   padding: 8px 11px;
-  border: 1px solid #dedede;
+  border: 1px solid #d9cf9c;
   border-radius: 20px;
-  background: #fafafa;
-  color: #666666;
+  background: #fff8d8;
+  color: #2b2b28;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .tableWrapper {
@@ -479,8 +501,8 @@
 
 .table th {
   padding: 11px 12px;
-  border-bottom: 1px solid #dedede;
-  color: #797979;
+  border-bottom: 1px solid #dcd7c8;
+  color: #6f706d;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.4px;
@@ -489,18 +511,18 @@
 
 .table td {
   padding: 15px 12px;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid #efede5;
   color: #3d403d;
   font-size: 12px;
   vertical-align: top;
 }
 
 .table tbody tr:hover {
-  background: #fafafa;
+  background: #fffdf4;
 }
 
 .table td strong {
-  color: #000000;
+  color: #111111;
 }
 
 .emptyState {
@@ -508,7 +530,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #858585;
+  color: #7f817e;
   font-size: 12px;
 }
 
@@ -518,8 +540,7 @@
 
 @media (max-width: 1100px) {
   .form {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .summary {
@@ -540,8 +561,7 @@
 
   .navigation {
     display: grid;
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .sidebarFooter {

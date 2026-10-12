@@ -5,7 +5,6 @@
   background: #f4f5f3;
   color: #000000;
 }
-
 .loadingPage {
   width: 100%;
   min-height: 100vh;
@@ -16,11 +15,9 @@
   color: #000000;
   font-weight: 700;
 }
-
 /* =========================
    SIDEBAR
    ========================= */
-
 .sidebar {
   position: fixed;
   top: 0;
@@ -33,7 +30,6 @@
   background: #ffffff;
   border-right: 1px solid #e1e3e1;
 }
-
 .brand {
   display: flex;
   align-items: center;
@@ -42,26 +38,22 @@
   padding: 0 8px 22px;
   border-bottom: 1px solid #ededed;
 }
-
 .logo {
   width: 48px;
   height: 48px;
   object-fit: contain;
 }
-
 .brandName {
   font-size: 24px;
   font-weight: 900;
   letter-spacing: -1px;
 }
-
 .navigation {
   display: flex;
   flex-direction: column;
   gap: 7px;
   padding-top: 24px;
 }
-
 .navItem {
   width: 100%;
   height: 48px;
@@ -83,28 +75,23 @@
     background 0.18s ease,
     color 0.18s ease;
 }
-
 .navItem:hover {
   background: #f4f4f4;
   color: #000000;
 }
-
 .navItemActive {
   background: #111111;
   color: #ffffff;
 }
-
 .navItemActive:hover {
   background: #111111;
-  color: #ffffff;
-}
+  color: #ffffff;}
 
 .navIcon {
   width: 22px;
   display: inline-flex;
   justify-content: center;
-  font-size: 18px;
-}
+  font-size: 18px;}
 
 .sidebarFooter {
   margin-top: auto;
@@ -112,18 +99,15 @@
   border-top: 1px solid #ededed;
   color: #858585;
   font-size: 11px;
-  line-height: 1.5;
-}
+  line-height: 1.5;}
 
 /* =========================
    CONTENIDO
    ========================= */
-
 .content {
   width: calc(100% - 250px);
   min-height: 100vh;
-  margin-left: 250px;
-}
+  margin-left: 250px;}
 
 .topbar {
   min-height: 96px;
@@ -133,9 +117,8 @@
   gap: 30px;
   padding: 18px 36px;
   background: #ffffff;
-  border-bottom: 1px solid #e1e3e1;
-}
-
+  border-bottom: 1px solid #e1e3e1;}
+  
 .sectionLabel {
   margin-bottom: 5px;
   color: #8b8d8b;
@@ -143,19 +126,16 @@
   font-weight: 800;
   letter-spacing: 1.8px;
 }
-
 .topbar h1 {
   font-size: 28px;
   font-weight: 900;
   letter-spacing: -0.8px;
 }
-
 .userArea {
   display: flex;
   align-items: center;
   gap: 11px;
 }
-
 .userAvatar {
   width: 42px;
   height: 42px;
@@ -163,27 +143,24 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #eeeeee;
+  background: #f2c300;
+  color: #111111;
   font-size: 16px;
   font-weight: 900;
 }
-
 .userInfo {
   display: flex;
   flex-direction: column;
   gap: 3px;
   margin-right: 12px;
 }
-
 .userInfo strong {
   font-size: 13px;
 }
-
 .userInfo span {
   color: #818181;
   font-size: 11px;
 }
-
 .logoutButton {
   height: 40px;
   padding: 0 16px;
@@ -196,19 +173,15 @@
   font-weight: 700;
   cursor: pointer;
 }
-
 .logoutButton:hover {
   background: #f3f3f3;
 }
-
 /* =========================
    ÁREA PRINCIPAL
    ========================= */
-
 .workspace {
   padding: 32px 36px 48px;
 }
-
 .intro {
   display: flex;
   align-items: center;
@@ -220,11 +193,9 @@
   border-radius: 12px;
   background: #ffffff;
 }
-
 .introText {
   min-width: 250px;
 }
-
 .introLabel,
 .panelLabel {
   margin-bottom: 7px;
@@ -233,25 +204,21 @@
   font-weight: 800;
   letter-spacing: 1.7px;
 }
-
 .intro h2 {
   margin-bottom: 7px;
   font-size: 24px;
   font-weight: 900;
   letter-spacing: -0.7px;
 }
-
 .intro p {
   max-width: 650px;
   color: #636663;
   font-size: 13px;
   line-height: 1.55;
 }
-
 /* =========================
    PANELES
    ========================= */
-
 .formPanel,
 .listPanel {
   margin-top: 20px;
@@ -260,11 +227,9 @@
   border-radius: 11px;
   background: #ffffff;
 }
-
 .formPanel {
   margin-top: 0;
 }
-
 .panelHeader {
   display: flex;
   align-items: center;
@@ -273,12 +238,10 @@
   padding-bottom: 18px;
   border-bottom: 1px solid #eeeeee;
 }
-
 .panelHeader h3 {
   font-size: 17px;
   font-weight: 850;
 }
-
 .periodBadge,
 .counter {
   padding: 8px 11px;
@@ -289,18 +252,15 @@
   font-size: 10px;
   font-weight: 900;
 }
-
 .counter {
   border-color: #dedede;
   background: #fafafa;
   color: #666666;
   font-weight: 700;
 }
-
 /* =========================
    SELECTOR MENSUAL / ANUAL
    ========================= */
-
 .viewTabs {
   display: inline-flex;
   gap: 7px;
@@ -310,7 +270,6 @@
   border-radius: 9px;
   background: #f7f7f5;
 }
-
 .viewTab {
   min-width: 110px;
   height: 38px;
@@ -324,26 +283,21 @@
   font-weight: 900;
   cursor: pointer;
 }
-
 .viewTab:hover {
   background: #eeeeeb;
   color: #111111;
 }
-
 .viewTabActive {
   background: #111111;
   color: #ffffff;
 }
-
 .viewTabActive:hover {
   background: #111111;
   color: #ffffff;
 }
-
 /* =========================
    FORMULARIO
    ========================= */
-
 .form {
   display: grid;
   grid-template-columns:
@@ -351,24 +305,20 @@
   gap: 18px;
   padding-top: 18px;
 }
-
 .formAnnual {
   grid-template-columns:
     minmax(0, 1fr)
     minmax(0, 1fr);
 }
-
 .field {
   display: flex;
   flex-direction: column;
   gap: 7px;
 }
-
 .field label {
   font-size: 11px;
   font-weight: 800;
 }
-
 .field input,
 .field select {
   width: 100%;
@@ -385,7 +335,6 @@
     border-color 0.18s ease,
     box-shadow 0.18s ease;
 }
-
 .field input:focus,
 .field select:focus {
   border-color: #000000;
@@ -393,12 +342,10 @@
     0 0 0 3px
     rgba(0, 0, 0, 0.05);
 }
-
 .formActions {
   display: flex;
   align-items: flex-end;
 }
-
 .saveButton {
   width: 100%;
   height: 46px;
@@ -412,16 +359,13 @@
   font-weight: 800;
   cursor: pointer;
 }
-
 .saveButton:hover {
   background: #2b2b2b;
 }
-
 .saveButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
-
 .successMessage,
 .errorMessage {
   margin-top: 18px;
@@ -430,23 +374,19 @@
   font-size: 12px;
   font-weight: 700;
 }
-
 .successMessage {
   border: 1px solid #bfd8c1;
   background: #f2f8f2;
   color: #245629;
 }
-
 .errorMessage {
   border: 1px solid #e2c2c2;
   background: #fff5f5;
   color: #8b2525;
 }
-
 /* =========================
    RESUMEN MENSUAL
    ========================= */
-
 .summary {
   display: grid;
   grid-template-columns:
@@ -454,14 +394,14 @@
   gap: 12px;
   flex: 1;
 }
-
 .summaryCard {
-  min-height: 120px;
+    min-width: 0;
+min-height: 120px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 16px;
+  gap: 8px;
+  padding: 14px;
   border: 1px solid #dedede;
   border-top: 4px solid #f2c300;
   border-radius: 10px;
@@ -472,18 +412,16 @@
       #f8f8f7 100%
     );
 }
-
 .summaryInfo {
   flex: 1;
+  min-width: 0;
 }
-
 .summaryInfo span {
   display: block;
   color: #616161;
   font-size: 10px;
   font-weight: 800;
 }
-
 .summaryInfo strong {
   display: block;
   margin-top: 6px;
@@ -491,7 +429,6 @@
   font-size: 22px;
   line-height: 1.1;
 }
-
 .summaryInfo small {
   display: block;
   margin-top: 8px;
@@ -499,10 +436,9 @@
   font-size: 10px;
   font-weight: 700;
 }
-
 .summaryWheel {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -512,14 +448,12 @@
     transform 0.18s ease,
     opacity 0.18s ease;
 }
-
 .summaryWheel:hover {
   transform: translateY(-1px);
 }
-
 .summaryWheelInner {
-  width: 50px;
-  height: 50px;
+  width: 46px;
+  height: 46px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -529,7 +463,6 @@
   box-shadow:
     inset 0 0 0 1px #ececec;
 }
-
 .summaryWheelInner strong {
   max-width: 44px;
   color: #111111;
@@ -538,7 +471,6 @@
   line-height: 1.05;
   text-align: center;
 }
-
 .summaryWheelInner span {
   margin-top: 3px;
   color: #7a7a7a;
@@ -546,28 +478,22 @@
   font-weight: 900;
   letter-spacing: 0.25px;
 }
-
 .summaryWheelPositive {
   color: #f2c300;
 }
-
 .summaryWheelNegative {
   color: #1d1d1b;
 }
-
 .summaryWheelNeutral {
   color: #8a8d90;
 }
-
 .summaryWheelNoBase {
   color: #c9c5b8;
   opacity: 0.86;
 }
-
 /* =========================
    RESUMEN ANUAL
    ========================= */
-
 .annualSummary {
   display: grid;
   grid-template-columns:
@@ -575,7 +501,6 @@
   gap: 12px;
   flex: 1;
 }
-
 .annualSummaryCard {
   min-height: 110px;
   display: flex;
@@ -592,20 +517,17 @@
       #faf9f3 100%
     );
 }
-
 .annualSummaryCard span {
   color: #616161;
   font-size: 10px;
   font-weight: 800;
 }
-
 .annualSummaryCard strong {
   margin-top: 7px;
   color: #111111;
   font-size: 24px;
   line-height: 1;
 }
-
 .annualSummaryCard small {
   margin-top: 8px;
   color: #8a8a86;
@@ -614,11 +536,9 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-
 /* =========================
    GRÁFICAS MENSUALES
    ========================= */
-
 .chartGrid {
   display: grid;
   grid-template-columns:
@@ -626,7 +546,6 @@
   gap: 16px;
   padding-top: 22px;
 }
-
 .chartCard {
   min-height: 330px;
   display: flex;
@@ -645,7 +564,6 @@
     0 8px 24px
     rgba(0, 0, 0, 0.04);
 }
-
 .chartCardHeader,
 .annualChartHeader {
   display: flex;
@@ -653,7 +571,6 @@
   justify-content: space-between;
   gap: 12px;
 }
-
 .chartEyebrow {
   display: block;
   margin-bottom: 5px;
@@ -662,14 +579,12 @@
   font-weight: 900;
   letter-spacing: 1.4px;
 }
-
 .chartCardHeader h4,
 .annualChartHeader h4 {
   font-size: 15px;
   font-weight: 900;
   letter-spacing: -0.3px;
 }
-
 .positiveDifference,
 .negativeDifference,
 .neutralDifference {
@@ -680,22 +595,18 @@
   font-weight: 900;
   text-align: center;
 }
-
 .positiveDifference {
   background: #f2c300;
   color: #111111;
 }
-
 .negativeDifference {
   background: #2b2b28;
   color: #ffffff;
 }
-
 .neutralDifference {
   background: #e8e5da;
   color: #4c4c49;
 }
-
 .chartArea {
   min-height: 215px;
   display: flex;
@@ -704,7 +615,6 @@
   gap: 24px;
   padding: 24px 6px 10px;
 }
-
 .barColumn {
   width: 58px;
   display: flex;
@@ -713,14 +623,12 @@
   justify-content: flex-end;
   gap: 7px;
 }
-
 .barValue {
   min-height: 16px;
   color: #272a27;
   font-size: 10px;
   font-weight: 900;
 }
-
 .barTrack {
   width: 48px;
   height: 160px;
@@ -730,7 +638,6 @@
   border-radius: 9px 9px 4px 4px;
   background: #ebe8dc;
 }
-
 .barFill {
   width: 100%;
   min-height: 0;
@@ -739,45 +646,35 @@
     height 0.35s ease,
     opacity 0.18s ease;
 }
-
 .barFill:hover {
   opacity: 0.82;
 }
-
 .barPrevious {
   opacity: 0.48;
 }
-
 .barPrevious:hover {
   opacity: 0.64;
 }
-
 .barViajes {
   background: #f2c300;
 }
-
 .barKilometros {
   background: #1d1d1b;
 }
-
 .barHoras {
   background: #58595b;
 }
-
 .barGalones {
   background: #d9ab00;
 }
-
 .barMantenimientos {
   background: #8a8d90;
 }
-
 .barLabel {
   color: #737773;
   font-size: 9px;
   font-weight: 800;
 }
-
 .chartFooter {
   display: flex;
   justify-content: space-between;
@@ -789,11 +686,9 @@
   font-size: 8px;
   font-weight: 700;
 }
-
 /* =========================
    GRÁFICAS ANUALES
    ========================= */
-
 .annualChartsGrid {
   display: grid;
   grid-template-columns:
@@ -801,7 +696,6 @@
   gap: 18px;
   padding-top: 22px;
 }
-
 .annualChartCard {
   min-width: 0;
   padding: 20px;
@@ -818,11 +712,9 @@
     0 8px 24px
     rgba(0, 0, 0, 0.035);
 }
-
 .annualChartCardWide {
   grid-column: 1 / -1;
 }
-
 .annualTotalBadge {
   padding: 7px 10px;
   border-radius: 20px;
@@ -832,7 +724,6 @@
   font-weight: 900;
   white-space: nowrap;
 }
-
 .annualBarsArea {
   height: 250px;
   display: grid;
@@ -844,7 +735,6 @@
   padding: 12px 4px 0;
   border-bottom: 1px solid #dedede;
 }
-
 .annualBarColumn {
   height: 225px;
   display: flex;
@@ -854,7 +744,6 @@
   gap: 6px;
   min-width: 0;
 }
-
 .annualBarValue {
   min-height: 14px;
   color: #333333;
@@ -862,7 +751,6 @@
   font-weight: 900;
   white-space: nowrap;
 }
-
 .annualBarTrack {
   width: min(30px, 100%);
   height: 170px;
@@ -872,7 +760,6 @@
   border-radius: 7px 7px 3px 3px;
   background: #ebe8dc;
 }
-
 .annualBarFill {
   width: 100%;
   border-radius: 7px 7px 3px 3px;
@@ -880,32 +767,26 @@
     height 0.35s ease,
     opacity 0.18s ease;
 }
-
 .annualBarFill:hover {
   opacity: 0.82;
 }
-
 .annualBarLabel {
   color: #747774;
   font-size: 8px;
   font-weight: 800;
 }
-
 /* =========================
    TABLAS
    ========================= */
-
 .tableWrapper {
   width: 100%;
   overflow-x: auto;
   padding-top: 18px;
 }
-
 .table {
   width: 100%;
   border-collapse: collapse;
 }
-
 .table th {
   padding: 11px 12px;
   border-bottom: 1px solid #dedede;
@@ -916,7 +797,6 @@
   text-align: left;
   white-space: nowrap;
 }
-
 .table td {
   padding: 15px 12px;
   border-bottom: 1px solid #eeeeee;
@@ -924,15 +804,12 @@
   font-size: 12px;
   vertical-align: top;
 }
-
 .table tbody tr:hover {
   background: #fafafa;
 }
-
 .table td strong {
   color: #000000;
 }
-
 .emptyState {
   min-height: 130px;
   display: flex;
@@ -942,163 +819,132 @@
   font-size: 12px;
   text-align: center;
 }
-
 /* =========================
    RESPONSIVE
    ========================= */
-
 @media (max-width: 1500px) {
   .intro {
     align-items: flex-start;
     flex-direction: column;
   }
-
   .summary,
   .annualSummary {
     width: 100%;
   }
 }
-
 @media (max-width: 1380px) {
   .summary,
   .annualSummary {
     grid-template-columns:
       repeat(3, minmax(170px, 1fr));
   }
-
   .chartGrid {
     grid-template-columns:
       repeat(3, minmax(180px, 1fr));
   }
 }
-
 @media (max-width: 1180px) {
   .annualChartsGrid {
     grid-template-columns: 1fr;
   }
-
   .annualChartCardWide {
     grid-column: auto;
   }
-
   .form {
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
   }
-
   .formActions {
     grid-column: 1 / -1;
   }
-
   .formAnnual {
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
   }
-
   .formAnnual .formActions {
     grid-column: auto;
   }
 }
-
 @media (max-width: 920px) {
   .summary,
   .annualSummary {
     grid-template-columns:
       repeat(2, minmax(170px, 1fr));
   }
-
   .chartGrid {
     grid-template-columns:
       repeat(2, minmax(180px, 1fr));
   }
-
   .annualBarsArea {
     min-width: 720px;
   }
-
   .annualChartCard {
     overflow-x: auto;
   }
 }
-
 @media (max-width: 820px) {
   .page {
     flex-direction: column;
   }
-
   .sidebar {
     position: static;
     width: 100%;
     min-height: auto;
   }
-
   .navigation {
     display: grid;
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
   }
-
   .sidebarFooter {
     display: none;
   }
-
   .content {
     width: 100%;
     margin-left: 0;
   }
-
   .topbar {
     align-items: flex-start;
     flex-direction: column;
   }
-
   .panelHeader {
     align-items: flex-start;
     flex-direction: column;
   }
 }
-
 @media (max-width: 620px) {
   .navigation {
     grid-template-columns: 1fr;
   }
-
   .topbar,
   .workspace {
     padding-left: 18px;
     padding-right: 18px;
   }
-
   .form,
   .formAnnual {
     grid-template-columns: 1fr;
   }
-
   .formActions,
   .formAnnual .formActions {
     grid-column: auto;
   }
-
   .summary,
   .annualSummary,
   .chartGrid {
     grid-template-columns: 1fr;
   }
-
   .summaryCard {
     min-height: auto;
   }
-
   .userArea {
     width: 100%;
     flex-wrap: wrap;
   }
-
   .viewTabs {
     display: flex;
     width: 100%;
   }
-
   .viewTab {
     flex: 1;
   }

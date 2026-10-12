@@ -4,9 +4,9 @@
 
   display: flex;
 
-  background: #f4f5f3;
+  background: #f3f2ed;
 
-  color: #000000;
+  color: #111111;
 }
 
 /* =========================
@@ -29,7 +29,7 @@
 
   background: #ffffff;
 
-  border-right: 1px solid #e1e3e1;
+  border-right: 1px solid #ddd7bf;
 }
 
 .brand {
@@ -42,7 +42,7 @@
 
   padding: 0 8px 22px;
 
-  border-bottom: 1px solid #ededed;
+  border-bottom: 1px solid #ece7d7;
 }
 
 .logo {
@@ -57,6 +57,8 @@
   font-weight: 900;
 
   letter-spacing: -1px;
+
+  color: #111111;
 }
 
 .navigation {
@@ -83,7 +85,7 @@
 
   background: transparent;
 
-  color: #3e4340;
+  color: #3f403d;
 
   font-size: 14px;
   font-weight: 600;
@@ -98,9 +100,9 @@
 }
 
 .navItem:hover {
-  background: #f4f4f4;
+  background: #fff8d8;
 
-  color: #000000;
+  color: #111111;
 }
 
 .navItemActive {
@@ -113,6 +115,10 @@
   background: #111111;
 
   color: #ffffff;
+}
+
+.navItemActive .navIcon {
+  color: #f2c300;
 }
 
 .navIcon {
@@ -129,9 +135,9 @@
 
   padding: 20px 9px 4px;
 
-  border-top: 1px solid #ededed;
+  border-top: 1px solid #ece7d7;
 
-  color: #858585;
+  color: #8a8d90;
 
   font-size: 11px;
   line-height: 1.5;
@@ -166,13 +172,13 @@
 
   background: #ffffff;
 
-  border-bottom: 1px solid #e1e3e1;
+  border-bottom: 1px solid #ddd7bf;
 }
 
 .sectionLabel {
   margin-bottom: 5px;
 
-  color: #8b8d8b;
+  color: #9a7800;
 
   font-size: 10px;
   font-weight: 800;
@@ -185,6 +191,8 @@
   font-weight: 900;
 
   letter-spacing: -0.8px;
+
+  color: #111111;
 }
 
 .userArea {
@@ -204,7 +212,9 @@
 
   border-radius: 50%;
 
-  background: #eeeeee;
+  background: #f2c300;
+
+  color: #111111;
 
   font-size: 16px;
   font-weight: 900;
@@ -220,11 +230,13 @@
 }
 
 .userInfo strong {
+  color: #111111;
+
   font-size: 13px;
 }
 
 .userInfo span {
-  color: #818181;
+  color: #6f706d;
 
   font-size: 11px;
 }
@@ -234,13 +246,13 @@
 
   padding: 0 16px;
 
-  border: 1px solid #d3d3d3;
+  border: 1px solid #cfc7a8;
 
   border-radius: 7px;
 
   background: #ffffff;
 
-  color: #000000;
+  color: #111111;
 
   font-size: 12px;
   font-weight: 700;
@@ -253,9 +265,9 @@
 }
 
 .logoutButton:hover {
-  background: #f3f3f3;
+  background: #fff8d8;
 
-  border-color: #b5b5b5;
+  border-color: #d9ab00;
 }
 
 /* =========================
@@ -279,7 +291,7 @@
 
   padding: 28px 30px;
 
-  border: 1px solid #e0e2df;
+  border: 1px solid #ddd7bf;
 
   border-radius: 12px;
 
@@ -289,7 +301,7 @@
 .welcomeLabel {
   margin-bottom: 8px;
 
-  color: #8a8a8a;
+  color: #9a7800;
 
   font-size: 10px;
   font-weight: 800;
@@ -304,12 +316,14 @@
   font-weight: 900;
 
   letter-spacing: -0.7px;
+
+  color: #111111;
 }
 
 .welcome p {
   max-width: 680px;
 
-  color: #636663;
+  color: #58595b;
 
   font-size: 14px;
   line-height: 1.55;
@@ -325,11 +339,13 @@
 
   padding: 9px 13px;
 
-  border: 1px solid #d9dbd8;
+  border: 1px solid #d9cf9c;
 
   border-radius: 20px;
 
-  background: #fafafa;
+  background: #fff8d8;
+
+  color: #2b2b28;
 
   font-size: 11px;
   font-weight: 700;
@@ -364,7 +380,7 @@
 
   padding: 21px;
 
-  border: 1px solid #e0e2df;
+  border: 1px solid #ddd7bf;
 
   border-radius: 11px;
 
@@ -378,7 +394,7 @@
 
   gap: 15px;
 
-  color: #5d625e;
+  color: #4b4c49;
 
   font-size: 12px;
   font-weight: 700;
@@ -394,17 +410,37 @@
 
   border-radius: 7px;
 
-  background: #f1f2f0;
+  background: #f2c300;
 
   color: #111111;
 
   font-size: 16px;
 }
 
+.card:nth-child(2) .cardIcon {
+  background: #1d1d1b;
+
+  color: #ffffff;
+}
+
+.card:nth-child(3) .cardIcon {
+  background: #58595b;
+
+  color: #ffffff;
+}
+
+.card:nth-child(4) .cardIcon {
+  background: #d9ab00;
+
+  color: #111111;
+}
+
 .card strong {
   display: block;
 
   margin-top: 24px;
+
+  color: #111111;
 
   font-size: 33px;
   font-weight: 900;
@@ -415,7 +451,7 @@
 .card p {
   margin-top: 10px;
 
-  color: #909390;
+  color: #8a8d90;
 
   font-size: 11px;
 }
@@ -440,7 +476,7 @@
 
   padding: 24px;
 
-  border: 1px solid #e0e2df;
+  border: 1px solid #ddd7bf;
 
   border-radius: 11px;
 
@@ -450,7 +486,7 @@
 .panelHeader {
   padding-bottom: 18px;
 
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid #ece7d7;
 }
 
 .panelLabel {
@@ -458,7 +494,7 @@
 
   margin-bottom: 5px;
 
-  color: #969996;
+  color: #9a7800;
 
   font-size: 9px;
   font-weight: 800;
@@ -467,6 +503,8 @@
 }
 
 .panel h3 {
+  color: #111111;
+
   font-size: 17px;
   font-weight: 850;
 }
@@ -496,12 +534,16 @@
 
   border-radius: 10px;
 
-  background: #f1f2f0;
+  background: #fff2ad;
+
+  color: #111111;
 
   font-size: 21px;
 }
 
 .emptyState strong {
+  color: #111111;
+
   font-size: 14px;
 }
 
@@ -510,7 +552,7 @@
 
   margin-top: 7px;
 
-  color: #858885;
+  color: #7f817e;
 
   font-size: 12px;
   line-height: 1.5;

@@ -1638,29 +1638,30 @@ export default function IndicadoresPage() {
                         >
                           <div
                             className={
-                              styles.summaryInfo
+                                styles.summaryInfo
                             }
-                          >
+                            >
                             <span>
-                              {
-                                metric.label
-                              }
+                                {metric.key ===
+                                "mantenimientos"
+                                ? "Mantenim."
+                                : metric.label}
                             </span>
 
                             <strong>
-                              {formatNumber(
+                                {formatNumber(
                                 currentValue,
-                              )}
+                                )}
                             </strong>
 
                             <small>
-                              {comparison
+                                {comparison
                                 ? `Anterior: ${formatNumber(
                                     previousValue,
-                                  )}`
+                                    )}`
                                 : "Sin comparativo"}
                             </small>
-                          </div>
+                            </div>
 
                           <div
                             className={`${styles.summaryWheel} ${variationClass}`}
