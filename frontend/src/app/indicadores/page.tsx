@@ -373,6 +373,108 @@ export default function IndicadoresPage() {
         apiUrl,
         loadMonthlyIndicators,
     ]);
+    async function exportIndicatorsToExcel() {
+        const isMonthly = viewMode === "mensual";
+        const monthlyData = indicators;
+        const comparisonData = comparison;
+        const annualData = annualIndicators;
+        if (searching || loadingData || (isMonthly ? !monthlyData || !comparisonData : !annualData)) {
+            setError("Consulta los indicadores antes de exportarlos.");
+            return;
+        }
+        try {
+            setError("");
+            const ExcelJS = (await import("exceljs")).default;
+            const workbook = new ExcelJS.Workbook();
+            workbook.creator = "FULLTERRA";
+            workbook.created = new Date();
+            const labels = ["Viajes", "Kilómetros", "Horas de uso", "Galones", "Mantenimientos"];
+            const keys: MetricKey[] = ["viajes", "kilometros", "horasUso", "galones", "mantenimientos"];
+            const headerColor = "FF292929";
+            const accentColor = "FFF2C300";
+            function addSheet(name: string, headers: string[], rows: (string | number)[][]) {
+                const sheet = workbook.addWorksheet(name);
+                sheet.addRow(headers);
+                rows.forEach((row) => sheet.addRow(row));
+                sheet.getRow(1).eachCell((cell) => {
+                    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: headerColor } };
+                    cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+                    cell.alignment = { vertical: "middle" };
+                });
+                sheet.getRow(1).height = 24;
+                sheet.columns.forEach((column) => {
+                    column.width = Math.max(16, Math.min(34, (column.header?.length ?? 16) + 6));
+                });
+                sheet.eachRow((row, rowNumber) => {
+                    if (rowNumber > 1 && rowNumber % 2 === 0) {
+                        row.eachCell((cell) => {
+                            cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF6F6F6" } };
+                        });
+                    }
+                });
+                sheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: headers.length } };
+                sheet.views = [{ state: "frozen", ySplit: 1 }];
+                return sheet;
+            }
+            let fileName: string;
+            if (isMonthly && monthlyData && comparisonData) {
+                const { anio, mes } = monthlyData.periodo;
+                fileName = `FULLTERRA_Indicadores_${anio}_${String(mes).padStart(2, "0")}.xlsx`;
+                addSheet("Resumen mensual", ["Indicador", "Actual", "Anterior", "Diferencia", "Variación (%)"],
+                    keys.map((key, index) => {
+                        const actual = Number(monthlyData.resumen[key] ?? 0);
+                        const anterior = Number(comparisonData.resumen.anterior[key] ?? 0);
+                        const variacion = getMonthlyVariation(actual, anterior);
+                        return [labels[index], actual, anterior, actual - anterior, variacion === null ? "Sin base" : Math.round(variacion * 10) / 10];
+                    }));
+                addSheet("Indicadores por unidad", ["Unidad", "Marca", "Modelo", "Tipo", "Estado", ...labels],
+                    monthlyData.indicadoresPorUnidad.map((item) => [
+                        item.unidad.codigo, item.unidad.marca, item.unidad.modelo, item.unidad.tipo, item.unidad.estado,
+                        ...keys.map((key) => Number(item[key] ?? 0)),
+                    ]));
+                addSheet("Variación por unidad", ["Unidad", ...labels],
+                    comparisonData.comparativosPorUnidad.map((item) => [
+                        item.unidad.codigo, ...keys.map((key) => Number(item.diferencia[key] ?? 0)),
+                    ]));
+            } else if (annualData) {
+                const { anio } = annualData.periodo;
+                fileName = `FULLTERRA_Indicadores_${anio}_Anual.xlsx`;
+                addSheet("Resumen anual", ["Indicador", "Total anual"],
+                    keys.map((key, index) => [labels[index], Number(annualData.resumen[key] ?? 0)]));
+                addSheet("Evolución mensual", ["Mes", ...labels],
+                    annualData.meses.map((item) => [
+                        monthNames[item.mes - 1] ?? String(item.mes),
+                        ...keys.map((key) => Number(item[key] ?? 0)),
+                    ]));
+                addSheet("Indicadores por unidad", ["Unidad", "Marca", "Modelo", "Tipo", "Estado", ...labels],
+                    annualData.indicadoresPorUnidad.map((item) => [
+                        item.unidad.codigo, item.unidad.marca, item.unidad.modelo, item.unidad.tipo, item.unidad.estado,
+                        ...keys.map((key) => Number(item[key] ?? 0)),
+                    ]));
+            } else {
+                return;
+            }
+            workbook.worksheets.forEach((sheet) => {
+                sheet.getRow(1).border = { bottom: { style: "medium", color: { argb: accentColor } } };
+            });
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer as BlobPart], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+            setMessage("Archivo Excel generado correctamente.");
+        } catch (exportError) {
+            console.error("Error al exportar indicadores:", exportError);
+            setError("No fue posible generar el archivo Excel.");
+        }
+    }
     function handleLogout() {
         localStorage.removeItem("fullterra_token");
         window.location.href =
@@ -703,6 +805,16 @@ export default function IndicadoresPage() {
                 </button>
               </div>
             </form>
+              <div className={styles.formActions}>
+                <button
+                  type="button"
+                  className={styles.saveButton}
+                  onClick={exportIndicatorsToExcel}
+                  disabled={searching || loadingData || (viewMode === "mensual" ? !indicators || !comparison : !annualIndicators)}
+                >
+                  Exportar a Excel
+                </button>
+              </div>
             {message && (<div className={styles.successMessage}>
                 {message}
               </div>)}
