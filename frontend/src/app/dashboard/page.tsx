@@ -268,15 +268,15 @@ export default function DashboardPage() {
               Mantenimiento
           </Link>
 
-          <button
-            type="button"
+          <Link
+            href="/trazabilidad"
             className={styles.navItem}
           >
             <span className={styles.navIcon}>
               ≡
             </span>
             Trazabilidad
-          </button>
+          </Link>
 
           <button
             type="button"

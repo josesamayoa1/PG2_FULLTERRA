@@ -15,6 +15,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 @Roles(
   'Administrador',
   'Supervisor',
+  'Operador',
 )
 export class TraceabilityController {
   constructor(

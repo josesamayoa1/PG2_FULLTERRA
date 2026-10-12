@@ -706,8 +706,8 @@ export default function CombustiblePage() {
                 Mantenimiento
               </Link>
 
-              <button
-                type="button"
+              <Link
+                href="/trazabilidad"
                 className={
                   styles.navItem
                 }
@@ -721,7 +721,7 @@ export default function CombustiblePage() {
                 </span>
 
                 Trazabilidad
-              </button>
+              </Link>
 
               <button
                 type="button"

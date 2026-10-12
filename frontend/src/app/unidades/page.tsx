@@ -592,8 +592,8 @@ export default function UnidadesPage() {
             Mantenimiento
           </Link>
 
-          <button
-            type="button"
+          <Link
+            href="/trazabilidad"
             className={
               styles.navItem
             }
@@ -607,7 +607,7 @@ export default function UnidadesPage() {
             </span>
 
             Trazabilidad
-          </button>
+          </Link>
 
           <button
             type="button"
