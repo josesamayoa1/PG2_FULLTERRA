@@ -22,13 +22,10 @@ export class TelegramSchedulerService {
       TelegramService,
   ) {}
 
-  @Cron(
-    '0 0 8 * * *',
-    {
-      timeZone:
-        'America/Guatemala',
-    },
-  )
+   @Cron('0 0 12 * * *', {
+    timeZone: 'America/Guatemala',
+  })
+
   async enviarAlertasDiarias() {
     const notificacionesHabilitadas =
       this.configService.get<string>(

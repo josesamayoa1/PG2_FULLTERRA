@@ -1,1058 +1,321 @@
 "use client";
-
 import Image from "next/image";
-
 import Link from "next/link";
-
-import {
-
-  FormEvent,
-
-  useCallback,
-
-  useEffect,
-
-  useState,
-
-} from "react";
-
+import { FormEvent, useCallback, useEffect, useState, } from "react";
 import styles from "./mantenimiento.module.css";
-
 type UserProfile = {
-
-  id: number;
-
-  usuario: string;
-
-  roles?: string[];
-
-};
-
-type Unit = {
-
-  id: number;
-
-  codigo: string;
-
-  tipo: string;
-
-  marca: string;
-
-  modelo: string;
-
-  placaOSerie: string;
-
-  estado: string;
-
-  activo: boolean;
-
-};
-
-type MaintenanceRecord = {
-
-  id: number;
-
-  tipoMantenimiento: string;
-
-  observaciones: string | null;
-
-  fechaMantenimiento: string;
-
-  proximoServicio: string | null;
-
-  kilometrajeHoras: number | null;
-
-  costo: number | null;
-
-  taller: string | null;
-
-  estado: string;
-
-  unidad: {
-
     id: number;
-
+    usuario: string;
+    roles?: string[];
+};
+type Unit = {
+    id: number;
     codigo: string;
-
     tipo: string;
-
-  };
-
+    marca: string;
+    modelo: string;
+    placaOSerie: string;
+    estado: string;
+    activo: boolean;
 };
-
+type MaintenanceRecord = {
+    id: number;
+    tipoMantenimiento: string;
+    observaciones: string | null;
+    fechaMantenimiento: string;
+    proximoServicio: string | null;
+    kilometrajeHoras: number | null;
+    costo: number | null;
+    taller: string | null;
+    estado: string;
+    unidad: {
+        id: number;
+        codigo: string;
+        tipo: string;
+    };
+};
 type ApiError = {
-
-  message?: string | string[];
-
+    message?: string | string[];
 };
-
 function obtenerFechaActual() {
-
-  const fecha = new Date();
-
-  const anio =
-
-    fecha.getFullYear();
-
-  const mes = String(
-
-    fecha.getMonth() + 1,
-
-  ).padStart(2, "0");
-
-  const dia = String(
-
-    fecha.getDate(),
-
-  ).padStart(2, "0");
-
-  return `${anio}-${mes}-${dia}`;
-
+    const fecha = new Date();
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+    const dia = String(fecha.getDate()).padStart(2, "0");
+    return `${anio}-${mes}-${dia}`;
 }
-
-function formatearFecha(
-
-  fecha: string | null,
-
-) {
-
-  if (!fecha) {
-
-    return "—";
-
-  }
-
-  const partes = fecha.split("-");
-
-  if (partes.length !== 3) {
-
-    return fecha;
-
-  }
-
-  return `${partes[2]}/${partes[1]}/${partes[0]}`;
-
+function formatearFecha(fecha: string | null) {
+    if (!fecha) {
+        return "—";
+    }
+    const partes = fecha.split("-");
+    if (partes.length !== 3) {
+        return fecha;
+    }
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
-
-function obtenerMensajeError(
-
-  data: ApiError,
-
-  fallback: string,
-
-) {
-
-  if (Array.isArray(data.message)) {
-
-    return data.message.join(", ");
-
-  }
-
-  if (
-
-    typeof data.message === "string" &&
-
-    data.message.trim()
-
-  ) {
-
-    return data.message;
-
-  }
-
-  return fallback;
-
+function obtenerMensajeError(data: ApiError, fallback: string) {
+    if (Array.isArray(data.message)) {
+        return data.message.join(", ");
+    }
+    if (typeof data.message === "string" &&
+        data.message.trim()) {
+        return data.message;
+    }
+    return fallback;
 }
-
 function redirigirSesionExpirada() {
-
-  localStorage.removeItem(
-
-    "fullterra_token",
-
-  );
-
-  window.alert(
-
-    "Tu sesión ha expirado. Inicia sesión nuevamente.",
-
-  );
-
-  window.location.href = "/";
-
-}
-
-export default function MantenimientoPage() {
-
-  const [
-
-    checkingSession,
-
-    setCheckingSession,
-
-  ] = useState(true);
-
-  const [user, setUser] =
-
-    useState<UserProfile | null>(
-
-      null,
-
-    );
-
-  const [units, setUnits] =
-
-    useState<Unit[]>([]);
-
-  const [
-
-    maintenanceRecords,
-
-    setMaintenanceRecords,
-
-  ] =
-
-    useState<MaintenanceRecord[]>(
-
-      [],
-
-    );
-
-  const [
-
-    loadingData,
-
-    setLoadingData,
-
-  ] = useState(true);
-
-  const [saving, setSaving] =
-
-    useState(false);
-
-  const [message, setMessage] =
-
-    useState("");
-
-  const [error, setError] =
-
-    useState("");
-
-  const [form, setForm] =
-
-    useState({
-
-      unidadId: "",
-
-      tipoMantenimiento: "",
-
-      fechaMantenimiento: "",
-
-      proximoServicio: "",
-
-      kilometrajeHoras: "",
-
-      costo: "",
-
-      taller: "",
-
-      observaciones: "",
-
-    });
-
-  const apiUrl =
-
-    process.env
-
-      .NEXT_PUBLIC_API_URL ??
-
-    "http://localhost:3000";
-
-  const cargarDatos =
-
-    useCallback(
-
-      async (token: string) => {
-
-        setLoadingData(true);
-
-        setError("");
-
-        try {
-
-          const respuestas =
-
-            await Promise.all([
-
-              fetch(
-
-                `${apiUrl}/units`,
-
-                {
-
-                  headers: {
-
-                    Authorization:
-
-                      `Bearer ${token}`,
-
-                  },
-
-                },
-
-              ),
-
-              fetch(
-
-                `${apiUrl}/maintenance`,
-
-                {
-
-                  headers: {
-
-                    Authorization:
-
-                      `Bearer ${token}`,
-
-                  },
-
-                },
-
-              ),
-
-            ]);
-
-          if (
-
-            respuestas.some(
-
-              (response) =>
-
-                response.status ===
-
-                401,
-
-            )
-
-          ) {
-
-            redirigirSesionExpirada();
-
-            return;
-
-          }
-
-          if (
-
-            respuestas.some(
-
-              (response) =>
-
-                response.status ===
-
-                403,
-
-            )
-
-          ) {
-
-            setError(
-
-              "No tienes permisos para acceder al módulo de mantenimiento.",
-
-            );
-
-            return;
-
-          }
-
-          if (
-
-            respuestas.some(
-
-              (response) =>
-
-                !response.ok,
-
-            )
-
-          ) {
-
-            throw new Error(
-
-              "No fue posible cargar la información de mantenimiento.",
-
-            );
-
-          }
-
-          const [
-
-            unitsData,
-
-            maintenanceData,
-
-          ] = await Promise.all([
-
-            respuestas[0].json(),
-
-            respuestas[1].json(),
-
-          ]);
-
-          setUnits(
-
-            unitsData as Unit[],
-
-          );
-
-          setMaintenanceRecords(
-
-            maintenanceData as MaintenanceRecord[],
-
-          );
-
-        } catch (requestError) {
-
-          console.error(
-
-            "Error al cargar mantenimiento:",
-
-            requestError,
-
-          );
-
-          setError(
-
-            "No fue posible cargar la información de mantenimiento.",
-
-          );
-
-        } finally {
-
-          setLoadingData(false);
-
-        }
-
-      },
-
-      [apiUrl],
-
-    );
-
-  useEffect(() => {
-
-    const fechaActual =
-
-      obtenerFechaActual();
-
-    setForm(
-
-      (currentForm) => ({
-
-        ...currentForm,
-
-        fechaMantenimiento:
-
-          fechaActual,
-
-      }),
-
-    );
-
-  }, []);
-
-  useEffect(() => {
-
-    async function iniciarPagina() {
-
-      const token =
-
-        localStorage.getItem(
-
-          "fullterra_token",
-
-        );
-
-      if (!token) {
-
-        window.location.href = "/";
-
-        return;
-
-      }
-
-      try {
-
-        const response =
-
-          await fetch(
-
-            `${apiUrl}/auth/profile`,
-
-            {
-
-              headers: {
-
-                Authorization:
-
-                  `Bearer ${token}`,
-
-              },
-
-            },
-
-          );
-
-        if (
-
-          response.status === 401
-
-        ) {
-
-          redirigirSesionExpirada();
-
-          return;
-
-        }
-
-        if (!response.ok) {
-
-          localStorage.removeItem(
-
-            "fullterra_token",
-
-          );
-
-          window.location.href =
-
-            "/";
-
-          return;
-
-        }
-
-        const profile:
-
-          UserProfile =
-
-          await response.json();
-
-        const rolesPermitidos = [
-
-          "Administrador",
-
-          "Supervisor",
-
-          "Encargado de mantenimiento",
-
-        ];
-
-        const tienePermiso =
-
-          profile.roles?.some(
-
-            (role) =>
-
-              rolesPermitidos.includes(
-
-                role,
-
-              ),
-
-          );
-
-        if (!tienePermiso) {
-
-          window.alert(
-
-            "No tienes permisos para acceder al módulo de mantenimiento.",
-
-          );
-
-          if (
-
-            profile.roles?.includes(
-
-              "Operador",
-
-            )
-
-          ) {
-
-            window.location.href =
-
-              "/operaciones";
-
-          } else if (
-
-            profile.roles?.includes(
-
-              "Encargado de combustible",
-
-            )
-
-          ) {
-
-            window.location.href =
-
-              "/combustible";
-
-          } else {
-
-            window.location.href =
-
-              "/";
-
-          }
-
-          return;
-
-        }
-
-        setUser(profile);
-
-        await cargarDatos(token);
-
-      } catch (requestError) {
-
-        console.error(
-
-          "Error al validar sesión:",
-
-          requestError,
-
-        );
-
-        localStorage.removeItem(
-
-          "fullterra_token",
-
-        );
-
-        window.location.href = "/";
-
-      } finally {
-
-        setCheckingSession(false);
-
-      }
-
-    }
-
-    iniciarPagina();
-
-  }, [
-
-    apiUrl,
-
-    cargarDatos,
-
-  ]);
-
-  function handleLogout() {
-
-    localStorage.removeItem(
-
-      "fullterra_token",
-
-    );
-
+    localStorage.removeItem("fullterra_token");
+    window.alert("Tu sesión ha expirado. Inicia sesión nuevamente.");
     window.location.href = "/";
-
-  }
-
-  function limpiarFormulario() {
-
-    setForm({
-
-      unidadId: "",
-
-      tipoMantenimiento: "",
-
-      fechaMantenimiento:
-
-        obtenerFechaActual(),
-
-      proximoServicio: "",
-
-      kilometrajeHoras: "",
-
-      costo: "",
-
-      taller: "",
-
-      observaciones: "",
-
+}
+export default function MantenimientoPage() {
+    const [checkingSession, setCheckingSession,] = useState(true);
+    const [user, setUser] = useState<UserProfile | null>(null);
+    const [units, setUnits] = useState<Unit[]>([]);
+    const [maintenanceRecords, setMaintenanceRecords,] = useState<MaintenanceRecord[]>([]);
+    const [loadingData, setLoadingData,] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
+    const [form, setForm] = useState({
+        unidadId: "",
+        tipoMantenimiento: "",
+        fechaMantenimiento: "",
+        proximoServicio: "",
+        kilometrajeHoras: "",
+        costo: "",
+        taller: "",
+        observaciones: "",
     });
-
-  }
-
-  async function registrarMantenimiento(
-
-    event:
-
-      FormEvent<HTMLFormElement>,
-
-  ) {
-
-    event.preventDefault();
-
-    const token =
-
-      localStorage.getItem(
-
-        "fullterra_token",
-
-      );
-
-    if (!token) {
-
-      window.location.href = "/";
-
-      return;
-
-    }
-
-    setSaving(true);
-
-    setMessage("");
-
-    setError("");
-
-    try {
-
-      const body = {
-
-        unidadId: Number(
-
-          form.unidadId,
-
-        ),
-
-        tipoMantenimiento:
-
-          form.tipoMantenimiento.trim(),
-
-        fechaMantenimiento:
-
-          form.fechaMantenimiento,
-
-        proximoServicio:
-
-          form.proximoServicio ||
-
-          undefined,
-
-        kilometrajeHoras:
-
-          form.kilometrajeHoras ===
-
-          ""
-
-            ? undefined
-
-            : Number(
-
-                form.kilometrajeHoras,
-
-              ),
-
-        costo:
-
-          form.costo === ""
-
-            ? undefined
-
-            : Number(form.costo),
-
-        taller:
-
-          form.taller.trim() ||
-
-          undefined,
-
-        observaciones:
-
-          form.observaciones
-
-            .trim() ||
-
-          undefined,
-
-      };
-
-      const response =
-
-        await fetch(
-
-          `${apiUrl}/maintenance`,
-
-          {
-
-            method: "POST",
-
-            headers: {
-
-              "Content-Type":
-
-                "application/json",
-
-              Authorization:
-
-                `Bearer ${token}`,
-
-            },
-
-            body: JSON.stringify(
-
-              body,
-
-            ),
-
-          },
-
-        );
-
-      if (
-
-        response.status === 401
-
-      ) {
-
-        redirigirSesionExpirada();
-
-        return;
-
-      }
-
-      if (
-
-        response.status === 403
-
-      ) {
-
-        setError(
-
-          "No tienes permisos para registrar mantenimientos.",
-
-        );
-
-        return;
-
-      }
-
-      if (!response.ok) {
-
-        const data: ApiError =
-
-          await response.json();
-
-        setError(
-
-          obtenerMensajeError(
-
-            data,
-
-            "No fue posible registrar el mantenimiento.",
-
-          ),
-
-        );
-
-        return;
-
-      }
-
-      limpiarFormulario();
-
-      setMessage(
-
-        "Mantenimiento registrado correctamente.",
-
-      );
-
-      await cargarDatos(token);
-
-    } catch (requestError) {
-
-      console.error(
-
-        "Error al registrar mantenimiento:",
-
-        requestError,
-
-      );
-
-      setError(
-
-        "No fue posible registrar el mantenimiento.",
-
-      );
-
-    } finally {
-
-      setSaving(false);
-
-    }
-
-  }
-
-  const totalMantenimientos =
-
-    maintenanceRecords.length;
-
-  const mantenimientosCamiones =
-
-    maintenanceRecords.filter(
-
-      (record) =>
-
-        record.unidad.tipo ===
-
-        "CAMION",
-
-    ).length;
-
-  const mantenimientosMaquinaria =
-
-    maintenanceRecords.filter(
-
-      (record) =>
-
-        record.unidad.tipo ===
-
-        "MAQUINARIA",
-
-    ).length;
-
-  const costoTotal =
-
-    maintenanceRecords.reduce(
-
-      (total, record) =>
-
-        total +
-
-        Number(
-
-          record.costo ?? 0,
-
-        ),
-
-      0,
-
-    );
-
-  const esAdministrador =
-
-    user?.roles?.includes(
-
-      "Administrador",
-
-    ) ?? false;
-
-  const esSupervisor =
-
-    user?.roles?.includes(
-
-      "Supervisor",
-
-    ) ?? false;
-
-  const esEncargadoMantenimiento =
-
-    user?.roles?.includes(
-
-      "Encargado de mantenimiento",
-
-    ) ?? false;
-
-  const puedeVerDashboard =
-
-    esAdministrador ||
-
-    esSupervisor;
-
-  const puedeVerOperaciones =
-
-    esAdministrador ||
-
-    esSupervisor;
-
-  const puedeVerCombustible =
-
-    esAdministrador ||
-
-    esSupervisor;
-
-  if (checkingSession) {
-
-    return (
-
-      <main
-
-        className={
-
-          styles.loadingPage
-
+    const apiUrl = process.env
+        .NEXT_PUBLIC_API_URL ??
+        "http://localhost:3000";
+    const cargarDatos = useCallback(async (token: string) => {
+        setLoadingData(true);
+        setError("");
+        try {
+            const respuestas = await Promise.all([
+                fetch(`${apiUrl}/units`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }),
+                fetch(`${apiUrl}/maintenance`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }),
+            ]);
+            if (respuestas.some((response) => response.status ===
+                401)) {
+                redirigirSesionExpirada();
+                return;
+            }
+            if (respuestas.some((response) => response.status ===
+                403)) {
+                setError("No tienes permisos para acceder al módulo de mantenimiento.");
+                return;
+            }
+            if (respuestas.some((response) => !response.ok)) {
+                throw new Error("No fue posible cargar la información de mantenimiento.");
+            }
+            const [unitsData, maintenanceData,] = await Promise.all([
+                respuestas[0].json(),
+                respuestas[1].json(),
+            ]);
+            setUnits(unitsData as Unit[]);
+            setMaintenanceRecords(maintenanceData as MaintenanceRecord[]);
         }
-
-      >
+        catch (requestError) {
+            console.error("Error al cargar mantenimiento:", requestError);
+            setError("No fue posible cargar la información de mantenimiento.");
+        }
+        finally {
+            setLoadingData(false);
+        }
+    }, [apiUrl]);
+    useEffect(() => {
+        const fechaActual = obtenerFechaActual();
+        setForm((currentForm) => ({
+            ...currentForm,
+            fechaMantenimiento: fechaActual,
+        }));
+    }, []);
+    useEffect(() => {
+        async function iniciarPagina() {
+            const token = localStorage.getItem("fullterra_token");
+            if (!token) {
+                window.location.href = "/";
+                return;
+            }
+            try {
+                const response = await fetch(`${apiUrl}/auth/profile`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (response.status === 401) {
+                    redirigirSesionExpirada();
+                    return;
+                }
+                if (!response.ok) {
+                    localStorage.removeItem("fullterra_token");
+                    window.location.href =
+                        "/";
+                    return;
+                }
+                const profile: UserProfile = await response.json();
+                const rolesPermitidos = [
+                    "Administrador",
+                    "Supervisor",
+                    "Encargado de mantenimiento",
+                ];
+                const tienePermiso = profile.roles?.some((role) => rolesPermitidos.includes(role));
+                if (!tienePermiso) {
+                    window.alert("No tienes permisos para acceder al módulo de mantenimiento.");
+                    if (profile.roles?.includes("Operador")) {
+                        window.location.href =
+                            "/operaciones";
+                    }
+                    else if (profile.roles?.includes("Encargado de combustible")) {
+                        window.location.href =
+                            "/combustible";
+                    }
+                    else {
+                        window.location.href =
+                            "/";
+                    }
+                    return;
+                }
+                setUser(profile);
+                await cargarDatos(token);
+            }
+            catch (requestError) {
+                console.error("Error al validar sesión:", requestError);
+                localStorage.removeItem("fullterra_token");
+                window.location.href = "/";
+            }
+            finally {
+                setCheckingSession(false);
+            }
+        }
+        iniciarPagina();
+    }, [
+        apiUrl,
+        cargarDatos,
+    ]);
+    function handleLogout() {
+        localStorage.removeItem("fullterra_token");
+        window.location.href = "/";
+    }
+    function limpiarFormulario() {
+        setForm({
+            unidadId: "",
+            tipoMantenimiento: "",
+            fechaMantenimiento: obtenerFechaActual(),
+            proximoServicio: "",
+            kilometrajeHoras: "",
+            costo: "",
+            taller: "",
+            observaciones: "",
+        });
+    }
+    async function registrarMantenimiento(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        const token = localStorage.getItem("fullterra_token");
+        if (!token) {
+            window.location.href = "/";
+            return;
+        }
+        setSaving(true);
+        setMessage("");
+        setError("");
+        try {
+            const body = {
+                unidadId: Number(form.unidadId),
+                tipoMantenimiento: form.tipoMantenimiento.trim(),
+                fechaMantenimiento: form.fechaMantenimiento,
+                proximoServicio: form.proximoServicio ||
+                    undefined,
+                kilometrajeHoras: form.kilometrajeHoras ===
+                    ""
+                    ? undefined
+                    : Number(form.kilometrajeHoras),
+                costo: form.costo === ""
+                    ? undefined
+                    : Number(form.costo),
+                taller: form.taller.trim() ||
+                    undefined,
+                observaciones: form.observaciones
+                    .trim() ||
+                    undefined,
+            };
+            const response = await fetch(`${apiUrl}/maintenance`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(body),
+            });
+            if (response.status === 401) {
+                redirigirSesionExpirada();
+                return;
+            }
+            if (response.status === 403) {
+                setError("No tienes permisos para registrar mantenimientos.");
+                return;
+            }
+            if (!response.ok) {
+                const data: ApiError = await response.json();
+                setError(obtenerMensajeError(data, "No fue posible registrar el mantenimiento."));
+                return;
+            }
+            limpiarFormulario();
+            setMessage("Mantenimiento registrado correctamente.");
+            await cargarDatos(token);
+        }
+        catch (requestError) {
+            console.error("Error al registrar mantenimiento:", requestError);
+            setError("No fue posible registrar el mantenimiento.");
+        }
+        finally {
+            setSaving(false);
+        }
+    }
+    const totalMantenimientos = maintenanceRecords.length;
+    const mantenimientosCamiones = maintenanceRecords.filter((record) => record.unidad.tipo ===
+        "CAMION").length;
+    const mantenimientosMaquinaria = maintenanceRecords.filter((record) => record.unidad.tipo ===
+        "MAQUINARIA").length;
+    const costoTotal = maintenanceRecords.reduce((total, record) => total +
+        Number(record.costo ?? 0), 0);
+    const esAdministrador = user?.roles?.includes("Administrador") ?? false;
+    const esSupervisor = user?.roles?.includes("Supervisor") ?? false;
+    const esEncargadoMantenimiento = user?.roles?.includes("Encargado de mantenimiento") ?? false;
+    const puedeVerDashboard = esAdministrador ||
+        esSupervisor;
+    const puedeVerOperaciones = esAdministrador ||
+        esSupervisor;
+    const puedeVerCombustible = esAdministrador ||
+        esSupervisor;
+    if (checkingSession) {
+        return (<main className={styles.loadingPage}>
 
         Cargando información...
 
-      </main>
+      </main>);
+    }
+    return (<main className={styles.page}>
 
-    );
+      <aside className={styles.sidebar}>
 
-  }
+        <div className={styles.brand}>
 
-  return (
+          <Image src="/images/fullterra-logo.jpeg" alt="Logo de FULLTERRA" width={48} height={48} className={styles.logo} priority/>
 
-    <main className={styles.page}>
-
-      <aside
-
-        className={styles.sidebar}
-
-      >
-
-        <div
-
-          className={styles.brand}
-
-        >
-
-          <Image
-
-            src="/images/fullterra-logo.jpeg"
-
-            alt="Logo de FULLTERRA"
-
-            width={48}
-
-            height={48}
-
-            className={
-
-              styles.logo
-
-            }
-
-            priority
-
-          />
-
-          <span
-
-            className={
-
-              styles.brandName
-
-            }
-
-          >
+          <span className={styles.brandName}>
 
             FULLTERRA
 
@@ -1060,39 +323,11 @@ export default function MantenimientoPage() {
 
         </div>
 
-        <nav
+        <nav className={styles.navigation}>
 
-          className={
+          {puedeVerDashboard && (<Link href="/dashboard" className={styles.navItem}>
 
-            styles.navigation
-
-          }
-
-        >
-
-          {puedeVerDashboard && (
-
-            <Link
-
-              href="/dashboard"
-
-              className={
-
-                styles.navItem
-
-              }
-
-            >
-
-              <span
-
-                className={
-
-                  styles.navIcon
-
-                }
-
-              >
+              <span className={styles.navIcon}>
 
                 ▦
 
@@ -1100,33 +335,11 @@ export default function MantenimientoPage() {
 
               Dashboard
 
-            </Link>
+            </Link>)}
 
-          )}
+          {esAdministrador && (<Link href="/unidades" className={styles.navItem}>
 
-          {esAdministrador && (
-
-            <Link
-
-              href="/unidades"
-
-              className={
-
-                styles.navItem
-
-              }
-
-            >
-
-              <span
-
-                className={
-
-                  styles.navIcon
-
-                }
-
-              >
+              <span className={styles.navIcon}>
 
                 ▣
 
@@ -1134,33 +347,11 @@ export default function MantenimientoPage() {
 
               Unidades
 
-            </Link>
+            </Link>)}
 
-          )}
+          {puedeVerOperaciones && (<Link href="/operaciones" className={styles.navItem}>
 
-          {puedeVerOperaciones && (
-
-            <Link
-
-              href="/operaciones"
-
-              className={
-
-                styles.navItem
-
-              }
-
-            >
-
-              <span
-
-                className={
-
-                  styles.navIcon
-
-                }
-
-              >
+              <span className={styles.navIcon}>
 
                 ◉
 
@@ -1168,33 +359,11 @@ export default function MantenimientoPage() {
 
               Operaciones
 
-            </Link>
+            </Link>)}
 
-          )}
+          {puedeVerCombustible && (<Link href="/combustible" className={styles.navItem}>
 
-          {puedeVerCombustible && (
-
-            <Link
-
-              href="/combustible"
-
-              className={
-
-                styles.navItem
-
-              }
-
-            >
-
-              <span
-
-                className={
-
-                  styles.navIcon
-
-                }
-
-              >
+              <span className={styles.navIcon}>
 
                 ◈
 
@@ -1202,27 +371,11 @@ export default function MantenimientoPage() {
 
               Combustible
 
-            </Link>
+            </Link>)}
 
-          )}
+          <Link href="/mantenimiento" className={`${styles.navItem} ${styles.navItemActive}`}>
 
-          <Link
-
-            href="/mantenimiento"
-
-            className={`${styles.navItem} ${styles.navItemActive}`}
-
-          >
-
-            <span
-
-              className={
-
-                styles.navIcon
-
-              }
-
-            >
+            <span className={styles.navIcon}>
 
               ◇
 
@@ -1231,32 +384,13 @@ export default function MantenimientoPage() {
             Mantenimiento
 
           </Link>
+          <Link href="/alertas-mantenimiento" className={styles.navItem}><span className={styles.navIcon}>!</span> Alertas</Link>
 
-          {!esEncargadoMantenimiento && (
+          {!esEncargadoMantenimiento && (<>
 
-            <>
+              <Link href="/trazabilidad" className={styles.navItem}>
 
-              <Link
-
-                href="/trazabilidad"
-
-                className={
-
-                    styles.navItem
-
-                }
-
-                >
-
-                <span
-
-                    className={
-
-                    styles.navIcon
-
-                    }
-
-                >
+                <span className={styles.navIcon}>
 
                     ≡
 
@@ -1266,27 +400,9 @@ export default function MantenimientoPage() {
 
                 </Link>
 
-              <Link
+              <Link href="/indicadores" className={styles.navItem}>
 
-                href="/indicadores"
-
-                className={
-
-                    styles.navItem
-
-                }
-
-                >
-
-                <span
-
-                    className={
-
-                    styles.navIcon
-
-                    }
-
-                >
+                <span className={styles.navIcon}>
 
                     ◫
 
@@ -1296,21 +412,11 @@ export default function MantenimientoPage() {
 
                 </Link>
 
-            </>
-
-          )}
+            </>)}
 
         </nav>
 
-        <div
-
-          className={
-
-            styles.sidebarFooter
-
-          }
-
-        >
+        <div className={styles.sidebarFooter}>
 
           Sistema de control
 
@@ -1320,29 +426,13 @@ export default function MantenimientoPage() {
 
       </aside>
 
-      <section
+      <section className={styles.content}>
 
-        className={styles.content}
-
-      >
-
-        <header
-
-          className={styles.topbar}
-
-        >
+        <header className={styles.topbar}>
 
           <div>
 
-            <p
-
-              className={
-
-                styles.sectionLabel
-
-              }
-
-            >
+            <p className={styles.sectionLabel}>
 
               CONTROL OPERACIONAL
 
@@ -1356,85 +446,36 @@ export default function MantenimientoPage() {
 
           </div>
 
-          <div
+          <div className={styles.userArea}>
 
-            className={
-
-              styles.userArea
-
-            }
-
-          >
-
-            <div
-
-              className={
-
-                styles.userAvatar
-
-              }
-
-            >
+            <div className={styles.userAvatar}>
 
               {user?.usuario
-
-                ?.charAt(0)
-
-                .toUpperCase() ??
-
-                "U"}
+            ?.charAt(0)
+            .toUpperCase() ??
+            "U"}
 
             </div>
 
-            <div
-
-              className={
-
-                styles.userInfo
-
-              }
-
-            >
+            <div className={styles.userInfo}>
 
               <strong>
 
                 {user?.usuario ??
-
-                  "Usuario"}
+            "Usuario"}
 
               </strong>
 
               <span>
 
-                {user?.roles?.join(
-
-                  ", ",
-
-                ) ??
-
-                  "Sin rol"}
+                {user?.roles?.join(", ") ??
+            "Sin rol"}
 
               </span>
 
             </div>
 
-            <button
-
-              type="button"
-
-              className={
-
-                styles.logoutButton
-
-              }
-
-              onClick={
-
-                handleLogout
-
-              }
-
-            >
+            <button type="button" className={styles.logoutButton} onClick={handleLogout}>
 
               Cerrar sesión
 
@@ -1444,47 +485,15 @@ export default function MantenimientoPage() {
 
         </header>
 
-        <div
+        <div className={styles.workspace}>
 
-          className={
+          <section className={styles.formPanel}>
 
-            styles.workspace
-
-          }
-
-        >
-
-          <section
-
-            className={
-
-              styles.formPanel
-
-            }
-
-          >
-
-            <div
-
-              className={
-
-                styles.panelHeader
-
-              }
-
-            >
+            <div className={styles.panelHeader}>
 
               <div>
 
-                <p
-
-                  className={
-
-                    styles.panelLabel
-
-                  }
-
-                >
+                <p className={styles.panelLabel}>
 
                   NUEVO REGISTRO
 
@@ -1500,75 +509,21 @@ export default function MantenimientoPage() {
 
             </div>
 
-            <form
+            <form className={styles.form} onSubmit={registrarMantenimiento}>
 
-              className={
+              <div className={styles.field}>
 
-                styles.form
-
-              }
-
-              onSubmit={
-
-                registrarMantenimiento
-
-              }
-
-            >
-
-              <div
-
-                className={
-
-                  styles.field
-
-                }
-
-              >
-
-                <label
-
-                  htmlFor="maintenance-unit"
-
-                >
+                <label htmlFor="maintenance-unit">
 
                   Unidad
 
                 </label>
 
-                <select
-
-                  id="maintenance-unit"
-
-                  required
-
-                  value={
-
-                    form.unidadId
-
-                  }
-
-                  onChange={(
-
-                    event,
-
-                  ) =>
-
-                    setForm({
-
-                      ...form,
-
-                      unidadId:
-
-                        event.target
-
-                          .value,
-
-                    })
-
-                  }
-
-                >
+                <select id="maintenance-unit" required value={form.unidadId} onChange={(event) => setForm({
+            ...form,
+            unidadId: event.target
+                .value,
+        })}>
 
                   <option value="">
 
@@ -1578,499 +533,145 @@ export default function MantenimientoPage() {
 
                   </option>
 
-                  {units.map(
+                  {units.map((unit) => (<option key={unit.id} value={unit.id}>
 
-                    (unit) => (
-
-                      <option
-
-                        key={
-
-                          unit.id
-
-                        }
-
-                        value={
-
-                          unit.id
-
-                        }
-
-                      >
-
-                        {
-
-                          unit.codigo
-
-                        }{" "}
+                        {unit.codigo}{" "}
 
                         -{" "}
 
-                        {
-
-                          unit.tipo
-
-                        }{" "}
+                        {unit.tipo}{" "}
 
                         -{" "}
 
-                        {
+                        {unit.marca}{" "}
 
-                          unit.marca
+                        {unit.modelo}
 
-                        }{" "}
-
-                        {
-
-                          unit.modelo
-
-                        }
-
-                      </option>
-
-                    ),
-
-                  )}
+                      </option>))}
 
                 </select>
 
               </div>
 
-              <div
+              <div className={styles.field}>
 
-                className={
-
-                  styles.field
-
-                }
-
-              >
-
-                <label
-
-                  htmlFor="maintenance-type"
-
-                >
+                <label htmlFor="maintenance-type">
 
                   Tipo de mantenimiento
 
                 </label>
 
-                <input
-
-                  id="maintenance-type"
-
-                  type="text"
-
-                  required
-
-                  value={
-
-                    form.tipoMantenimiento
-
-                  }
-
-                  onChange={(
-
-                    event,
-
-                  ) =>
-
-                    setForm({
-
-                      ...form,
-
-                      tipoMantenimiento:
-
-                        event.target
-
-                          .value,
-
-                    })
-
-                  }
-
-                  placeholder="Ej. Preventivo"
-
-                />
+                <input id="maintenance-type" type="text" required value={form.tipoMantenimiento} onChange={(event) => setForm({
+            ...form,
+            tipoMantenimiento: event.target
+                .value,
+        })} placeholder="Ej. Preventivo"/>
 
               </div>
 
-              <div
+              <div className={styles.field}>
 
-                className={
-
-                  styles.field
-
-                }
-
-              >
-
-                <label
-
-                  htmlFor="maintenance-date"
-
-                >
+                <label htmlFor="maintenance-date">
 
                   Fecha de mantenimiento
 
                 </label>
 
-                <input
-
-                  id="maintenance-date"
-
-                  type="date"
-
-                  required
-
-                  value={
-
-                    form.fechaMantenimiento
-
-                  }
-
-                  onChange={(
-
-                    event,
-
-                  ) =>
-
-                    setForm({
-
-                      ...form,
-
-                      fechaMantenimiento:
-
-                        event.target
-
-                          .value,
-
-                    })
-
-                  }
-
-                />
+                <input id="maintenance-date" type="date" required value={form.fechaMantenimiento} onChange={(event) => setForm({
+            ...form,
+            fechaMantenimiento: event.target
+                .value,
+        })}/>
 
               </div>
 
-              <div
+              <div className={styles.field}>
 
-                className={
-
-                  styles.field
-
-                }
-
-              >
-
-                <label
-
-                  htmlFor="maintenance-next-date"
-
-                >
+                <label htmlFor="maintenance-next-date">
 
                   Próximo servicio
 
                 </label>
 
-                <input
-
-                  id="maintenance-next-date"
-
-                  type="date"
-
-                  value={
-
-                    form.proximoServicio
-
-                  }
-
-                  onChange={(
-
-                    event,
-
-                  ) =>
-
-                    setForm({
-
-                      ...form,
-
-                      proximoServicio:
-
-                        event.target
-
-                          .value,
-
-                    })
-
-                  }
-
-                />
+                <input id="maintenance-next-date" type="date" value={form.proximoServicio} onChange={(event) => setForm({
+            ...form,
+            proximoServicio: event.target
+                .value,
+        })}/>
 
               </div>
 
-              <div
+              <div className={styles.field}>
 
-                className={
-
-                  styles.field
-
-                }
-
-              >
-
-                <label
-
-                  htmlFor="maintenance-meter"
-
-                >
+                <label htmlFor="maintenance-meter">
 
                   Kilometraje / Horas
 
                 </label>
 
-                <input
-
-                  id="maintenance-meter"
-
-                  type="number"
-
-                  min="0"
-
-                  step="0.01"
-
-                  value={
-
-                    form.kilometrajeHoras
-
-                  }
-
-                  onChange={(
-
-                    event,
-
-                  ) =>
-
-                    setForm({
-
-                      ...form,
-
-                      kilometrajeHoras:
-
-                        event.target
-
-                          .value,
-
-                    })
-
-                  }
-
-                  placeholder="0.00"
-
-                />
+                <input id="maintenance-meter" type="number" min="0" step="0.01" value={form.kilometrajeHoras} onChange={(event) => setForm({
+            ...form,
+            kilometrajeHoras: event.target
+                .value,
+        })} placeholder="0.00"/>
 
               </div>
 
-              <div
+              <div className={styles.field}>
 
-                className={
-
-                  styles.field
-
-                }
-
-              >
-
-                <label
-
-                  htmlFor="maintenance-cost"
-
-                >
+                <label htmlFor="maintenance-cost">
 
                   Costo
 
                 </label>
 
-                <input
-
-                  id="maintenance-cost"
-
-                  type="number"
-
-                  min="0"
-
-                  step="0.01"
-
-                  value={
-
-                    form.costo
-
-                  }
-
-                  onChange={(
-
-                    event,
-
-                  ) =>
-
-                    setForm({
-
-                      ...form,
-
-                      costo:
-
-                        event.target
-
-                          .value,
-
-                    })
-
-                  }
-
-                  placeholder="0.00"
-
-                />
+                <input id="maintenance-cost" type="number" min="0" step="0.01" value={form.costo} onChange={(event) => setForm({
+            ...form,
+            costo: event.target
+                .value,
+        })} placeholder="0.00"/>
 
               </div>
 
-              <div
+              <div className={styles.field}>
 
-                className={
-
-                  styles.field
-
-                }
-
-              >
-
-                <label
-
-                  htmlFor="maintenance-workshop"
-
-                >
+                <label htmlFor="maintenance-workshop">
 
                   Taller
 
                 </label>
 
-                <input
-
-                  id="maintenance-workshop"
-
-                  type="text"
-
-                  value={
-
-                    form.taller
-
-                  }
-
-                  onChange={(
-
-                    event,
-
-                  ) =>
-
-                    setForm({
-
-                      ...form,
-
-                      taller:
-
-                        event.target
-
-                          .value,
-
-                    })
-
-                  }
-
-                  placeholder="Taller o proveedor"
-
-                />
+                <input id="maintenance-workshop" type="text" value={form.taller} onChange={(event) => setForm({
+            ...form,
+            taller: event.target
+                .value,
+        })} placeholder="Taller o proveedor"/>
 
               </div>
 
-              <div
+              <div className={`${styles.field} ${styles.fieldFull}`}>
 
-                className={`${styles.field} ${styles.fieldFull}`}
-
-              >
-
-                <label
-
-                  htmlFor="maintenance-observations"
-
-                >
+                <label htmlFor="maintenance-observations">
 
                   Observaciones
 
                 </label>
 
-                <textarea
-
-                  id="maintenance-observations"
-
-                  rows={3}
-
-                  value={
-
-                    form.observaciones
-
-                  }
-
-                  onChange={(
-
-                    event,
-
-                  ) =>
-
-                    setForm({
-
-                      ...form,
-
-                      observaciones:
-
-                        event.target
-
-                          .value,
-
-                    })
-
-                  }
-
-                  placeholder="Observaciones opcionales"
-
-                />
+                <textarea id="maintenance-observations" rows={3} value={form.observaciones} onChange={(event) => setForm({
+            ...form,
+            observaciones: event.target
+                .value,
+        })} placeholder="Observaciones opcionales"/>
 
               </div>
 
-              <div
+              <div className={`${styles.formActions} ${styles.fieldFull}`}>
 
-                className={`${styles.formActions} ${styles.fieldFull}`}
-
-              >
-
-                <button
-
-                  type="submit"
-
-                  className={
-
-                    styles.saveButton
-
-                  }
-
-                  disabled={saving}
-
-                >
+                <button type="submit" className={styles.saveButton} disabled={saving}>
 
                   {saving
-
-                    ? "Guardando..."
-
-                    : "Registrar mantenimiento"}
+            ? "Guardando..."
+            : "Registrar mantenimiento"}
 
                 </button>
 
@@ -2078,65 +679,25 @@ export default function MantenimientoPage() {
 
             </form>
 
-            {message && (
-
-              <div
-
-                className={
-
-                  styles.successMessage
-
-                }
-
-              >
+            {message && (<div className={styles.successMessage}>
 
                 {message}
 
-              </div>
+              </div>)}
 
-            )}
-
-            {error && (
-
-              <div
-
-                className={
-
-                  styles.errorMessage
-
-                }
-
-              >
+            {error && (<div className={styles.errorMessage}>
 
                 {error}
 
-              </div>
-
-            )}
+              </div>)}
 
           </section>
 
-          <section
-
-            className={
-
-              styles.intro
-
-            }
-
-          >
+          <section className={styles.intro}>
 
             <div>
 
-              <p
-
-                className={
-
-                  styles.introLabel
-
-                }
-
-              >
+              <p className={styles.introLabel}>
 
                 CONTROL DE MANTENIMIENTO
 
@@ -2168,15 +729,7 @@ export default function MantenimientoPage() {
 
             </div>
 
-            <div
-
-              className={
-
-                styles.summary
-
-              }
-
-            >
+            <div className={styles.summary}>
 
               <div>
 
@@ -2188,11 +741,7 @@ export default function MantenimientoPage() {
 
                 <strong>
 
-                  {
-
-                    totalMantenimientos
-
-                  }
+                  {totalMantenimientos}
 
                 </strong>
 
@@ -2208,11 +757,7 @@ export default function MantenimientoPage() {
 
                 <strong>
 
-                  {
-
-                    mantenimientosCamiones
-
-                  }
+                  {mantenimientosCamiones}
 
                 </strong>
 
@@ -2228,11 +773,7 @@ export default function MantenimientoPage() {
 
                 <strong>
 
-                  {
-
-                    mantenimientosMaquinaria
-
-                  }
+                  {mantenimientosMaquinaria}
 
                 </strong>
 
@@ -2250,23 +791,10 @@ export default function MantenimientoPage() {
 
                   Q
 
-                  {costoTotal.toLocaleString(
-
-                    "es-GT",
-
-                    {
-
-                      minimumFractionDigits:
-
-                        2,
-
-                      maximumFractionDigits:
-
-                        2,
-
-                    },
-
-                  )}
+                  {costoTotal.toLocaleString("es-GT", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        })}
 
                 </strong>
 
@@ -2276,37 +804,13 @@ export default function MantenimientoPage() {
 
           </section>
 
-          <section
+          <section className={styles.listPanel}>
 
-            className={
-
-              styles.listPanel
-
-            }
-
-          >
-
-            <div
-
-              className={
-
-                styles.panelHeader
-
-              }
-
-            >
+            <div className={styles.panelHeader}>
 
               <div>
 
-                <p
-
-                  className={
-
-                    styles.panelLabel
-
-                  }
-
-                >
+                <p className={styles.panelLabel}>
 
                   HISTORIAL
 
@@ -2322,21 +826,9 @@ export default function MantenimientoPage() {
 
               </div>
 
-              <span
+              <span className={styles.counter}>
 
-                className={
-
-                  styles.counter
-
-                }
-
-              >
-
-                {
-
-                  maintenanceRecords.length
-
-                }{" "}
+                {maintenanceRecords.length}{" "}
 
                 registros
 
@@ -2344,65 +836,22 @@ export default function MantenimientoPage() {
 
             </div>
 
-            {loadingData ? (
-
-              <div
-
-                className={
-
-                  styles.emptyState
-
-                }
-
-              >
+            {loadingData ? (<div className={styles.emptyState}>
 
                 Cargando registros de
 
                 mantenimiento...
 
-              </div>
-
-            ) : maintenanceRecords.length ===
-
-              0 ? (
-
-              <div
-
-                className={
-
-                  styles.emptyState
-
-                }
-
-              >
+              </div>) : maintenanceRecords.length ===
+            0 ? (<div className={styles.emptyState}>
 
                 No existen mantenimientos
 
                 registrados.
 
-              </div>
+              </div>) : (<div className={styles.tableWrapper}>
 
-            ) : (
-
-              <div
-
-                className={
-
-                  styles.tableWrapper
-
-                }
-
-              >
-
-                <table
-
-                  className={
-
-                    styles.table
-
-                  }
-
-                >
+                <table className={styles.table}>
 
                   <thead>
 
@@ -2475,38 +924,14 @@ export default function MantenimientoPage() {
                   <tbody>
 
                     {[
-
-                      ...maintenanceRecords,
-
-                    ]
-
-                      .reverse()
-
-                      .map(
-
-                        (
-
-                          record,
-
-                        ) => (
-
-                          <tr
-
-                            key={
-
-                              record.id
-
-                            }
-
-                          >
+                ...maintenanceRecords,
+            ]
+                .reverse()
+                .map((record) => (<tr key={record.id}>
 
                             <td>
 
-                              {formatearFecha(
-
-                                record.fechaMantenimiento,
-
-                              )}
+                              {formatearFecha(record.fechaMantenimiento)}
 
                             </td>
 
@@ -2514,15 +939,9 @@ export default function MantenimientoPage() {
 
                               <strong>
 
-                                {
-
-                                  record
-
-                                    .unidad
-
-                                    .codigo
-
-                                }
+                                {record
+                    .unidad
+                    .codigo}
 
                               </strong>
 
@@ -2530,145 +949,74 @@ export default function MantenimientoPage() {
 
                             <td>
 
-                              {
-
-                                record
-
-                                  .unidad
-
-                                  .tipo
-
-                              }
+                              {record
+                    .unidad
+                    .tipo}
 
                             </td>
 
                             <td>
 
-                              {
-
-                                record.tipoMantenimiento
-
-                              }
+                              {record.tipoMantenimiento}
 
                             </td>
 
                             <td>
 
-                              {formatearFecha(
-
-                                record.proximoServicio,
-
-                              )}
+                              {formatearFecha(record.proximoServicio)}
 
                             </td>
 
                             <td>
 
                               {record.kilometrajeHoras ===
-
-                              null
-
-                                ? "—"
-
-                                : Number(
-
-                                    record.kilometrajeHoras,
-
-                                  ).toLocaleString(
-
-                                    "es-GT",
-
-                                    {
-
-                                      maximumFractionDigits:
-
-                                        2,
-
-                                    },
-
-                                  )}
+                    null
+                    ? "—"
+                    : Number(record.kilometrajeHoras).toLocaleString("es-GT", {
+                        maximumFractionDigits: 2,
+                    })}
 
                             </td>
 
                             <td>
 
                               {record.costo ===
-
-                              null
-
-                                ? "—"
-
-                                : `Q${Number(
-
-                                    record.costo,
-
-                                  ).toLocaleString(
-
-                                    "es-GT",
-
-                                    {
-
-                                      minimumFractionDigits:
-
-                                        2,
-
-                                      maximumFractionDigits:
-
-                                        2,
-
-                                    },
-
-                                  )}`}
+                    null
+                    ? "—"
+                    : `Q${Number(record.costo).toLocaleString("es-GT", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                    })}`}
 
                             </td>
 
                             <td>
 
-                              {
-
-                                record.taller ??
-
-                                "—"
-
-                              }
+                              {record.taller ??
+                    "—"}
 
                             </td>
 
                             <td>
 
-                              {
-
-                                record.observaciones ??
-
-                                "—"
-
-                              }
+                              {record.observaciones ??
+                    "—"}
 
                             </td>
 
                             <td>
 
-                              {
-
-                                record.estado
-
-                              }
+                              {record.estado}
 
                             </td>
 
-                          </tr>
-
-                        ),
-
-                      )}
+                          </tr>))}
 
                   </tbody>
 
                 </table>
 
-              </div>
-
-            )}
+              </div>)}
 
           </section>
 
@@ -2676,8 +1024,5 @@ export default function MantenimientoPage() {
 
       </section>
 
-    </main>
-
-  );
-
+    </main>);
 }

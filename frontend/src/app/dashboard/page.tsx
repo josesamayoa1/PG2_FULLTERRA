@@ -1,18 +1,13 @@
-
 "use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
 import styles from "./dashboard.module.css";
-
 type UserProfile = {
   id: number;
   usuario: string;
   roles?: string[];
 };
-
 type Unit = {
   id: number;
   codigo: string;
@@ -23,7 +18,6 @@ type Unit = {
   estado: string;
   activo: boolean;
 };
-
 type UnitDashboard = {
   unidad: Unit;
   viajes: number;
@@ -32,10 +26,8 @@ type UnitDashboard = {
   galonesCombustible: number;
   mantenimientos: number;
 };
-
 type DashboardData = {
   periodo: unknown;
-
   resumen: {
     viajes: number;
     kilometros: number;
@@ -43,7 +35,6 @@ type DashboardData = {
     galonesCombustible: number;
     mantenimientos: number;
   };
-
   variacionMesAnterior: {
     viajes: number;
     kilometros: number;
@@ -51,10 +42,8 @@ type DashboardData = {
     galonesCombustible: number;
     mantenimientos: number;
   };
-
   unidades: UnitDashboard[];
 };
-
 export default function DashboardPage() {
   const [checkingSession, setCheckingSession] = useState(true);
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -62,21 +51,17 @@ export default function DashboardPage() {
     useState<DashboardData | null>(null);
   const [dashboardError, setDashboardError] = useState(false);
   const [periodoTexto, setPeriodoTexto] = useState("");
-
   useEffect(() => {
     async function cargarDashboard() {
       const token = localStorage.getItem("fullterra_token");
-
       if (!token) {
         window.location.href = "/";
         return;
       }
-
       try {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL ??
           "http://localhost:3000";
-
         const profileResponse = await fetch(
           `${apiUrl}/auth/profile`,
           {
@@ -85,25 +70,19 @@ export default function DashboardPage() {
             },
           },
         );
-
         if (!profileResponse.ok) {
           localStorage.removeItem("fullterra_token");
           window.location.href = "/";
           return;
         }
-
         const profile: UserProfile =
           await profileResponse.json();
-
         setUser(profile);
-
         const fechaActual = new Date();
         const anio = fechaActual.getFullYear();
         const mes = fechaActual.getMonth() + 1;
         const dia = fechaActual.getDate();
-
         const fechaInicio = new Date(anio, mes - 1, 1);
-
         const formatoFecha = new Intl.DateTimeFormat(
           "es-GT",
           {
@@ -112,11 +91,9 @@ export default function DashboardPage() {
             year: "numeric",
           },
         );
-
         setPeriodoTexto(
           `${formatoFecha.format(fechaInicio)} - ${formatoFecha.format(fechaActual)}`,
         );
-
         const dashboardResponse = await fetch(
           `${apiUrl}/dashboard?anio=${anio}&mes=${mes}&dia=${dia}`,
           {
@@ -125,15 +102,12 @@ export default function DashboardPage() {
             },
           },
         );
-
         if (!dashboardResponse.ok) {
           setDashboardError(true);
           return;
         }
-
         const data: DashboardData =
           await dashboardResponse.json();
-
         setDashboardData(data);
       } catch (error) {
         console.error("Error al cargar dashboard:", error);
@@ -142,42 +116,33 @@ export default function DashboardPage() {
         setCheckingSession(false);
       }
     }
-
     cargarDashboard();
   }, []);
-
   function handleLogout() {
     localStorage.removeItem("fullterra_token");
     window.location.href = "/";
   }
-
   function formatNumber(value: number | undefined) {
     if (value === undefined) {
       return "—";
     }
-
     return value.toLocaleString("es-GT", {
       maximumFractionDigits: 2,
     });
   }
-
   const unidades = dashboardData?.unidades ?? [];
-
   const unidadesDisponibles = unidades.filter(
     (registro) =>
       registro.unidad.estado === "DISPONIBLE",
   ).length;
-
   const unidadesMantenimiento = unidades.filter(
     (registro) =>
       registro.unidad.estado === "MANTENIMIENTO",
   ).length;
-
   const unidadesInactivas = unidades.filter(
     (registro) =>
       registro.unidad.estado === "INACTIVO",
   ).length;
-
   if (checkingSession) {
     return (
       <main className={styles.page}>
@@ -198,7 +163,6 @@ export default function DashboardPage() {
       </main>
     );
   }
-
   return (
     <main className={styles.page}>
       <aside className={styles.sidebar}>
@@ -211,12 +175,10 @@ export default function DashboardPage() {
             className={styles.logo}
             priority
           />
-
           <span className={styles.brandName}>
             FULLTERRA
           </span>
         </div>
-
         <nav className={styles.navigation}>
           <button
             type="button"
@@ -227,7 +189,6 @@ export default function DashboardPage() {
             </span>
             Dashboard
           </button>
-
           <Link
             href="/unidades"
             className={styles.navItem}
@@ -237,7 +198,6 @@ export default function DashboardPage() {
             </span>
             Unidades
           </Link>
-
           <Link
             href="/operaciones"
             className={styles.navItem}
@@ -247,7 +207,6 @@ export default function DashboardPage() {
             </span>
             Operaciones
           </Link>
-
           <Link
             href="/combustible"
             className={styles.navItem}
@@ -257,7 +216,6 @@ export default function DashboardPage() {
             </span>
             Combustible
           </Link>
-
           <Link
             href="/mantenimiento"
               className={styles.navItem}
@@ -267,7 +225,10 @@ export default function DashboardPage() {
             </span>
               Mantenimiento
           </Link>
-
+          <Link href="/alertas-mantenimiento" className={styles.navItem}>
+            <span className={styles.navIcon}>!</span>
+            Alertas
+          </Link>
           <Link
             href="/trazabilidad"
             className={styles.navItem}
@@ -277,7 +238,6 @@ export default function DashboardPage() {
             </span>
             Trazabilidad
           </Link>
-
           <Link
             href="/indicadores"
             className={styles.navItem}
@@ -287,14 +247,11 @@ export default function DashboardPage() {
             </span>
             Indicadores
           </Link>
-          
         </nav>
-
         <div className={styles.sidebarFooter}>
           Sistema de control operacional
         </div>
       </aside>
-
       <section className={styles.content}>
         <header className={styles.topbar}>
           <div>
@@ -303,24 +260,20 @@ export default function DashboardPage() {
             </p>
             <h1>Dashboard</h1>
           </div>
-
           <div className={styles.userArea}>
             <div className={styles.userAvatar}>
               {user?.usuario?.charAt(0).toUpperCase() ?? "U"}
             </div>
-
             <div className={styles.userInfo}>
               <strong>
                 {user?.usuario ?? "Usuario"}
               </strong>
-
               <span>
                 {user?.roles?.length
                   ? user.roles.join(", ")
                   : "FULLTERRA"}
               </span>
             </div>
-
             <button
               type="button"
               className={styles.logoutButton}
@@ -330,19 +283,16 @@ export default function DashboardPage() {
             </button>
           </div>
         </header>
-
         <div className={styles.dashboard}>
           <section className={styles.welcome}>
             <div>
               <p className={styles.welcomeLabel}>
                 RESUMEN OPERACIONAL
               </p>
-
               <h2>
                 Bienvenido al sistema
                 FULLTERRA
               </h2>
-
               <p>
                 Consulta el estado
                 general de las
@@ -351,7 +301,6 @@ export default function DashboardPage() {
                 mantenimiento.
               </p>
             </div>
-
             <div
               style={{
                 display: "flex",
@@ -365,14 +314,12 @@ export default function DashboardPage() {
                 Período:{" "}
                 {periodoTexto || "—"}
               </div>
-
               <div className={styles.status}>
                 <span className={styles.statusDot} />
                 Sistema activo
               </div>
             </div>
           </section>
-
           {dashboardError && (
             <p
               style={{
@@ -391,7 +338,6 @@ export default function DashboardPage() {
               dashboard.
             </p>
           )}
-
           <section className={styles.cards}>
             <article className={styles.card}>
               <div className={styles.cardHeader}>
@@ -402,18 +348,15 @@ export default function DashboardPage() {
                   ↗
                 </span>
               </div>
-
               <strong>
                 {formatNumber(
                   dashboardData?.resumen.viajes,
                 )}
               </strong>
-
               <p>
                 {periodoTexto || "Período actual"}
               </p>
             </article>
-
             <article className={styles.card}>
               <div className={styles.cardHeader}>
                 <span>
@@ -423,18 +366,15 @@ export default function DashboardPage() {
                   ⟷
                 </span>
               </div>
-
               <strong>
                 {formatNumber(
                   dashboardData?.resumen.kilometros,
                 )}
               </strong>
-
               <p>
                 Acumulado del período
               </p>
             </article>
-
             <article className={styles.card}>
               <div className={styles.cardHeader}>
                 <span>
@@ -444,18 +384,15 @@ export default function DashboardPage() {
                   ◷
                 </span>
               </div>
-
               <strong>
                 {formatNumber(
                   dashboardData?.resumen.horasMaquinaria,
                 )}
               </strong>
-
               <p>
                 Operación registrada
               </p>
             </article>
-
             <article className={styles.card}>
               <div className={styles.cardHeader}>
                 <span>
@@ -465,19 +402,16 @@ export default function DashboardPage() {
                   ◉
                 </span>
               </div>
-
               <strong>
                 {formatNumber(
                   dashboardData?.resumen.galonesCombustible,
                 )}
               </strong>
-
               <p>
                 Galones registrados
               </p>
             </article>
           </section>
-
           <section className={styles.grid}>
             <article className={styles.panel}>
               <div className={styles.panelHeader}>
@@ -485,13 +419,11 @@ export default function DashboardPage() {
                   <span className={styles.panelLabel}>
                     UNIDADES
                   </span>
-
                   <h3>
                     Actividad por unidad
                   </h3>
                 </div>
               </div>
-
               <div
                 style={{
                   display: "flex",
@@ -505,7 +437,6 @@ export default function DashboardPage() {
                     <strong>
                       Sin información
                     </strong>
-
                     <p>
                       No existen unidades
                       registradas para
@@ -537,7 +468,6 @@ export default function DashboardPage() {
                         >
                           {registro.unidad.codigo}
                         </strong>
-
                         <span
                           style={{
                             display: "block",
@@ -550,7 +480,6 @@ export default function DashboardPage() {
                           {registro.unidad.modelo}
                         </span>
                       </div>
-
                       <div>
                         <strong>
                           {formatNumber(registro.viajes)}
@@ -566,7 +495,6 @@ export default function DashboardPage() {
                           Viajes
                         </span>
                       </div>
-
                       <div>
                         <strong>
                           {formatNumber(registro.kilometros)}
@@ -582,7 +510,6 @@ export default function DashboardPage() {
                           Km
                         </span>
                       </div>
-
                       <div>
                         <strong>
                           {formatNumber(registro.horasMaquinaria)}
@@ -598,7 +525,6 @@ export default function DashboardPage() {
                           Horas
                         </span>
                       </div>
-
                       <div>
                         <strong>
                           {formatNumber(registro.galonesCombustible)}
@@ -614,7 +540,6 @@ export default function DashboardPage() {
                           Galones
                         </span>
                       </div>
-
                       <div>
                         <strong>
                           {formatNumber(registro.mantenimientos)}
@@ -635,20 +560,17 @@ export default function DashboardPage() {
                 )}
               </div>
             </article>
-
             <article className={styles.panel}>
               <div className={styles.panelHeader}>
                 <div>
                   <span className={styles.panelLabel}>
                     ESTADO DE FLOTA
                   </span>
-
                   <h3>
                     Estado de unidades
                   </h3>
                 </div>
               </div>
-
               <div
                 style={{
                   display: "flex",
@@ -676,12 +598,10 @@ export default function DashboardPage() {
                   >
                     Disponibles
                   </span>
-
                   <strong>
                     {unidadesDisponibles}
                   </strong>
                 </div>
-
                 <div
                   style={{
                     display: "flex",
@@ -701,12 +621,10 @@ export default function DashboardPage() {
                   >
                     En mantenimiento
                   </span>
-
                   <strong>
                     {unidadesMantenimiento}
                   </strong>
                 </div>
-
                 <div
                   style={{
                     display: "flex",
@@ -726,12 +644,10 @@ export default function DashboardPage() {
                   >
                     Inactivas
                   </span>
-
                   <strong>
                     {unidadesInactivas}
                   </strong>
                 </div>
-
                 <div
                   style={{
                     marginTop: "5px",
@@ -750,7 +666,6 @@ export default function DashboardPage() {
                   >
                     Mantenimientos del período
                   </span>
-
                   <strong
                     style={{
                       display: "block",
