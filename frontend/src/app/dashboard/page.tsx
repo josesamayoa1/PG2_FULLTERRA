@@ -278,15 +278,16 @@ export default function DashboardPage() {
             Trazabilidad
           </Link>
 
-          <button
-            type="button"
+          <Link
+            href="/indicadores"
             className={styles.navItem}
           >
             <span className={styles.navIcon}>
               ◫
             </span>
             Indicadores
-          </button>
+          </Link>
+          
         </nav>
 
         <div className={styles.sidebarFooter}>

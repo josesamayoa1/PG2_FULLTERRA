@@ -52,4 +52,18 @@ export class IndicatorsController {
         Number(mes),
       );
   }
+
+  @Get('annual')
+  @Roles(
+    'Administrador',
+    'Supervisor',
+  )
+  obtenerIndicadoresAnuales(
+    @Query('anio') anio: string,
+  ) {
+    return this.indicatorsService
+      .obtenerIndicadoresAnuales(
+        Number(anio),
+      );
+  }
 }

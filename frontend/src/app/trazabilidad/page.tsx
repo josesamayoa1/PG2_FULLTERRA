@@ -1754,37 +1754,22 @@ export default function TrazabilidadPage() {
 
           {puedeVerGestion && (
 
-            <button
-
-                type="button"
-
-                className={
-
+            <Link
+            href="/indicadores"
+            className={
                 styles.navItem
-
-                }
-
+            }
             >
-
-                <span
-
+            <span
                 className={
-
-                    styles.navIcon
-
+                styles.navIcon
                 }
-
-                >
-
+            >
                 ◫
+            </span>
 
-                </span>
-
-
-
-                Indicadores
-
-            </button>
+            Indicadores
+            </Link>
 
             )}
 

@@ -723,8 +723,8 @@ export default function CombustiblePage() {
                 Trazabilidad
               </Link>
 
-              <button
-                type="button"
+              <Link
+                href="/indicadores"
                 className={
                   styles.navItem
                 }
@@ -738,7 +738,8 @@ export default function CombustiblePage() {
                 </span>
 
                 Indicadores
-              </button>
+              </Link>
+
             </>
           )}
         </nav>

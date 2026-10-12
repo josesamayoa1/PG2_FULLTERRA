@@ -2074,37 +2074,22 @@ export default function OperacionesPage() {
 
         {puedeVerDashboard && (
 
-          <button
-
-            type="button"
-
+          <Link
+            href="/indicadores"
             className={
-
               styles.navItem
-
             }
-
           >
-
             <span
-
               className={
-
                 styles.navIcon
-
               }
-
             >
-
               ◫
-
             </span>
 
-
-
             Indicadores
-
-          </button>
+          </Link>
 
         )}
 

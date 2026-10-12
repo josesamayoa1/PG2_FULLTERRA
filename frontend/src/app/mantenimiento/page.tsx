@@ -750,22 +750,23 @@ export default function MantenimientoPage() {
                 Trazabilidad
                 </Link>
 
-              <button
-                type="button"
+              <Link
+                href="/indicadores"
                 className={
-                  styles.navItem
+                    styles.navItem
                 }
-              >
-                <span
-                  className={
-                    styles.navIcon
-                  }
                 >
-                  ◫
+                <span
+                    className={
+                    styles.navIcon
+                    }
+                >
+                    ◫
                 </span>
 
                 Indicadores
-              </button>
+                </Link>
+
             </>
           )}
         </nav>

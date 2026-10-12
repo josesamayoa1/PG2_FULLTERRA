@@ -33,9 +33,8 @@ export class IndicatorsService {
       Repository<Maintenance>,
   ) {}
 
-  private validarPeriodo(
+  private validarAnio(
     anio: number,
-    mes: number,
   ) {
     if (
       !Number.isInteger(anio) ||
@@ -46,6 +45,13 @@ export class IndicatorsService {
         'El año debe ser un número entero entre 2000 y 2100',
       );
     }
+  }
+
+  private validarPeriodo(
+    anio: number,
+    mes: number,
+  ) {
+    this.validarAnio(anio);
 
     if (
       !Number.isInteger(mes) ||
@@ -98,6 +104,14 @@ export class IndicatorsService {
       fechaInicio,
       fechaFin,
     };
+  }
+
+  private obtenerMesFecha(
+    fecha: string,
+  ) {
+    return Number(
+      fecha.slice(5, 7),
+    );
   }
 
   async obtenerIndicadores(
@@ -177,7 +191,8 @@ export class IndicatorsService {
         const combustibleUnidad =
           cargasCombustible.filter(
             (carga) =>
-              carga.unidad.id === unidad.id,
+              carga.unidad.id ===
+              unidad.id,
           );
 
         const mantenimientosUnidad =
@@ -200,7 +215,8 @@ export class IndicatorsService {
             (total, operacion) =>
               total +
               (
-                operacion.kilometros === null
+                operacion.kilometros ===
+                null
                   ? 0
                   : Number(
                       operacion.kilometros,
@@ -479,6 +495,300 @@ export class IndicatorsService {
       },
 
       comparativosPorUnidad,
+    };
+  }
+
+  async obtenerIndicadoresAnuales(
+    anio: number,
+  ) {
+    this.validarAnio(anio);
+
+    const fechaInicio =
+      `${anio}-01-01`;
+
+    const fechaFin =
+      `${anio}-12-31`;
+
+    const unidades =
+      await this.unitRepository.find({
+        order: {
+          id: 'ASC',
+        },
+      });
+
+    const [
+      operaciones,
+      cargasCombustible,
+      mantenimientos,
+    ] = await Promise.all([
+      this.assetOperationRepository.find({
+        where: {
+          fechaOperacion: Between(
+            fechaInicio,
+            fechaFin,
+          ),
+        },
+        relations: {
+          unidad: true,
+        },
+      }),
+
+      this.fuelLoadRepository.find({
+        where: {
+          fechaCarga: Between(
+            fechaInicio,
+            fechaFin,
+          ),
+        },
+        relations: {
+          unidad: true,
+        },
+      }),
+
+      this.maintenanceRepository.find({
+        where: {
+          fechaMantenimiento: Between(
+            fechaInicio,
+            fechaFin,
+          ),
+        },
+        relations: {
+          unidad: true,
+        },
+      }),
+    ]);
+
+    const meses =
+      Array.from(
+        {
+          length: 12,
+        },
+        (_, indice) => {
+          const mes = indice + 1;
+
+          const operacionesMes =
+            operaciones.filter(
+              (operacion) =>
+                this.obtenerMesFecha(
+                  operacion.fechaOperacion,
+                ) === mes,
+            );
+
+          const combustibleMes =
+            cargasCombustible.filter(
+              (carga) =>
+                this.obtenerMesFecha(
+                  carga.fechaCarga,
+                ) === mes,
+            );
+
+          const mantenimientosMes =
+            mantenimientos.filter(
+              (mantenimiento) =>
+                this.obtenerMesFecha(
+                  mantenimiento
+                    .fechaMantenimiento,
+                ) === mes,
+            );
+
+          const viajes =
+            operacionesMes.reduce(
+              (total, operacion) =>
+                total +
+                (operacion.viajes ?? 0),
+              0,
+            );
+
+          const kilometros =
+            operacionesMes.reduce(
+              (total, operacion) =>
+                total +
+                (
+                  operacion.kilometros ===
+                  null
+                    ? 0
+                    : Number(
+                        operacion.kilometros,
+                      )
+                ),
+              0,
+            );
+
+          const horasUso =
+            operacionesMes.reduce(
+              (total, operacion) =>
+                total +
+                (
+                  operacion.horasUso ===
+                  null
+                    ? 0
+                    : Number(
+                        operacion.horasUso,
+                      )
+                ),
+              0,
+            );
+
+          const galones =
+            combustibleMes.reduce(
+              (total, carga) =>
+                total +
+                Number(carga.galones),
+              0,
+            );
+
+          return {
+            mes,
+            viajes,
+            kilometros,
+            horasUso,
+            galones,
+            mantenimientos:
+              mantenimientosMes.length,
+          };
+        },
+      );
+
+    const indicadoresPorUnidad =
+      unidades.map((unidad) => {
+        const operacionesUnidad =
+          operaciones.filter(
+            (operacion) =>
+              operacion.unidad.id ===
+              unidad.id,
+          );
+
+        const combustibleUnidad =
+          cargasCombustible.filter(
+            (carga) =>
+              carga.unidad.id ===
+              unidad.id,
+          );
+
+        const mantenimientosUnidad =
+          mantenimientos.filter(
+            (mantenimiento) =>
+              mantenimiento.unidad.id ===
+              unidad.id,
+          );
+
+        const viajes =
+          operacionesUnidad.reduce(
+            (total, operacion) =>
+              total +
+              (operacion.viajes ?? 0),
+            0,
+          );
+
+        const kilometros =
+          operacionesUnidad.reduce(
+            (total, operacion) =>
+              total +
+              (
+                operacion.kilometros ===
+                null
+                  ? 0
+                  : Number(
+                      operacion.kilometros,
+                    )
+              ),
+            0,
+          );
+
+        const horasUso =
+          operacionesUnidad.reduce(
+            (total, operacion) =>
+              total +
+              (
+                operacion.horasUso === null
+                  ? 0
+                  : Number(
+                      operacion.horasUso,
+                    )
+              ),
+            0,
+          );
+
+        const galones =
+          combustibleUnidad.reduce(
+            (total, carga) =>
+              total +
+              Number(carga.galones),
+            0,
+          );
+
+        return {
+          unidad: {
+            id: unidad.id,
+            codigo: unidad.codigo,
+            tipo: unidad.tipo,
+            marca: unidad.marca,
+            modelo: unidad.modelo,
+            placaOSerie:
+              unidad.placaOSerie,
+            estado:
+              unidad.estado,
+            activo:
+              unidad.activo,
+          },
+
+          viajes,
+          kilometros,
+          horasUso,
+          galones,
+
+          mantenimientos:
+            mantenimientosUnidad.length,
+        };
+      });
+
+    const resumen =
+      meses.reduce(
+        (
+          acumulado,
+          mes,
+        ) => ({
+          viajes:
+            acumulado.viajes +
+            mes.viajes,
+
+          kilometros:
+            acumulado.kilometros +
+            mes.kilometros,
+
+          horasUso:
+            acumulado.horasUso +
+            mes.horasUso,
+
+          galones:
+            acumulado.galones +
+            mes.galones,
+
+          mantenimientos:
+            acumulado.mantenimientos +
+            mes.mantenimientos,
+        }),
+        {
+          viajes: 0,
+          kilometros: 0,
+          horasUso: 0,
+          galones: 0,
+          mantenimientos: 0,
+        },
+      );
+
+    return {
+      periodo: {
+        anio,
+        fechaInicio,
+        fechaFin,
+      },
+
+      resumen,
+
+      meses,
+
+      indicadoresPorUnidad,
     };
   }
 }
