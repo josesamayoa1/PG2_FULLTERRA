@@ -16,246 +16,153 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository:
-      Repository<User>,
-
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Role)
-    private readonly roleRepository:
-      Repository<Role>,
+    private readonly roleRepository: Repository<Role>,
   ) {}
 
-  private validarIdPositivo(
-    valor: number,
-    nombreCampo: string,
-  ) {
-    if (
-      !Number.isInteger(valor) ||
-      valor <= 0
-    ) {
+  private validarIdPositivo(valor: number, nombreCampo: string) {
+    if (!Number.isInteger(valor) || valor <= 0) {
       throw new BadRequestException(
         `${nombreCampo} debe ser un número entero mayor que cero`,
       );
     }
   }
 
-  private validarTextoObligatorio(
-    valor: string,
-    nombreCampo: string,
-  ) {
-    if (
-      typeof valor !== 'string' ||
-      valor.trim().length === 0
-    ) {
-      throw new BadRequestException(
-        `${nombreCampo} es obligatorio`,
-      );
+  private validarTextoObligatorio(valor: string, nombreCampo: string) {
+    if (typeof valor !== 'string' || valor.trim().length === 0) {
+      throw new BadRequestException(`${nombreCampo} es obligatorio`);
     }
-
     return valor.trim();
   }
 
-  private validarContrasenia(
-    contrasenia: string,
-  ) {
-    if (
-      typeof contrasenia !== 'string' ||
-      contrasenia.trim().length === 0
-    ) {
-      throw new BadRequestException(
-        'La contraseña es obligatoria',
-      );
+  private validarContrasenia(contrasenia: string) {
+    if (typeof contrasenia !== 'string' || contrasenia.trim().length === 0) {
+      throw new BadRequestException('La contraseña es obligatoria');
     }
-
     return contrasenia;
   }
 
-  async create(
-    createUserDto: CreateUserDto,
-  ): Promise<User> {
-    const usuario =
-      this.validarTextoObligatorio(
-        createUserDto.usuario,
-        'El nombre de usuario',
+  private tieneRolAdministrador(usuario: User) {
+    return usuario.roles?.some(
+      (rol) => rol.nombre === 'Administrador' && rol.activo,
+    ) ?? false;
+  }
+
+  private async validarNoDejarSinAdministrador(usuario: User) {
+    if (!usuario.activo || !this.tieneRolAdministrador(usuario)) return;
+
+    const administradoresActivos = await this.userRepository
+      .createQueryBuilder('usuario')
+      .innerJoin('usuario.roles', 'rol')
+      .where('usuario.activo = :activo', { activo: true })
+      .andWhere('rol.nombre = :nombre', { nombre: 'Administrador' })
+      .andWhere('rol.activo = :rolActivo', { rolActivo: true })
+      .getCount();
+
+    if (administradoresActivos <= 1) {
+      throw new BadRequestException(
+        'No se puede dejar el sistema sin administradores activos',
       );
+    }
+  }
 
-    const contrasenia =
-      this.validarContrasenia(
-        createUserDto.contrasenia,
-      );
-
-    const usuarioExistente =
-      await this.findByUsuario(usuario);
-
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const usuario = this.validarTextoObligatorio(
+      createUserDto.usuario,
+      'El nombre de usuario',
+    );
+    const contrasenia = this.validarContrasenia(createUserDto.contrasenia);
+    const usuarioExistente = await this.findByUsuario(usuario);
     if (usuarioExistente) {
       throw new BadRequestException(
         'El nombre de usuario ya está registrado',
       );
     }
-
-    const hashedPassword =
-      await bcrypt.hash(
-        contrasenia,
-        10,
-      );
-
-    const user =
-      this.userRepository.create({
-        usuario,
-        contrasenia: hashedPassword,
-      });
-
+    const hashedPassword = await bcrypt.hash(contrasenia, 10);
+    const user = this.userRepository.create({
+      usuario,
+      contrasenia: hashedPassword,
+    });
     return this.userRepository.save(user);
   }
 
-  async findByUsuario(
-    usuario: string,
-  ): Promise<User | null> {
+  async findByUsuario(usuario: string): Promise<User | null> {
     return this.userRepository.findOne({
-      where: {
-        usuario,
-      },
-      relations: {
-        roles: true,
-      },
+      where: { usuario },
+      relations: { roles: true },
     });
   }
 
-  async asignarRoles(
-    usuarioId: number,
-    rolesIds: number[],
-  ) {
-    this.validarIdPositivo(
-      usuarioId,
-      'usuarioId',
-    );
-
+  async asignarRoles(usuarioId: number, rolesIds: number[]) {
+    this.validarIdPositivo(usuarioId, 'usuarioId');
     if (!Array.isArray(rolesIds)) {
-      throw new BadRequestException(
-        'roles debe ser un arreglo',
-      );
+      throw new BadRequestException('roles debe ser un arreglo');
     }
+    for (const rolId of rolesIds) this.validarIdPositivo(rolId, 'rolId');
 
-    for (const rolId of rolesIds) {
-      this.validarIdPositivo(
-        rolId,
-        'rolId',
-      );
-    }
+    const usuario = await this.userRepository.findOne({
+      where: { id: usuarioId },
+      relations: { roles: true },
+    });
+    if (!usuario) throw new NotFoundException('Usuario no encontrado');
 
-    const usuario =
-      await this.userRepository.findOne({
-        where: {
-          id: usuarioId,
-        },
-        relations: {
-          roles: true,
-        },
-      });
-
-    if (!usuario) {
-      throw new NotFoundException(
-        'Usuario no encontrado',
-      );
-    }
-
-    const idsUnicos = [
-      ...new Set(rolesIds),
-    ];
-
-    const roles =
-      idsUnicos.length > 0
-        ? await this.roleRepository.find({
-            where: {
-              id: In(idsUnicos),
-              activo: true,
-            },
-          })
-        : [];
-
-    if (
-      roles.length !== idsUnicos.length
-    ) {
+    const idsUnicos = [...new Set(rolesIds)];
+    const roles = idsUnicos.length > 0
+      ? await this.roleRepository.find({
+          where: { id: In(idsUnicos), activo: true },
+        })
+      : [];
+    if (roles.length !== idsUnicos.length) {
       throw new BadRequestException(
         'Uno o más roles no existen o están inactivos',
       );
     }
 
+    const conservaAdministrador = roles.some(
+      (rol) => rol.nombre === 'Administrador' && rol.activo,
+    );
+    if (!conservaAdministrador) {
+      await this.validarNoDejarSinAdministrador(usuario);
+    }
+
     usuario.roles = roles;
-
-    const usuarioActualizado =
-      await this.userRepository.save(
-        usuario,
-      );
-
+    const usuarioActualizado = await this.userRepository.save(usuario);
     return {
       id: usuarioActualizado.id,
-      usuario:
-        usuarioActualizado.usuario,
-      roles:
-        usuarioActualizado.roles,
+      usuario: usuarioActualizado.usuario,
+      roles: usuarioActualizado.roles,
     };
   }
 
-  async cambiarEstado(
-    usuarioId: number,
-    activo: boolean,
-  ) {
-    this.validarIdPositivo(
-      usuarioId,
-      'usuarioId',
-    );
-
+  async cambiarEstado(usuarioId: number, activo: boolean) {
+    this.validarIdPositivo(usuarioId, 'usuarioId');
     if (typeof activo !== 'boolean') {
-      throw new BadRequestException(
-        'activo debe ser un valor booleano',
-      );
+      throw new BadRequestException('activo debe ser un valor booleano');
     }
+    const usuario = await this.userRepository.findOne({
+      where: { id: usuarioId },
+      relations: { roles: true },
+    });
+    if (!usuario) throw new NotFoundException('Usuario no encontrado');
 
-    const usuario =
-      await this.userRepository.findOne({
-        where: {
-          id: usuarioId,
-        },
-        relations: {
-          roles: true,
-        },
-      });
-
-    if (!usuario) {
-      throw new NotFoundException(
-        'Usuario no encontrado',
-      );
-    }
+    if (!activo) await this.validarNoDejarSinAdministrador(usuario);
 
     usuario.activo = activo;
-
-    const usuarioActualizado =
-      await this.userRepository.save(
-        usuario,
-      );
-
+    const usuarioActualizado = await this.userRepository.save(usuario);
     return {
       id: usuarioActualizado.id,
-      usuario:
-        usuarioActualizado.usuario,
-      activo:
-        usuarioActualizado.activo,
-      roles:
-        usuarioActualizado.roles,
+      usuario: usuarioActualizado.usuario,
+      activo: usuarioActualizado.activo,
+      roles: usuarioActualizado.roles,
     };
   }
 
   async obtenerTodos() {
-    const usuarios =
-      await this.userRepository.find({
-        relations: {
-          roles: true,
-        },
-        order: {
-          id: 'ASC',
-        },
-      });
-
+    const usuarios = await this.userRepository.find({
+      relations: { roles: true },
+      order: { id: 'ASC' },
+    });
     return usuarios.map((usuario) => ({
       id: usuario.id,
       usuario: usuario.usuario,
@@ -264,91 +171,43 @@ export class UsersService {
     }));
   }
 
-  async actualizar(
-    usuarioId: number,
-    updateUserDto: UpdateUserDto,
-  ) {
-    this.validarIdPositivo(
-      usuarioId,
-      'usuarioId',
-    );
+  async actualizar(usuarioId: number, updateUserDto: UpdateUserDto) {
+    this.validarIdPositivo(usuarioId, 'usuarioId');
+    const usuario = await this.userRepository.findOne({
+      where: { id: usuarioId },
+      relations: { roles: true },
+    });
+    if (!usuario) throw new NotFoundException('Usuario no encontrado');
 
-    const usuario =
-      await this.userRepository.findOne({
-        where: {
-          id: usuarioId,
-        },
-        relations: {
-          roles: true,
-        },
-      });
-
-    if (!usuario) {
-      throw new NotFoundException(
-        'Usuario no encontrado',
+    if (updateUserDto.usuario !== undefined) {
+      const nuevoUsuario = this.validarTextoObligatorio(
+        updateUserDto.usuario,
+        'El nombre de usuario',
       );
-    }
-
-    if (
-      updateUserDto.usuario !== undefined
-    ) {
-      const nuevoUsuario =
-        this.validarTextoObligatorio(
-          updateUserDto.usuario,
-          'El nombre de usuario',
-        );
-
-      if (
-        nuevoUsuario !== usuario.usuario
-      ) {
-        const usuarioExistente =
-          await this.findByUsuario(
-            nuevoUsuario,
-          );
-
-        if (
-          usuarioExistente &&
-          usuarioExistente.id !==
-            usuarioId
-        ) {
+      if (nuevoUsuario !== usuario.usuario) {
+        const usuarioExistente = await this.findByUsuario(nuevoUsuario);
+        if (usuarioExistente && usuarioExistente.id !== usuarioId) {
           throw new BadRequestException(
             'El nombre de usuario ya está registrado',
           );
         }
-
         usuario.usuario = nuevoUsuario;
       }
     }
 
-    if (
-      updateUserDto.contrasenia !==
-      undefined
-    ) {
-      const nuevaContrasenia =
-        this.validarContrasenia(
-          updateUserDto.contrasenia,
-        );
-
-      usuario.contrasenia =
-        await bcrypt.hash(
-          nuevaContrasenia,
-          10,
-        );
+    if (updateUserDto.contrasenia !== undefined) {
+      const nuevaContrasenia = this.validarContrasenia(
+        updateUserDto.contrasenia,
+      );
+      usuario.contrasenia = await bcrypt.hash(nuevaContrasenia, 10);
     }
 
-    const usuarioActualizado =
-      await this.userRepository.save(
-        usuario,
-      );
-
+    const usuarioActualizado = await this.userRepository.save(usuario);
     return {
       id: usuarioActualizado.id,
-      usuario:
-        usuarioActualizado.usuario,
-      activo:
-        usuarioActualizado.activo,
-      roles:
-        usuarioActualizado.roles,
+      usuario: usuarioActualizado.usuario,
+      activo: usuarioActualizado.activo,
+      roles: usuarioActualizado.roles,
     };
   }
 }
