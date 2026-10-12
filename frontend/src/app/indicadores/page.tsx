@@ -534,91 +534,78 @@ export default function IndicadoresPage() {
       <aside className={styles.sidebar}>
         <div className={styles.brand}>
           <Image src="/images/fullterra-logo.jpeg" alt="Logo de FULLTERRA" width={48} height={48} className={styles.logo} priority/>
-
           <span className={styles.brandName}>
             FULLTERRA
           </span>
         </div>
-
         <nav className={styles.navigation}>
           {canViewManagement && (<Link href="/dashboard" className={styles.navItem}>
               <span className={styles.navIcon}>
                 ▦
               </span>
-
               Dashboard
             </Link>)}
-
           {isAdministrator && (<Link href="/unidades" className={styles.navItem}>
               <span className={styles.navIcon}>
                 ▣
               </span>
-
               Unidades
             </Link>)}
-
           <Link href="/operaciones" className={styles.navItem}>
             <span className={styles.navIcon}>
               ◉
             </span>
-
             Operaciones
           </Link>
-
           {canViewManagement && (<Link href="/combustible" className={styles.navItem}>
               <span className={styles.navIcon}>
                 ◈
               </span>
-
               Combustible
             </Link>)}
-
           {canViewManagement && (<Link href="/mantenimiento" className={styles.navItem}>
               <span className={styles.navIcon}>
                 ◇
               </span>
-
               Mantenimiento
             </Link>)}
           {canViewManagement && (<Link href="/alertas-mantenimiento" className={styles.navItem}>
               <span className={styles.navIcon}>!</span> Alertas
             </Link>)}
-
           <Link href="/trazabilidad" className={styles.navItem}>
             <span className={styles.navIcon}>
               ≡
             </span>
-
             Trazabilidad
           </Link>
-
           <Link href="/indicadores" className={`${styles.navItem} ${styles.navItemActive}`}>
             <span className={styles.navIcon}>
               ◫
             </span>
-
             Indicadores
           </Link>
+          {canViewManagement && (
+            <Link href="/auditoria" className={styles.navItem}>
+              <span className={styles.navIcon}>☷</span>
+              Auditoría
+            </Link>
+          )}
         </nav>
-
         <div className={styles.sidebarFooter}>
           Sistema de control
           operacional
         </div>
       </aside>
-
       <section className={styles.content}>
         <header className={styles.topbar}>
           <div>
             <p className={styles.sectionLabel}>
               CONTROL OPERACIONAL
             </p>
-
             <h1>
               Indicadores
             </h1>
           </div>
-
           <div className={styles.userArea}>
             <div className={styles.userAvatar}>
               {user?.usuario
@@ -626,25 +613,21 @@ export default function IndicadoresPage() {
             .toUpperCase() ??
             "U"}
             </div>
-
             <div className={styles.userInfo}>
               <strong>
                 {user?.usuario ??
             "Usuario"}
               </strong>
-
               <span>
                 {user?.roles?.join(", ") ??
             "Sin rol"}
               </span>
             </div>
-
             <button type="button" className={styles.logoutButton} onClick={handleLogout}>
               Cerrar sesión
             </button>
           </div>
         </header>
-
         <div className={styles.workspace}>
           <section className={styles.formPanel}>
             <div className={styles.panelHeader}>
@@ -652,12 +635,10 @@ export default function IndicadoresPage() {
                 <p className={styles.panelLabel}>
                   PERÍODO
                 </p>
-
                 <h3>
                   Consultar indicadores
                 </h3>
               </div>
-
               <span className={styles.periodBadge}>
                 {viewMode ===
             "mensual"
@@ -667,7 +648,6 @@ export default function IndicadoresPage() {
                 "Anual"}
               </span>
             </div>
-
             <div className={styles.viewTabs}>
               <button type="button" className={viewMode ===
             "mensual"
@@ -675,7 +655,6 @@ export default function IndicadoresPage() {
             : styles.viewTab} onClick={() => handleModeChange("mensual")}>
                 Mensual
               </button>
-
               <button type="button" className={viewMode ===
             "anual"
             ? `${styles.viewTab} ${styles.viewTabActive}`
@@ -683,7 +662,6 @@ export default function IndicadoresPage() {
                 Anual
               </button>
             </div>
-
             <form className={viewMode ===
             "mensual"
             ? styles.form
@@ -692,20 +670,17 @@ export default function IndicadoresPage() {
                 <label htmlFor="indicator-year">
                   Año
                 </label>
-
                 <input id="indicator-year" type="number" min="2000" max="2100" step="1" required value={filters.anio} onChange={(event) => setFilters({
             ...filters,
             anio: event.target
                 .value,
         })}/>
               </div>
-
               {viewMode ===
             "mensual" && (<div className={styles.field}>
                   <label htmlFor="indicator-month">
                     Mes
                   </label>
-
                   <select id="indicator-month" required value={filters.mes} onChange={(event) => setFilters({
                 ...filters,
                 mes: event.target
@@ -717,7 +692,6 @@ export default function IndicadoresPage() {
                         </option>))}
                   </select>
                 </div>)}
-
               <div className={styles.formActions}>
                 <button type="submit" className={styles.saveButton} disabled={searching}>
                   {searching
@@ -729,16 +703,13 @@ export default function IndicadoresPage() {
                 </button>
               </div>
             </form>
-
             {message && (<div className={styles.successMessage}>
                 {message}
               </div>)}
-
             {error && (<div className={styles.errorMessage}>
                 {error}
               </div>)}
           </section>
-
           {viewMode ===
             "mensual" ? (<>
               <section className={styles.intro}>
@@ -747,12 +718,10 @@ export default function IndicadoresPage() {
                     RESUMEN DEL
                     PERÍODO
                   </p>
-
                   <h2>
                     Indicadores
                     operacionales
                   </h2>
-
                   <p>
                     Consulta los
                     resultados
@@ -763,7 +732,6 @@ export default function IndicadoresPage() {
                     mes anterior.
                   </p>
                 </div>
-
                 <div className={styles.summary}>
                   {metricCharts.map((metric) => {
                 const currentValue = Number(monthlySummary[metric
@@ -788,18 +756,15 @@ export default function IndicadoresPage() {
                         ? "Mantenim."
                         : metric.label}
                             </span>
-
                             <strong>
                                 {formatNumber(currentValue)}
                             </strong>
-
                             <small>
                                 {comparison
                         ? `Anterior: ${formatNumber(previousValue)}`
                         : "Sin comparativo"}
                             </small>
                             </div>
-
                           <div className={`${styles.summaryWheel} ${variationClass}`} style={{
                         background: `conic-gradient(currentColor 0deg ${wheelDegrees}deg, #e6e3d9 ${wheelDegrees}deg 360deg)`,
                     }} title={variation ===
@@ -810,7 +775,6 @@ export default function IndicadoresPage() {
                               <strong>
                                 {formatVariation(variation)}
                               </strong>
-
                               <span>
                                 variación
                               </span>
@@ -820,26 +784,22 @@ export default function IndicadoresPage() {
             })}
                 </div>
               </section>
-
               <section className={styles.listPanel}>
                 <div className={styles.panelHeader}>
                   <div>
                     <p className={styles.panelLabel}>
                       COMPARATIVO VISUAL
                     </p>
-
                     <h3>
                       Comparación mensual
                     </h3>
                   </div>
-
                   {comparison && (<span className={styles.counter}>
                       {currentPeriodLabel}
                       {" vs "}
                       {previousPeriodLabel}
                     </span>)}
                 </div>
-
                 {loadingData ? (<div className={styles.emptyState}>
                     Cargando
                     indicadores...
@@ -868,12 +828,10 @@ export default function IndicadoresPage() {
                                 <span className={styles.chartEyebrow}>
                                   INDICADOR
                                 </span>
-
                                 <h4>
                                   {metric.label}
                                 </h4>
                               </div>
-
                               <span className={difference >
                             0
                             ? styles.positiveDifference
@@ -884,46 +842,38 @@ export default function IndicadoresPage() {
                                 {formatDifference(difference)}
                               </span>
                             </div>
-
                             <div className={styles.chartArea}>
                               <div className={styles.barColumn}>
                                 <div className={styles.barValue}>
                                   {formatNumber(currentValue)}
                                 </div>
-
                                 <div className={styles.barTrack}>
                                   <div className={`${styles.barFill} ${metric.barClass}`} style={{
                             height: `${getBarHeight(currentValue, maxValue)}%`,
                         }}/>
                                 </div>
-
                                 <span className={styles.barLabel}>
                                   Actual
                                 </span>
                               </div>
-
                               <div className={styles.barColumn}>
                                 <div className={styles.barValue}>
                                   {formatNumber(previousValue)}
                                 </div>
-
                                 <div className={styles.barTrack}>
                                   <div className={`${styles.barFill} ${metric.barClass} ${styles.barPrevious}`} style={{
                             height: `${getBarHeight(previousValue, maxValue)}%`,
                         }}/>
                                 </div>
-
                                 <span className={styles.barLabel}>
                                   Anterior
                                 </span>
                               </div>
                             </div>
-
                             <div className={styles.chartFooter}>
                               <span>
                                 {currentPeriodLabel}
                               </span>
-
                               <span>
                                 {previousPeriodLabel}
                               </span>
@@ -932,20 +882,17 @@ export default function IndicadoresPage() {
                 })}
                   </div>)}
               </section>
-
               <section className={styles.listPanel}>
                 <div className={styles.panelHeader}>
                   <div>
                     <p className={styles.panelLabel}>
                       UNIDADES
                     </p>
-
                     <h3>
                       Indicadores por
                       unidad
                     </h3>
                   </div>
-
                   <span className={styles.counter}>
                     {indicators
                 ?.indicadoresPorUnidad
@@ -954,7 +901,6 @@ export default function IndicadoresPage() {
                     unidades
                   </span>
                 </div>
-
                 {loadingData ? (<div className={styles.emptyState}>
                     Cargando
                     indicadores...
@@ -997,7 +943,6 @@ export default function IndicadoresPage() {
                           </th>
                         </tr>
                       </thead>
-
                       <tbody>
                         {indicators
                     .indicadoresPorUnidad
@@ -1010,9 +955,7 @@ export default function IndicadoresPage() {
                         .unidad
                         .codigo}
                                   </strong>
-
                                   <br />
-
                                   {indicator
                         .unidad
                         .marca}{" "}
@@ -1020,39 +963,32 @@ export default function IndicadoresPage() {
                         .unidad
                         .modelo}
                                 </td>
-
                                 <td>
                                   {indicator
                         .unidad
                         .tipo}
                                 </td>
-
                                 <td>
                                   {indicator
                         .unidad
                         .estado}
                                 </td>
-
                                 <td>
                                   {formatNumber(indicator
                         .viajes)}
                                 </td>
-
                                 <td>
                                   {formatNumber(indicator
                         .kilometros)}
                                 </td>
-
                                 <td>
                                   {formatNumber(indicator
                         .horasUso)}
                                 </td>
-
                                 <td>
                                   {formatNumber(indicator
                         .galones)}
                                 </td>
-
                                 <td>
                                   {formatNumber(indicator
                         .mantenimientos)}
@@ -1062,7 +998,6 @@ export default function IndicadoresPage() {
                     </table>
                   </div>)}
               </section>
-
               <section className={styles.listPanel}>
                 <div className={styles.panelHeader}>
                   <div>
@@ -1070,13 +1005,11 @@ export default function IndicadoresPage() {
                       COMPARACIÓN POR
                       UNIDAD
                     </p>
-
                     <h3>
                       Variación frente
                       al mes anterior
                     </h3>
                   </div>
-
                   <span className={styles.counter}>
                     {comparison
                 ?.comparativosPorUnidad
@@ -1085,7 +1018,6 @@ export default function IndicadoresPage() {
                     unidades
                   </span>
                 </div>
-
                 {loadingData ? (<div className={styles.emptyState}>
                     Cargando
                     comparativo...
@@ -1121,7 +1053,6 @@ export default function IndicadoresPage() {
                           </th>
                         </tr>
                       </thead>
-
                       <tbody>
                         {comparison
                     .comparativosPorUnidad
@@ -1134,36 +1065,29 @@ export default function IndicadoresPage() {
                         .unidad
                         .codigo}
                                   </strong>
-
                                   <br />
-
                                   Diferencia
                                 </td>
-
                                 <td>
                                   {formatDifference(item
                         .diferencia
                         .viajes)}
                                 </td>
-
                                 <td>
                                   {formatDifference(item
                         .diferencia
                         .kilometros)}
                                 </td>
-
                                 <td>
                                   {formatDifference(item
                         .diferencia
                         .horasUso)}
                                 </td>
-
                                 <td>
                                   {formatDifference(item
                         .diferencia
                         .galones)}
                                 </td>
-
                                 <td>
                                   {formatDifference(item
                         .diferencia
@@ -1180,11 +1104,9 @@ export default function IndicadoresPage() {
                   <p className={styles.introLabel}>
                     RESUMEN ANUAL
                   </p>
-
                   <h2>
                     Indicadores del año
                   </h2>
-
                   <p>
                     Consulta los
                     resultados
@@ -1194,45 +1116,38 @@ export default function IndicadoresPage() {
                     a diciembre.
                   </p>
                 </div>
-
                 <div className={styles.annualSummary}>
                   {metricCharts.map((metric) => (<div key={metric.key} className={styles.annualSummaryCard}>
                         <span>
                           {metric.label}
                         </span>
-
                         <strong>
                           {formatNumber(Number(annualSummary[metric
                     .key] ??
                     0))}
                         </strong>
-
                         <small>
                           Total anual
                         </small>
                       </div>))}
                 </div>
               </section>
-
               <section className={styles.listPanel}>
                 <div className={styles.panelHeader}>
                   <div>
                     <p className={styles.panelLabel}>
                       EVOLUCIÓN ANUAL
                     </p>
-
                     <h3>
                       Comportamiento
                       por mes
                     </h3>
                   </div>
-
                   <span className={styles.counter}>
                     {annualPeriodLabel ||
                 "Año"}
                   </span>
                 </div>
-
                 {searching &&
                 !annualIndicators ? (<div className={styles.emptyState}>
                     Cargando
@@ -1255,12 +1170,10 @@ export default function IndicadoresPage() {
                                 INDICADOR
                                 ANUAL
                               </span>
-
                               <h4>
                                 {metric.label}
                               </h4>
                             </div>
-
                             <strong className={styles.annualTotalBadge}>
                               Total:{" "}
                               {formatNumber(Number(annualSummary[metric
@@ -1268,7 +1181,6 @@ export default function IndicadoresPage() {
                         0))}
                             </strong>
                           </div>
-
                           <div className={styles.annualBarsArea}>
                             {annualIndicators
                         .meses
@@ -1283,14 +1195,12 @@ export default function IndicadoresPage() {
                                 ? "0"
                                 : formatNumber(value)}
                                       </span>
-
                                       <div className={styles.annualBarTrack}>
                                         <div className={`${styles.annualBarFill} ${metric.barClass}`} style={{
                                 height: `${getBarHeight(value, annualMaxByMetric[metric
                                     .key])}%`,
                             }}/>
                                       </div>
-
                                       <span className={styles.annualBarLabel}>
                                         {shortMonthNames[month
                                 .mes -
@@ -1302,25 +1212,21 @@ export default function IndicadoresPage() {
                         </article>))}
                   </div>)}
               </section>
-
               <section className={styles.listPanel}>
                 <div className={styles.panelHeader}>
                   <div>
                     <p className={styles.panelLabel}>
                       RESUMEN MENSUAL
                     </p>
-
                     <h3>
                       Detalle de enero
                       a diciembre
                     </h3>
                   </div>
-
                   <span className={styles.counter}>
                     12 meses
                   </span>
                 </div>
-
                 {!annualIndicators ? (<div className={styles.emptyState}>
                     No hay datos
                     anuales cargados.
@@ -1348,7 +1254,6 @@ export default function IndicadoresPage() {
                           </th>
                         </tr>
                       </thead>
-
                       <tbody>
                         {annualIndicators
                     .meses
@@ -1360,23 +1265,18 @@ export default function IndicadoresPage() {
                         1]}
                                   </strong>
                                 </td>
-
                                 <td>
                                   {formatNumber(month.viajes)}
                                 </td>
-
                                 <td>
                                   {formatNumber(month.kilometros)}
                                 </td>
-
                                 <td>
                                   {formatNumber(month.horasUso)}
                                 </td>
-
                                 <td>
                                   {formatNumber(month.galones)}
                                 </td>
-
                                 <td>
                                   {formatNumber(month.mantenimientos)}
                                 </td>
@@ -1385,20 +1285,17 @@ export default function IndicadoresPage() {
                     </table>
                   </div>)}
               </section>
-
               <section className={styles.listPanel}>
                 <div className={styles.panelHeader}>
                   <div>
                     <p className={styles.panelLabel}>
                       UNIDADES
                     </p>
-
                     <h3>
                       Totales anuales
                       por unidad
                     </h3>
                   </div>
-
                   <span className={styles.counter}>
                     {annualIndicators
                 ?.indicadoresPorUnidad
@@ -1407,7 +1304,6 @@ export default function IndicadoresPage() {
                     unidades
                   </span>
                 </div>
-
                 {!annualIndicators ||
                 annualIndicators
                     .indicadoresPorUnidad
@@ -1447,7 +1343,6 @@ export default function IndicadoresPage() {
                           </th>
                         </tr>
                       </thead>
-
                       <tbody>
                         {annualIndicators
                     .indicadoresPorUnidad
@@ -1460,9 +1355,7 @@ export default function IndicadoresPage() {
                         .unidad
                         .codigo}
                                   </strong>
-
                                   <br />
-
                                   {indicator
                         .unidad
                         .marca}{" "}
@@ -1470,39 +1363,32 @@ export default function IndicadoresPage() {
                         .unidad
                         .modelo}
                                 </td>
-
                                 <td>
                                   {indicator
                         .unidad
                         .tipo}
                                 </td>
-
                                 <td>
                                   {indicator
                         .unidad
                         .estado}
                                 </td>
-
                                 <td>
                                   {formatNumber(indicator
                         .viajes)}
                                 </td>
-
                                 <td>
                                   {formatNumber(indicator
                         .kilometros)}
                                 </td>
-
                                 <td>
                                   {formatNumber(indicator
                         .horasUso)}
                                 </td>
-
                                 <td>
                                   {formatNumber(indicator
                         .galones)}
                                 </td>
-
                                 <td>
                                   {formatNumber(indicator
                         .mantenimientos)}

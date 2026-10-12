@@ -298,6 +298,12 @@ export default function UnidadesPage() {
             </span>
             Indicadores
           </Link>
+          {(user?.roles?.includes("Administrador") || user?.roles?.includes("Supervisor")) && (
+            <Link href="/auditoria" className={styles.navItem}>
+              <span className={styles.navIcon}>☷</span>
+              Auditoría
+            </Link>
+          )}
         </nav>
         <div className={styles.sidebarFooter}>
           Sistema de control operacional

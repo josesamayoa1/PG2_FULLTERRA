@@ -494,6 +494,12 @@ export default function OperacionesPage() {
             </span>
             Indicadores
           </Link>)}
+          {puedeVerGestion && (
+            <Link href="/auditoria" className={styles.navItem}>
+              <span className={styles.navIcon}>☷</span>
+              Auditoría
+            </Link>
+          )}
         </nav>
         <div className={styles.sidebarFooter}>
           Sistema de control

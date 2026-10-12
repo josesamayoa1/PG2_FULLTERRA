@@ -1,18 +1,14 @@
 "use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import styles from "./alertas-mantenimiento.module.css";
-
 type UserProfile = {
   id: number;
   usuario: string;
   roles?: string[];
 };
-
 type AlertType = "VENCIDO" | "HOY" | "PROXIMO";
-
 type MaintenanceAlert = {
   mantenimientoId: number;
   tipoAlerta: AlertType;
@@ -28,18 +24,15 @@ type MaintenanceAlert = {
     modelo: string;
   };
 };
-
 type AlertsResponse = {
   fechaReferencia: string;
   diasAnticipacion: number;
   totalAlertas: number;
   alertas: MaintenanceAlert[];
 };
-
 type ApiError = {
   message?: string | string[];
 };
-
 function obtenerFechaActual() {
   const fecha = new Date();
   const anio = fecha.getFullYear();
@@ -47,31 +40,26 @@ function obtenerFechaActual() {
   const dia = String(fecha.getDate()).padStart(2, "0");
   return `${anio}-${mes}-${dia}`;
 }
-
 function formatearFecha(fecha: string) {
   const partes = fecha.split("-");
   if (partes.length !== 3) return fecha;
   return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
-
 function obtenerMensajeError(data: ApiError, fallback: string) {
   if (Array.isArray(data.message)) return data.message.join(", ");
   if (typeof data.message === "string" && data.message.trim()) return data.message;
   return fallback;
 }
-
 function redirigirSesionExpirada() {
   localStorage.removeItem("fullterra_token");
   window.alert("Tu sesión ha expirado. Inicia sesión nuevamente.");
   window.location.href = "/";
 }
-
 function etiquetaTipo(tipo: AlertType) {
   if (tipo === "VENCIDO") return "Vencido";
   if (tipo === "HOY") return "Hoy";
   return "Próximo";
 }
-
 function textoDias(alerta: MaintenanceAlert) {
   if (alerta.tipoAlerta === "HOY") return "Hoy";
   if (alerta.tipoAlerta === "VENCIDO") {
@@ -80,7 +68,6 @@ function textoDias(alerta: MaintenanceAlert) {
   }
   return `${alerta.diasRestantes} ${alerta.diasRestantes === 1 ? "día" : "días"}`;
 }
-
 export default function AlertasMantenimientoPage() {
   const [checkingSession, setCheckingSession] = useState(true);
   const [loadingAlerts, setLoadingAlerts] = useState(true);
@@ -91,10 +78,8 @@ export default function AlertasMantenimientoPage() {
     diasAnticipacion: "30",
     fechaReferencia: "",
   });
-
   const apiUrl =
     process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
-
   const cargarAlertas = useCallback(
     async (
       token: string,
@@ -103,13 +88,11 @@ export default function AlertasMantenimientoPage() {
     ) => {
       setLoadingAlerts(true);
       setError("");
-
       try {
         const params = new URLSearchParams({
           diasAnticipacion,
           fechaReferencia,
         });
-
         const response = await fetch(
           `${apiUrl}/maintenance-alerts?${params.toString()}`,
           {
@@ -118,17 +101,14 @@ export default function AlertasMantenimientoPage() {
             },
           },
         );
-
         if (response.status === 401) {
           redirigirSesionExpirada();
           return;
         }
-
         if (response.status === 403) {
           setError("No tienes permisos para consultar las alertas de mantenimiento.");
           return;
         }
-
         if (!response.ok) {
           const data: ApiError = await response.json();
           setError(
@@ -139,7 +119,6 @@ export default function AlertasMantenimientoPage() {
           );
           return;
         }
-
         const data: AlertsResponse = await response.json();
         setAlertsData(data);
       } catch (requestError) {
@@ -151,34 +130,28 @@ export default function AlertasMantenimientoPage() {
     },
     [apiUrl],
   );
-
   useEffect(() => {
     async function iniciarPagina() {
       const token = localStorage.getItem("fullterra_token");
-
       if (!token) {
         window.location.href = "/";
         return;
       }
-
       try {
         const response = await fetch(`${apiUrl}/auth/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
         if (response.status === 401) {
           redirigirSesionExpirada();
           return;
         }
-
         if (!response.ok) {
           localStorage.removeItem("fullterra_token");
           window.location.href = "/";
           return;
         }
-
         const profile: UserProfile = await response.json();
         const rolesPermitidos = [
           "Administrador",
@@ -188,12 +161,10 @@ export default function AlertasMantenimientoPage() {
         const tienePermiso = profile.roles?.some((role) =>
           rolesPermitidos.includes(role),
         );
-
         if (!tienePermiso) {
           window.alert(
             "No tienes permisos para acceder a las alertas de mantenimiento.",
           );
-
           if (profile.roles?.includes("Operador")) {
             window.location.href = "/operaciones";
           } else if (profile.roles?.includes("Encargado de combustible")) {
@@ -203,7 +174,6 @@ export default function AlertasMantenimientoPage() {
           }
           return;
         }
-
         const fechaInicial = obtenerFechaActual();
         setUser(profile);
         setFilters({ diasAnticipacion: "30", fechaReferencia: fechaInicial });
@@ -216,38 +186,31 @@ export default function AlertasMantenimientoPage() {
         setCheckingSession(false);
       }
     }
-
     iniciarPagina();
   }, [apiUrl, cargarAlertas]);
-
   function handleLogout() {
     localStorage.removeItem("fullterra_token");
     window.location.href = "/";
   }
-
   async function consultarAlertas(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     const token = localStorage.getItem("fullterra_token");
     if (!token) {
       window.location.href = "/";
       return;
     }
-
     await cargarAlertas(
       token,
       filters.diasAnticipacion,
       filters.fechaReferencia,
     );
   }
-
   function limpiarFiltros() {
     const nuevosFiltros = {
       diasAnticipacion: "30",
       fechaReferencia: obtenerFechaActual(),
     };
     setFilters(nuevosFiltros);
-
     const token = localStorage.getItem("fullterra_token");
     if (token) {
       void cargarAlertas(
@@ -257,18 +220,15 @@ export default function AlertasMantenimientoPage() {
       );
     }
   }
-
   const esAdministrador =
     user?.roles?.includes("Administrador") ?? false;
   const esSupervisor =
     user?.roles?.includes("Supervisor") ?? false;
   const esEncargadoMantenimiento =
     user?.roles?.includes("Encargado de mantenimiento") ?? false;
-
   const puedeVerDashboard = esAdministrador || esSupervisor;
   const puedeVerOperaciones = esAdministrador || esSupervisor;
   const puedeVerCombustible = esAdministrador || esSupervisor;
-
   const alertas = alertsData?.alertas ?? [];
   const totalVencidas = alertas.filter(
     (alerta) => alerta.tipoAlerta === "VENCIDO",
@@ -279,7 +239,6 @@ export default function AlertasMantenimientoPage() {
   const totalProximas = alertas.filter(
     (alerta) => alerta.tipoAlerta === "PROXIMO",
   ).length;
-
   if (checkingSession) {
     return (
       <main className={styles.loadingPage}>
@@ -287,7 +246,6 @@ export default function AlertasMantenimientoPage() {
       </main>
     );
   }
-
   return (
     <main className={styles.page}>
       <aside className={styles.sidebar}>
@@ -302,7 +260,6 @@ export default function AlertasMantenimientoPage() {
           />
           <span className={styles.brandName}>FULLTERRA</span>
         </div>
-
         <nav className={styles.navigation}>
           {puedeVerDashboard && (
             <Link href="/dashboard" className={styles.navItem}>
@@ -310,33 +267,28 @@ export default function AlertasMantenimientoPage() {
               Dashboard
             </Link>
           )}
-
           {esAdministrador && (
             <Link href="/unidades" className={styles.navItem}>
               <span className={styles.navIcon}>▣</span>
               Unidades
             </Link>
           )}
-
           {puedeVerOperaciones && (
             <Link href="/operaciones" className={styles.navItem}>
               <span className={styles.navIcon}>◉</span>
               Operaciones
             </Link>
           )}
-
           {puedeVerCombustible && (
             <Link href="/combustible" className={styles.navItem}>
               <span className={styles.navIcon}>◈</span>
               Combustible
             </Link>
           )}
-
           <Link href="/mantenimiento" className={styles.navItem}>
             <span className={styles.navIcon}>◇</span>
             Mantenimiento
           </Link>
-
           <Link
             href="/alertas-mantenimiento"
             className={`${styles.navItem} ${styles.navItemActive}`}
@@ -344,44 +296,43 @@ export default function AlertasMantenimientoPage() {
             <span className={styles.navIcon}>!</span>
             Alertas
           </Link>
-
           {!esEncargadoMantenimiento && (
             <>
               <Link href="/trazabilidad" className={styles.navItem}>
                 <span className={styles.navIcon}>≡</span>
                 Trazabilidad
               </Link>
-
               <Link href="/indicadores" className={styles.navItem}>
                 <span className={styles.navIcon}>◫</span>
                 Indicadores
               </Link>
             </>
           )}
+          {(esAdministrador || esSupervisor) && (
+            <Link href="/auditoria" className={styles.navItem}>
+              <span className={styles.navIcon}>☷</span>
+              Auditoría
+            </Link>
+          )}
         </nav>
-
         <div className={styles.sidebarFooter}>
           Sistema de control operacional
         </div>
       </aside>
-
       <section className={styles.content}>
         <header className={styles.topbar}>
           <div>
             <p className={styles.sectionLabel}>CONTROL OPERACIONAL</p>
             <h1>Alertas de mantenimiento</h1>
           </div>
-
           <div className={styles.userArea}>
             <div className={styles.userAvatar}>
               {user?.usuario?.charAt(0).toUpperCase() ?? "U"}
             </div>
-
             <div className={styles.userInfo}>
               <strong>{user?.usuario ?? "Usuario"}</strong>
               <span>{user?.roles?.join(", ") ?? "Sin rol"}</span>
             </div>
-
             <button
               type="button"
               className={styles.logoutButton}
@@ -391,7 +342,6 @@ export default function AlertasMantenimientoPage() {
             </button>
           </div>
         </header>
-
         <div className={styles.workspace}>
           <section className={styles.filterPanel}>
             <div className={styles.panelHeader}>
@@ -403,7 +353,6 @@ export default function AlertasMantenimientoPage() {
                 {alertsData?.totalAlertas ?? 0} alertas
               </span>
             </div>
-
             <form className={styles.form} onSubmit={consultarAlertas}>
               <div className={styles.field}>
                 <label htmlFor="reference-date">Fecha de referencia</label>
@@ -420,7 +369,6 @@ export default function AlertasMantenimientoPage() {
                   }
                 />
               </div>
-
               <div className={styles.field}>
                 <label htmlFor="anticipation-days">Días de anticipación</label>
                 <input
@@ -439,7 +387,6 @@ export default function AlertasMantenimientoPage() {
                   }
                 />
               </div>
-
               <div className={styles.formActions}>
                 <button
                   type="submit"
@@ -458,12 +405,10 @@ export default function AlertasMantenimientoPage() {
                 </button>
               </div>
             </form>
-
             {error && (
               <div className={styles.errorMessage}>{error}</div>
             )}
           </section>
-
           <section className={styles.intro}>
             <div className={styles.introText}>
               <p className={styles.introLabel}>MANTENIMIENTO PREVENTIVO</p>
@@ -473,7 +418,6 @@ export default function AlertasMantenimientoPage() {
                 a realizarse según el período de anticipación seleccionado.
               </p>
             </div>
-
             <div className={styles.summary}>
               <div>
                 <span>Total</span>
@@ -493,7 +437,6 @@ export default function AlertasMantenimientoPage() {
               </div>
             </div>
           </section>
-
           <section className={styles.listPanel}>
             <div className={styles.panelHeader}>
               <div>
@@ -507,7 +450,6 @@ export default function AlertasMantenimientoPage() {
                   : "—"}
               </span>
             </div>
-
             {loadingAlerts ? (
               <div className={styles.emptyState}>
                 Cargando alertas de mantenimiento...
