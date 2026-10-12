@@ -258,15 +258,15 @@ export default function DashboardPage() {
             Combustible
           </Link>
 
-          <button
-            type="button"
-            className={styles.navItem}
-          >
+          <Link
+            href="/mantenimiento"
+              className={styles.navItem}
+            >
             <span className={styles.navIcon}>
               ◇
             </span>
-            Mantenimiento
-          </button>
+              Mantenimiento
+          </Link>
 
           <button
             type="button"

@@ -575,8 +575,8 @@ export default function UnidadesPage() {
             Combustible
           </Link>
 
-          <button
-            type="button"
+          <Link
+            href="/mantenimiento"
             className={
               styles.navItem
             }
@@ -590,7 +590,7 @@ export default function UnidadesPage() {
             </span>
 
             Mantenimiento
-          </button>
+          </Link>
 
           <button
             type="button"

@@ -996,8 +996,8 @@ export default function OperacionesPage() {
           </Link>
             )}
 
-          <button
-            type="button"
+          <Link
+            href="/mantenimiento"
             className={
               styles.navItem
             }
@@ -1011,7 +1011,7 @@ export default function OperacionesPage() {
             </span>
 
             Mantenimiento
-          </button>
+          </Link>
 
           <button
             type="button"

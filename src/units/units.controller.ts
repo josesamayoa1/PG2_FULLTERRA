@@ -39,6 +39,7 @@ export class UnitsController {
     'Supervisor',
     'Operador',
     'Encargado de combustible',
+    'Encargado de mantenimiento',
   )
   obtenerTodos() {
     return this.unitsService.obtenerTodos();
@@ -50,6 +51,7 @@ export class UnitsController {
     'Supervisor',
     'Operador',
     'Encargado de combustible',
+    'Encargado de mantenimiento',
   )
   obtenerPorTipo(
     @Param('tipo') tipo: string,

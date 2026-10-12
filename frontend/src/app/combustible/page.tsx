@@ -689,8 +689,8 @@ export default function CombustiblePage() {
 
           {!esEncargadoCombustible && (
             <>
-              <button
-                type="button"
+              <Link
+                href="/mantenimiento"
                 className={
                   styles.navItem
                 }
@@ -704,7 +704,7 @@ export default function CombustiblePage() {
                 </span>
 
                 Mantenimiento
-              </button>
+              </Link>
 
               <button
                 type="button"
