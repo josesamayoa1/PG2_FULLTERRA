@@ -365,6 +365,12 @@ export default function MantenimientoPage() {
                     Auditoría
                 </Link>
             )}
+            {esAdministrador && (
+                <Link href="/administracion-accesos" className={styles.navItem}>
+                    <span className={styles.navIcon}>♙</span>
+                    Gestión de usuarios
+                </Link>
+            )}
         </nav>
         <div className={styles.sidebarFooter}>
           Sistema de control

@@ -61,7 +61,7 @@ export default function DashboardPage() {
       try {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL ??
-          "http\://localhost:3000";
+          "http://localhost:3000";
         const profileResponse = await fetch(
           `${apiUrl}/auth/profile`,
           {
@@ -252,6 +252,12 @@ export default function DashboardPage() {
             <Link href="/auditoria" className={styles.navItem}>
               <span className={styles.navIcon}>☷</span>
               Auditoría
+            </Link>
+          )}
+          {user?.roles?.includes("Administrador") && (
+            <Link href="/administracion-accesos" className={styles.navItem}>
+              <span className={styles.navIcon}>♙</span>
+              Gestión de usuarios
             </Link>
           )}
         </nav>

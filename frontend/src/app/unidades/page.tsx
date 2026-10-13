@@ -304,6 +304,12 @@ export default function UnidadesPage() {
               Auditoría
             </Link>
           )}
+            {user?.roles?.includes("Administrador") && (
+              <Link href="/administracion-accesos" className={styles.navItem}>
+                <span className={styles.navIcon}>♙</span>
+                Gestión de usuarios
+              </Link>
+            )}
         </nav>
         <div className={styles.sidebarFooter}>
           Sistema de control operacional

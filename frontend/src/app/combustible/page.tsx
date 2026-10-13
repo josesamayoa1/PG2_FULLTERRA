@@ -132,7 +132,7 @@ export default function CombustiblePage() {
   const apiUrl =
     process.env
       .NEXT_PUBLIC_API_URL ??
-    "http\://localhost:3000";
+    "http://localhost:3000";
   const cargarDatos =
     useCallback(
       async (token: string) => {
@@ -636,6 +636,12 @@ export default function CombustiblePage() {
             <Link href="/auditoria" className={styles.navItem}>
               <span className={styles.navIcon}>☷</span>
               Auditoría
+            </Link>
+          )}
+          {esAdministrador && (
+            <Link href="/administracion-accesos" className={styles.navItem}>
+              <span className={styles.navIcon}>♙</span>
+              Gestión de usuarios
             </Link>
           )}
         </nav>

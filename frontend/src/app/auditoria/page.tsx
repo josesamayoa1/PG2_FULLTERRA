@@ -1,10 +1,8 @@
 "use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./auditoria.module.css";
-
 type UserProfile = { id: number; usuario: string; roles?: string[] };
 type AuditEntry = {
   id: number;
@@ -18,7 +16,6 @@ type AuditEntry = {
 type ApiError = { message?: string | string[] };
 type Filters = { busqueda: string; modulo: string; accion: string; desde: string; hasta: string };
 const emptyFilters: Filters = { busqueda: "", modulo: "", accion: "", desde: "", hasta: "" };
-
 function getErrorMessage(data: ApiError, fallback: string) {
   return Array.isArray(data.message) ? data.message.join(", ") : data.message || fallback;
 }
@@ -41,7 +38,6 @@ function localDate(value: string) {
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
-
 export default function AuditoriaPage() {
   const [checkingSession, setCheckingSession] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -52,7 +48,6 @@ export default function AuditoriaPage() {
   const [page, setPage] = useState(1);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
   const pageSize = 15;
-
   const loadEntries = useCallback(async (token: string) => {
     setLoading(true);
     setError("");
@@ -77,7 +72,6 @@ export default function AuditoriaPage() {
       setLoading(false);
     }
   }, [apiUrl]);
-
   useEffect(() => {
     async function initialize() {
       const token = localStorage.getItem("fullterra_token");
@@ -110,7 +104,6 @@ export default function AuditoriaPage() {
     }
     void initialize();
   }, [apiUrl, loadEntries]);
-
   const modules = useMemo(() => [...new Set(entries.map((entry) => entry.modulo))].sort((a, b) => a.localeCompare(b, "es")), [entries]);
   const actions = useMemo(() => [...new Set(entries.map((entry) => entry.accion))].sort((a, b) => a.localeCompare(b, "es")), [entries]);
   const filtered = useMemo(() => entries.filter((entry) => {
@@ -133,9 +126,7 @@ export default function AuditoriaPage() {
   };
   const isAdmin = user?.roles?.includes("Administrador") ?? false;
   const isSupervisor = user?.roles?.includes("Supervisor") ?? false;
-
   if (checkingSession) return <main className={styles.loadingPage}>Cargando información...</main>;
-
   return (
     <main className={styles.page}>
       <aside className={styles.sidebar}>
@@ -153,6 +144,12 @@ export default function AuditoriaPage() {
           <Link href="/trazabilidad" className={styles.navItem}><span className={styles.navIcon}>≡</span>Trazabilidad</Link>
           <Link href="/indicadores" className={styles.navItem}><span className={styles.navIcon}>◫</span>Indicadores</Link>
           {(isAdmin || isSupervisor) && <Link href="/auditoria" className={`${styles.navItem} ${styles.navItemActive}`} aria-current="page"><span className={styles.navIcon}>☷</span>Auditoría</Link>}
+          {isAdmin && (
+            <Link href="/administracion-accesos" className={styles.navItem}>
+              <span className={styles.navIcon}>♙</span>
+              Gestión de usuarios
+            </Link>
+          )}
         </nav>
         <div className={styles.sidebarFooter}>Sistema de control operacional</div>
       </aside>
