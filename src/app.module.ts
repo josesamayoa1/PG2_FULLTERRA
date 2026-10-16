@@ -1,3 +1,4 @@
+
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -49,7 +50,7 @@ import { AuditLogModule } from './audit-log/audit-log.module';
             'DB_DATABASE',
           ),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
       }),
     }),
 
