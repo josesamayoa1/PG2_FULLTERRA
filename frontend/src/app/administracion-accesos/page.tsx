@@ -36,6 +36,7 @@ async function request<T>(path: string, token: string, options: RequestInit = {}
 
 export default function AdministracionAccesosPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const [checking, setChecking] = useState(true);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -128,12 +129,14 @@ export default function AdministracionAccesosPage() {
 
   return (
     <main className={styles.page}>
-      <aside className={styles.sidebar}>
+      {menuAbierto && <button type="button" className={styles.menuBackdrop} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)} />}
+      <aside id="access-sidebar" className={`${styles.sidebar} ${menuAbierto ? styles.sidebarOpen : ""}`}>
         <div className={styles.brand}>
           <Image src="/images/fullterra-logo.jpeg" alt="Logo de FULLTERRA" width={48} height={48} className={styles.logo} priority />
           <span className={styles.brandName}>FULLTERRA</span>
+          <button type="button" className={styles.menuClose} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)}>×</button>
         </div>
-        <nav className={styles.navigation}>
+        <nav className={styles.navigation} onClick={(event) => { if ((event.target as HTMLElement).closest("a")) setMenuAbierto(false); }}>
           <Link href="/dashboard" className={styles.navItem}><span className={styles.navIcon}>▦</span>Dashboard</Link>
           <Link href="/unidades" className={styles.navItem}><span className={styles.navIcon}>▣</span>Unidades</Link>
           <Link href="/operaciones" className={styles.navItem}><span className={styles.navIcon}>◉</span>Operaciones</Link>
@@ -149,7 +152,7 @@ export default function AdministracionAccesosPage() {
       </aside>
       <section className={styles.content}>
         <header className={styles.topbar}>
-          <div><p className={styles.sectionLabel}>CONTROL OPERACIONAL</p><h1>Administración de accesos</h1></div>
+          <div className={styles.headingArea}><button type="button" className={styles.menuToggle} aria-label="Abrir menú" aria-expanded={menuAbierto} aria-controls="access-sidebar" onClick={() => setMenuAbierto(true)}>☰</button><div><p className={styles.sectionLabel}>CONTROL OPERACIONAL</p><h1>Administración de accesos</h1></div></div>
           <div className={styles.userArea}>
             <div className={styles.userAvatar}>{profile.usuario.charAt(0).toUpperCase()}</div>
             <div className={styles.userInfo}><strong>{profile.usuario}</strong><span>{profile.roles?.join(", ")}</span></div>

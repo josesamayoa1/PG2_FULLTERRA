@@ -46,6 +46,7 @@ export default function AuditoriaPage() {
   const [error, setError] = useState("");
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [page, setPage] = useState(1);
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
   const pageSize = 15;
   const loadEntries = useCallback(async (token: string) => {
@@ -129,12 +130,14 @@ export default function AuditoriaPage() {
   if (checkingSession) return <main className={styles.loadingPage}>Cargando información...</main>;
   return (
     <main className={styles.page}>
-      <aside className={styles.sidebar}>
+      {menuAbierto && <button type="button" className={styles.menuBackdrop} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)} />}
+      <aside id="audit-sidebar" className={`${styles.sidebar} ${menuAbierto ? styles.sidebarOpen : ""}`}>
         <div className={styles.brand}>
           <Image src="/images/fullterra-logo.jpeg" alt="Logo de FULLTERRA" width={48} height={48} className={styles.logo} priority />
           <span className={styles.brandName}>FULLTERRA</span>
+          <button type="button" className={styles.menuClose} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)}>×</button>
         </div>
-        <nav className={styles.navigation}>
+        <nav className={styles.navigation} onClick={(event) => { if ((event.target as HTMLElement).closest("a")) setMenuAbierto(false); }}>
           <Link href="/dashboard" className={styles.navItem}><span className={styles.navIcon}>▦</span>Dashboard</Link>
           {isAdmin && <Link href="/unidades" className={styles.navItem}><span className={styles.navIcon}>▣</span>Unidades</Link>}
           <Link href="/operaciones" className={styles.navItem}><span className={styles.navIcon}>◉</span>Operaciones</Link>
@@ -155,7 +158,7 @@ export default function AuditoriaPage() {
       </aside>
       <section className={styles.content}>
         <header className={styles.topbar}>
-          <div><p className={styles.sectionLabel}>CONTROL OPERACIONAL</p><h1>Bitácora / Auditoría</h1></div>
+          <div className={styles.headingArea}><button type="button" className={styles.menuToggle} aria-label="Abrir menú" aria-expanded={menuAbierto} aria-controls="audit-sidebar" onClick={() => setMenuAbierto(true)}>☰</button><div><p className={styles.sectionLabel}>CONTROL OPERACIONAL</p><h1>Bitácora / Auditoría</h1></div></div>
           <div className={styles.userArea}>
             <div className={styles.userAvatar}>{user?.usuario?.charAt(0).toUpperCase() ?? "U"}</div>
             <div className={styles.userInfo}><strong>{user?.usuario ?? "Usuario"}</strong><span>{user?.roles?.join(", ") ?? "Sin rol"}</span></div>

@@ -177,6 +177,7 @@ function redirectExpiredSession() {
 }
 export default function IndicadoresPage() {
     const [checkingSession, setCheckingSession,] = useState(true);
+    const [menuAbierto, setMenuAbierto] = useState(false);
     const [user, setUser,] = useState<UserProfile | null>(null);
     const [viewMode, setViewMode,] = useState<ViewMode>("mensual");
     const [indicators, setIndicators,] = useState<IndicatorsResponse | null>(null);
@@ -633,14 +634,16 @@ export default function IndicadoresPage() {
       </main>);
     }
     return (<main className={styles.page}>
-      <aside className={styles.sidebar}>
+      {menuAbierto && <button type="button" className={styles.sidebarBackdrop} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)} />}
+      <aside id="indicadores-sidebar" className={`${styles.sidebar} ${menuAbierto ? styles.sidebarOpen : ""}`}>
         <div className={styles.brand}>
           <Image src="/images/fullterra-logo.jpeg" alt="Logo de FULLTERRA" width={48} height={48} className={styles.logo} priority/>
           <span className={styles.brandName}>
             FULLTERRA
           </span>
+          <button type="button" className={styles.closeMenuButton} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)}>×</button>
         </div>
-        <nav className={styles.navigation}>
+        <nav className={styles.navigation} onClick={(event) => { if ((event.target as HTMLElement).closest("a")) setMenuAbierto(false); }}> 
           {canViewManagement && (<Link href="/dashboard" className={styles.navItem}>
               <span className={styles.navIcon}>
                 ▦
@@ -706,13 +709,16 @@ export default function IndicadoresPage() {
       </aside>
       <section className={styles.content}>
         <header className={styles.topbar}>
-          <div>
+          <div className={styles.topbarTitle}>
+            <button type="button" className={styles.menuButton} aria-label="Abrir menú" aria-controls="indicadores-sidebar" aria-expanded={menuAbierto} onClick={() => setMenuAbierto(true)}>☰</button>
+            <div>
             <p className={styles.sectionLabel}>
               CONTROL OPERACIONAL
             </p>
             <h1>
               Indicadores
             </h1>
+            </div>
           </div>
           <div className={styles.userArea}>
             <div className={styles.userAvatar}>

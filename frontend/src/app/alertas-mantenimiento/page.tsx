@@ -70,6 +70,7 @@ function textoDias(alerta: MaintenanceAlert) {
 }
 export default function AlertasMantenimientoPage() {
   const [checkingSession, setCheckingSession] = useState(true);
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const [loadingAlerts, setLoadingAlerts] = useState(true);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [alertsData, setAlertsData] = useState<AlertsResponse | null>(null);
@@ -248,7 +249,18 @@ export default function AlertasMantenimientoPage() {
   }
   return (
     <main className={styles.page}>
-      <aside className={styles.sidebar}>
+      {menuAbierto && (
+        <button
+          type="button"
+          className={styles.menuBackdrop}
+          aria-label="Cerrar menú de navegación"
+          onClick={() => setMenuAbierto(false)}
+        />
+      )}
+      <aside
+        id="menu-principal-alertas"
+        className={`${styles.sidebar} ${menuAbierto ? styles.sidebarOpen : ""}`}
+      >
         <div className={styles.brand}>
           <Image
             src="/images/fullterra-logo.jpeg"
@@ -259,8 +271,16 @@ export default function AlertasMantenimientoPage() {
             priority
           />
           <span className={styles.brandName}>FULLTERRA</span>
+          <button
+            type="button"
+            className={styles.closeMenuButton}
+            aria-label="Cerrar menú"
+            onClick={() => setMenuAbierto(false)}
+          >
+            ×
+          </button>
         </div>
-        <nav className={styles.navigation}>
+        <nav className={styles.navigation} onClick={() => setMenuAbierto(false)}>
           {puedeVerDashboard && (
             <Link href="/dashboard" className={styles.navItem}>
               <span className={styles.navIcon}>▦</span>
@@ -327,9 +347,21 @@ export default function AlertasMantenimientoPage() {
       </aside>
       <section className={styles.content}>
         <header className={styles.topbar}>
-          <div>
+          <div className={styles.topbarHeading}>
+            <button
+              type="button"
+              className={styles.menuButton}
+              aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
+              aria-controls="menu-principal-alertas"
+              aria-expanded={menuAbierto}
+              onClick={() => setMenuAbierto((actual) => !actual)}
+            >
+              <span aria-hidden="true">{menuAbierto ? "×" : "☰"}</span>
+            </button>
+            <div>
             <p className={styles.sectionLabel}>CONTROL OPERACIONAL</p>
             <h1>Alertas de mantenimiento</h1>
+            </div>
           </div>
           <div className={styles.userArea}>
             <div className={styles.userAvatar}>

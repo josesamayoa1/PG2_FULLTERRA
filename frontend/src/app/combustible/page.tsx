@@ -101,6 +101,7 @@ export default function CombustiblePage() {
     checkingSession,
     setCheckingSession,
   ] = useState(true);
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const [user, setUser] =
     useState<UserProfile | null>(
       null,
@@ -484,8 +485,12 @@ export default function CombustiblePage() {
   }
   return (
     <main className={styles.page}>
+      {menuAbierto && (
+        <button type="button" className={styles.menuBackdrop} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)} />
+      )}
       <aside
-        className={styles.sidebar}
+        className={`${styles.sidebar} ${menuAbierto ? styles.sidebarOpen : ""}`}
+        id="menu-principal-combustible"
       >
         <div
           className={styles.brand}
@@ -507,11 +512,13 @@ export default function CombustiblePage() {
           >
             FULLTERRA
           </span>
+          <button type="button" className={styles.menuClose} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)}>×</button>
         </div>
         <nav
-          className={
-            styles.navigation
-          }
+          className={styles.navigation}
+          onClick={(event) => {
+            if ((event.target as HTMLElement).closest("a")) setMenuAbierto(false);
+          }}
         >
           {puedeVerDashboard && (
             <Link
@@ -660,7 +667,8 @@ export default function CombustiblePage() {
         <header
           className={styles.topbar}
         >
-          <div>
+          <button type="button" className={styles.menuButton} aria-label="Abrir menú" aria-controls="menu-principal-combustible" aria-expanded={menuAbierto} onClick={() => setMenuAbierto(true)}>☰</button>
+          <div className={styles.topbarTitle}>
             <p
               className={
                 styles.sectionLabel

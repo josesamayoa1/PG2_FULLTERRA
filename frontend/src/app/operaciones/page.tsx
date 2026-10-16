@@ -111,6 +111,7 @@ function redirigirSesionExpirada() {
 }
 export default function OperacionesPage() {
     const [checkingSession, setCheckingSession,] = useState(true);
+    const [menuAbierto, setMenuAbierto] = useState(false);
     const [user, setUser] = useState<UserProfile | null>(null);
     const [operationMode, setOperationMode,] = useState<OperationMode>("VIAJE");
     const [units, setUnits] = useState<Unit[]>([]);
@@ -441,14 +442,16 @@ export default function OperacionesPage() {
       </main>);
     }
     return (<main className={styles.page}>
-      <aside className={styles.sidebar}>
+      {menuAbierto && <button type="button" className={styles.menuBackdrop} aria-label="Cerrar menú de navegación" onClick={() => setMenuAbierto(false)} />}
+      <aside id="operaciones-navigation" className={`${styles.sidebar} ${menuAbierto ? styles.sidebarOpen : ""}`}>
+        <button type="button" className={styles.menuClose} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)}>×</button>
         <div className={styles.brand}>
           <Image src="/images/fullterra-logo.jpeg" alt="Logo de FULLTERRA" width={48} height={48} className={styles.logo} priority/>
           <span className={styles.brandName}>
             FULLTERRA
           </span>
         </div>
-        <nav className={styles.navigation}>
+        <nav className={styles.navigation} onClick={() => setMenuAbierto(false)}>
           {puedeVerDashboard && (<Link href="/dashboard" className={styles.navItem}>
               <span className={styles.navIcon}>
                 ▦
@@ -514,13 +517,16 @@ export default function OperacionesPage() {
       </aside>
       <section className={styles.content}>
         <header className={styles.topbar}>
-          <div>
+          <div className={styles.topbarTitle}>
+            <button type="button" className={styles.menuToggle} aria-label="Abrir menú de navegación" aria-expanded={menuAbierto} aria-controls="operaciones-navigation" onClick={() => setMenuAbierto(true)}>☰</button>
+            <div>
             <p className={styles.sectionLabel}>
               CONTROL OPERACIONAL
             </p>
             <h1>
               Operaciones
             </h1>
+            </div>
           </div>
           <div className={styles.userArea}>
             <div className={styles.userAvatar}>

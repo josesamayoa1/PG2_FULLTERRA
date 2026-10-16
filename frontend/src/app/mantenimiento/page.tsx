@@ -76,6 +76,7 @@ export default function MantenimientoPage() {
     const [maintenanceRecords, setMaintenanceRecords,] = useState<MaintenanceRecord[]>([]);
     const [loadingData, setLoadingData,] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [menuAbierto, setMenuAbierto] = useState(false);
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
     const [form, setForm] = useState({
@@ -306,14 +307,16 @@ export default function MantenimientoPage() {
       </main>);
     }
     return (<main className={styles.page}>
-      <aside className={styles.sidebar}>
+      {menuAbierto && <button type="button" className={styles.menuBackdrop} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)} />}
+      <aside id="menu-mantenimiento" className={`${styles.sidebar} ${menuAbierto ? styles.sidebarOpen : ""}`}>
         <div className={styles.brand}>
           <Image src="/images/fullterra-logo.jpeg" alt="Logo de FULLTERRA" width={48} height={48} className={styles.logo} priority/>
           <span className={styles.brandName}>
             FULLTERRA
           </span>
+          <button type="button" className={styles.closeMenuButton} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)}>✕</button>
         </div>
-        <nav className={styles.navigation}>
+        <nav className={styles.navigation} onClick={() => setMenuAbierto(false)}>
           {puedeVerDashboard && (<Link href="/dashboard" className={styles.navItem}>
               <span className={styles.navIcon}>
                 ▦
@@ -379,13 +382,16 @@ export default function MantenimientoPage() {
       </aside>
       <section className={styles.content}>
         <header className={styles.topbar}>
-          <div>
+          <div className={styles.topbarTitle}>
+            <button type="button" className={styles.menuButton} aria-label="Abrir menú" aria-expanded={menuAbierto} aria-controls="menu-mantenimiento" onClick={() => setMenuAbierto(true)}>☰</button>
+            <div>
             <p className={styles.sectionLabel}>
               CONTROL OPERACIONAL
             </p>
             <h1>
               Mantenimiento
             </h1>
+            </div>
           </div>
           <div className={styles.userArea}>
             <div className={styles.userAvatar}>

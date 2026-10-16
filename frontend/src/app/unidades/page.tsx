@@ -37,6 +37,7 @@ function redirigirSesionExpirada() {
 }
 export default function UnidadesPage() {
     const [checkingSession, setCheckingSession,] = useState(true);
+    const [menuAbierto, setMenuAbierto] = useState(false);
     const [user, setUser] = useState<UserProfile | null>(null);
     const [units, setUnits] = useState<Unit[]>([]);
     const [loadingUnits, setLoadingUnits,] = useState(true);
@@ -244,14 +245,17 @@ export default function UnidadesPage() {
       </main>);
     }
     return (<main className={styles.page}>
-      <aside className={styles.sidebar}>
+      {menuAbierto && <button type="button" className={styles.menuBackdrop} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)} />}
+      <aside id="menu-principal-unidades" className={`${styles.sidebar} ${menuAbierto ? styles.sidebarOpen : ""}`}>
+
         <div className={styles.brand}>
           <Image src="/images/fullterra-logo.jpeg" alt="Logo de FULLTERRA" width={54} height={54} className={styles.logo} priority/>
           <span className={styles.brandName}>
             FULLTERRA
           </span>
+          <button type="button" className={styles.closeMenuButton} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)}>×</button>
         </div>
-        <nav className={styles.navigation}>
+        <nav className={styles.navigation} onClick={() => setMenuAbierto(false)}>
           <Link href="/dashboard" className={styles.navItem}>
             <span className={styles.navIcon}>
               ▦
@@ -317,13 +321,16 @@ export default function UnidadesPage() {
       </aside>
       <section className={styles.content}>
         <header className={styles.topbar}>
-          <div>
+          <div className={styles.topbarHeading}>
+            <button type="button" className={styles.menuButton} aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"} aria-controls="menu-principal-unidades" aria-expanded={menuAbierto} onClick={() => setMenuAbierto((actual) => !actual)}>☰</button>
+            <div>
             <p className={styles.sectionLabel}>
               ADMINISTRACIÓN
             </p>
             <h1>
               Unidades
             </h1>
+            </div>
           </div>
           <div className={styles.userArea}>
             <div className={styles.userAvatar}>

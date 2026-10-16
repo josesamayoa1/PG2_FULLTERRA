@@ -46,6 +46,7 @@ type DashboardData = {
 };
 export default function DashboardPage() {
   const [checkingSession, setCheckingSession] = useState(true);
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [dashboardData, setDashboardData] =
     useState<DashboardData | null>(null);
@@ -165,7 +166,11 @@ export default function DashboardPage() {
   }
   return (
     <main className={styles.page}>
-      <aside className={styles.sidebar}>
+      {menuAbierto && (
+        <button type="button" className={styles.menuBackdrop} aria-label="Cerrar menú de navegación" onClick={() => setMenuAbierto(false)} />
+      )}
+      <aside id="menu-principal-dashboard" className={`${styles.sidebar} ${menuAbierto ? styles.sidebarOpen : ""}`}>
+
         <div className={styles.brand}>
           <Image
             src="/images/fullterra-logo.jpeg"
@@ -178,8 +183,9 @@ export default function DashboardPage() {
           <span className={styles.brandName}>
             FULLTERRA
           </span>
+          <button type="button" className={styles.closeMenuButton} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)}>×</button>
         </div>
-        <nav className={styles.navigation}>
+        <nav className={styles.navigation} onClick={() => setMenuAbierto(false)}>
           <button
             type="button"
             className={`${styles.navItem} ${styles.navItemActive}`}
@@ -267,11 +273,16 @@ export default function DashboardPage() {
       </aside>
       <section className={styles.content}>
         <header className={styles.topbar}>
-          <div>
+          <div className={styles.topbarHeading}>
+            <button type="button" className={styles.menuButton} aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"} aria-controls="menu-principal-dashboard" aria-expanded={menuAbierto} onClick={() => setMenuAbierto((actual) => !actual)}>
+              <span aria-hidden="true">{menuAbierto ? "×" : "☰"}</span>
+            </button>
+            <div>
             <p className={styles.sectionLabel}>
               PANEL DE CONTROL
             </p>
             <h1>Dashboard</h1>
+            </div>
           </div>
           <div className={styles.userArea}>
             <div className={styles.userAvatar}>
@@ -460,17 +471,7 @@ export default function DashboardPage() {
                   unidades.map((registro) => (
                     <div
                       key={registro.unidad.id}
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns:
-                          "1.4fr repeat(5, 1fr)",
-                        gap: "12px",
-                        alignItems: "center",
-                        padding: "14px 16px",
-                        border: "1px solid #e6e6e6",
-                        borderRadius: "9px",
-                        background: "#fafafa",
-                      }}
+                      className={styles.unitRow}
                     >
                       <div>
                         <strong

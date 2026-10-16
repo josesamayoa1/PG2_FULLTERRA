@@ -89,6 +89,7 @@ function redirigirSesionExpirada() {
 }
 export default function TrazabilidadPage() {
     const [checkingSession, setCheckingSession,] = useState(true);
+    const [menuAbierto, setMenuAbierto] = useState(false);
     const [user, setUser] = useState<UserProfile | null>(null);
     const [units, setUnits] = useState<Unit[]>([]);
     const [employees, setEmployees,] = useState<Employee[]>([]);
@@ -355,14 +356,16 @@ export default function TrazabilidadPage() {
       </main>);
     }
     return (<main className={styles.page}>
-      <aside className={styles.sidebar}>
+      {menuAbierto && <button type="button" className={styles.sidebarBackdrop} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)} />}
+      <aside className={`${styles.sidebar} ${menuAbierto ? styles.sidebarOpen : ""}`}>
+        <button type="button" className={styles.sidebarClose} aria-label="Cerrar menú" onClick={() => setMenuAbierto(false)}>×</button>
         <div className={styles.brand}>
           <Image src="/images/fullterra-logo.jpeg" alt="Logo de FULLTERRA" width={48} height={48} className={styles.logo} priority/>
           <span className={styles.brandName}>
             FULLTERRA
           </span>
         </div>
-        <nav className={styles.navigation}>
+        <nav className={styles.navigation} onClick={() => setMenuAbierto(false)}>
           {puedeVerGestion && (<Link href="/dashboard" className={styles.navItem}>
                 <span className={styles.navIcon}>
                 ▦
@@ -426,13 +429,16 @@ export default function TrazabilidadPage() {
       </aside>
       <section className={styles.content}>
         <header className={styles.topbar}>
-          <div>
+          <div className={styles.topbarTitle}>
+            <button type="button" className={styles.menuButton} aria-label="Abrir menú" aria-expanded={menuAbierto} onClick={() => setMenuAbierto(true)}>☰</button>
+            <div>
             <p className={styles.sectionLabel}>
               CONTROL OPERACIONAL
             </p>
             <h1>
               Trazabilidad
             </h1>
+            </div>
           </div>
           <div className={styles.userArea}>
             <div className={styles.userAvatar}>
