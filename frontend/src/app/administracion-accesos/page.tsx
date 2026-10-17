@@ -9,7 +9,8 @@ type Profile = { id: number; usuario: string; roles?: string[] };
 type Role = { id: number; nombre: string; descripcion?: string | null; activo: boolean };
 type Account = { id: number; usuario: string; activo: boolean; roles: Role[] };
 type ApiError = { message?: string | string[] };
-type Tab = "usuarios" | "roles";
+type Employee = { id: number; nombres: string; puesto: string; activo: boolean; usuario: { id: number; usuario: string } };
+type Tab = "usuarios" | "roles" | "empleados";
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
 
 function messageOf(data: ApiError, fallback: string) {
@@ -43,6 +44,11 @@ export default function AdministracionAccesosPage() {
   const [tab, setTab] = useState<Tab>("usuarios");
   const [users, setUsers] = useState<Account[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [newEmployee, setNewEmployee] = useState({ nombres: "", puesto: "", usuarioId: "" });
+  const [editingEmployee, setEditingEmployee] = useState<number | null>(null);
+  const [employeeName, setEmployeeName] = useState("");
+  const [employeePosition, setEmployeePosition] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [search, setSearch] = useState("");
@@ -59,11 +65,12 @@ export default function AdministracionAccesosPage() {
   const loadData = useCallback(async (token: string) => {
     setLoading(true);
     try {
-      const [accounts, availableRoles] = await Promise.all([
-        request<Account[]>("/users", token), request<Role[]>("/roles", token),
+      const [accounts, availableRoles, availableEmployees] = await Promise.all([
+        request<Account[]>("/users", token), request<Role[]>("/roles", token), request<Employee[]>("/employees", token),
       ]);
       setUsers(accounts);
       setRoles(availableRoles);
+      setEmployees(availableEmployees);
     } finally { setLoading(false); }
   }, []);
 
@@ -117,6 +124,18 @@ export default function AdministracionAccesosPage() {
     setRoleDescription(role.descripcion ?? "");
     setError(""); setNotice("");
   }
+  function editEmployee(employee: Employee) {
+    setEditingEmployee(employee.id);
+    setEmployeeName(employee.nombres);
+    setEmployeePosition(employee.puesto);
+    setError(""); setNotice("");
+  }
+
+  const availableEmployeeUsers = users.filter((user) => user.activo && !employees.some((employee) => employee.usuario.id === user.id));
+  const filteredEmployees = employees.filter((employee) =>
+    `${employee.nombres} ${employee.puesto} ${employee.usuario.usuario}`.toLocaleLowerCase("es").includes(search.toLocaleLowerCase("es")),
+  );
+
   const filteredUsers = users.filter((user) =>
     `${user.usuario} ${user.roles.map((role) => role.nombre).join(" ")}`.toLocaleLowerCase("es").includes(search.toLocaleLowerCase("es")),
   );
@@ -162,12 +181,13 @@ export default function AdministracionAccesosPage() {
         <div className={styles.workspace}>
           <section className={styles.intro}>
             <p className={styles.panelLabel}>SEGURIDAD Y PERMISOS</p>
-            <h2>Gestión de usuarios y roles</h2>
-            <p>Administra las cuentas, los permisos y el acceso al sistema.</p>
+            <h2>Gestión de usuarios, roles y empleados</h2>
+            <p>Administra las cuentas, los permisos, el personal y el acceso al sistema.</p>
           </section>
           <div className={styles.tabs} role="tablist" aria-label="Secciones de administración">
             <button type="button" role="tab" aria-selected={tab === "usuarios"} className={tab === "usuarios" ? styles.tabActive : styles.tab} onClick={() => { setTab("usuarios"); setSearch(""); setError(""); setNotice(""); }}>Usuarios ({users.length})</button>
             <button type="button" role="tab" aria-selected={tab === "roles"} className={tab === "roles" ? styles.tabActive : styles.tab} onClick={() => { setTab("roles"); setSearch(""); setError(""); setNotice(""); }}>Roles ({roles.length})</button>
+            <button type="button" role="tab" aria-selected={tab === "empleados"} className={tab === "empleados" ? styles.tabActive : styles.tab} onClick={() => { setTab("empleados"); setSearch(""); setError(""); setNotice(""); }}>Empleados ({employees.length})</button>
           </div>
           {error && <div className={styles.errorMessage} role="alert">{error}</div>}
           {notice && <div className={styles.successMessage} role="status">{notice}</div>}
@@ -217,7 +237,7 @@ export default function AdministracionAccesosPage() {
               {editingUser === profile.id && <p className={styles.hint}>Por seguridad, no puedes modificar tus propios roles.</p>}
               </div>
             </section>}
-          </> : <>
+          </> : tab === "roles" ? <>
             <section className={styles.panel}>
               <div className={styles.panelHeader}><div><p className={styles.panelLabel}>NUEVO ROL</p><h3>Crear rol</h3></div></div>
               <form className={styles.form} onSubmit={async (event) => {
@@ -251,6 +271,55 @@ export default function AdministracionAccesosPage() {
               }}>
                 <label className={styles.field}>Nombre<input required disabled={roles.some((r) => r.id === editingRole && r.nombre === "Administrador")} value={roleName} onChange={(event) => setRoleName(event.target.value)} /></label>
                 <label className={styles.field}>Descripción<input value={roleDescription} onChange={(event) => setRoleDescription(event.target.value)} /></label>
+                <button type="submit" className={styles.primaryButton} disabled={busy}>Guardar cambios</button>
+              </form>
+            </section>}
+          </> : <>
+            <section className={styles.panel}>
+              <div className={styles.panelHeader}><div><p className={styles.panelLabel}>NUEVO EMPLEADO</p><h3>Registrar empleado</h3></div></div>
+              <form className={styles.form} onSubmit={async (event) => {
+                event.preventDefault();
+                const ok = await run((token) => request("/employees", token, {
+                  method: "POST",
+                  body: JSON.stringify({ nombres: newEmployee.nombres.trim(), puesto: newEmployee.puesto.trim(), usuarioId: Number(newEmployee.usuarioId) }),
+                }), "Empleado registrado correctamente.");
+                if (ok) setNewEmployee({ nombres: "", puesto: "", usuarioId: "" });
+              }}>
+                <label className={styles.field}>Nombre completo<input required value={newEmployee.nombres} onChange={(event) => setNewEmployee({ ...newEmployee, nombres: event.target.value })} placeholder="Ej. Juan Pérez" /></label>
+                <label className={styles.field}>Puesto<input required value={newEmployee.puesto} onChange={(event) => setNewEmployee({ ...newEmployee, puesto: event.target.value })} placeholder="Ej. Piloto" /></label>
+                <label className={styles.field}>Usuario asociado
+                  <select required value={newEmployee.usuarioId} onChange={(event) => setNewEmployee({ ...newEmployee, usuarioId: event.target.value })}>
+                    <option value="">Seleccionar usuario</option>
+                    {availableEmployeeUsers.map((user) => <option key={user.id} value={user.id}>{user.usuario} (#{user.id})</option>)}
+                  </select>
+                </label>
+                <button className={styles.primaryButton} disabled={busy || availableEmployeeUsers.length === 0} type="submit">Registrar empleado</button>
+              </form>
+              <p className={styles.hint}>Cada empleado debe estar vinculado a una cuenta de usuario. Si aún no existe, créala primero en la pestaña Usuarios y asígnale el rol correspondiente.</p>
+              {availableEmployeeUsers.length === 0 && <p className={styles.hint}>No hay usuarios activos disponibles para vincular. Crea una cuenta nueva en Usuarios.</p>}
+            </section>
+            <section className={styles.panel}>
+              <div className={styles.panelHeader}><div><p className={styles.panelLabel}>PERSONAL REGISTRADO</p><h3>Empleados del sistema</h3></div><button type="button" className={styles.secondaryButton} disabled={busy || loading} onClick={() => { const token = localStorage.getItem("fullterra_token"); if (token) void loadData(token).catch((e) => setError(String(e))); }}>Actualizar</button></div>
+              <label className={styles.field}>Buscar empleado<input placeholder="Nombre, puesto o usuario" value={search} onChange={(event) => setSearch(event.target.value)} /></label>
+              {loading ? <p className={styles.emptyState}>Cargando empleados...</p> : filteredEmployees.length === 0 ? <p className={styles.emptyState}>No se encontraron empleados.</p> : <div className={styles.tableWrapper}><table className={styles.table}><thead><tr><th>Empleado</th><th>Puesto</th><th>Usuario</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+                {filteredEmployees.map((employee) => <tr key={employee.id}><td><strong>{employee.nombres}</strong><small>#{employee.id}</small></td><td>{employee.puesto}</td><td>{employee.usuario.usuario}</td><td><span className={employee.activo ? styles.activeBadge : styles.inactiveBadge}>{employee.activo ? "Activo" : "Inactivo"}</span></td><td><div className={styles.actions}>
+                  <button type="button" className={styles.secondaryButton} disabled={busy} onClick={() => editEmployee(employee)}>Editar</button>
+                  <button type="button" className={styles.secondaryButton} disabled={busy} onClick={async () => {
+                    if (!window.confirm(`¿${employee.activo ? "Desactivar" : "Activar"} al empleado ${employee.nombres}?`)) return;
+                    await run((token) => request(`/employees/${employee.id}/estado`, token, { method: "PATCH", body: JSON.stringify({ activo: !employee.activo }) }), "Estado del empleado actualizado.");
+                  }}>{employee.activo ? "Desactivar" : "Activar"}</button>
+                </div></td></tr>)}
+              </tbody></table></div>}
+            </section>
+            {editingEmployee !== null && <section className={styles.panel}>
+              <div className={styles.panelHeader}><div><p className={styles.panelLabel}>EDITAR EMPLEADO</p><h3>{employees.find((employee) => employee.id === editingEmployee)?.nombres}</h3></div><button type="button" className={styles.secondaryButton} onClick={() => setEditingEmployee(null)}>Cerrar</button></div>
+              <form className={styles.form} onSubmit={async (event) => {
+                event.preventDefault();
+                const ok = await run((token) => request(`/employees/${editingEmployee}`, token, { method: "PATCH", body: JSON.stringify({ nombres: employeeName.trim(), puesto: employeePosition.trim() }) }), "Empleado actualizado correctamente.");
+                if (ok) setEditingEmployee(null);
+              }}>
+                <label className={styles.field}>Nombre completo<input required value={employeeName} onChange={(event) => setEmployeeName(event.target.value)} /></label>
+                <label className={styles.field}>Puesto<input required value={employeePosition} onChange={(event) => setEmployeePosition(event.target.value)} /></label>
                 <button type="submit" className={styles.primaryButton} disabled={busy}>Guardar cambios</button>
               </form>
             </section>}
